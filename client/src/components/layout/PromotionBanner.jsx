@@ -1,9 +1,177 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles, Clock, Copy, Check, X, Zap, Gift } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 
+/* ─────────────────────────────────────────────
+   CopyCode Button
+───────────────────────────────────────────── */
+const CopyCode = ({ code }) => {
+  const [copied, setCopied] = useState(false);
+  const { theme } = useTheme();
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+    } catch (_) { /* fallback */ }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <button
+      onClick={handleCopy}
+      title="Copy promo code"
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '6px',
+        padding: '3px 10px 3px 8px',
+        borderRadius: '6px',
+        border: copied
+          ? '1px solid rgba(52,211,153,0.5)'
+          : theme === 'dark'
+            ? '1px dashed rgba(168,85,247,0.5)'
+            : '1px dashed rgba(99,60,180,0.45)',
+        background: copied
+          ? 'rgba(52,211,153,0.12)'
+          : theme === 'dark'
+            ? 'rgba(168,85,247,0.10)'
+            : 'rgba(99,60,180,0.08)',
+        color: copied
+          ? '#34d399'
+          : theme === 'dark' ? '#c084fc' : '#7c3aed',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+        fontFamily: 'monospace',
+        fontSize: '11px',
+        fontWeight: 700,
+        letterSpacing: '0.08em',
+        whiteSpace: 'nowrap',
+        flexShrink: 0,
+      }}
+    >
+      {copied ? <Check size={11} /> : <Copy size={11} />}
+      <span>{code}</span>
+      <span style={{
+        fontSize: '9px',
+        fontFamily: 'inherit',
+        fontWeight: 800,
+        letterSpacing: '0.05em',
+        opacity: 0.7,
+        textTransform: 'uppercase',
+      }}>
+        {copied ? 'Copied!' : 'Copy'}
+      </span>
+    </button>
+  );
+};
+
+/* ─────────────────────────────────────────────
+   Single promo item (repeated in ticker)
+───────────────────────────────────────────── */
+const PromoItem = ({ promo, discountText, remainingTitle, theme }) => (
+  <div style={{
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '18px',
+    padding: '0 40px',
+    whiteSpace: 'nowrap',
+    flexShrink: 0,
+  }}>
+    {/* Divider dot */}
+    <span style={{
+      width: 5, height: 5,
+      borderRadius: '50%',
+      background: 'linear-gradient(135deg, #3b82f6, #a855f7)',
+      flexShrink: 0,
+      opacity: 0.6,
+    }} />
+
+    {/* PROMO badge */}
+    <span style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '4px',
+      padding: '2px 9px',
+      borderRadius: '100px',
+      fontSize: '9px',
+      fontWeight: 800,
+      letterSpacing: '0.12em',
+      textTransform: 'uppercase',
+      border: theme === 'dark'
+        ? '1px solid rgba(168,85,247,0.3)'
+        : '1px solid rgba(99,60,180,0.25)',
+      background: theme === 'dark'
+        ? 'rgba(168,85,247,0.12)'
+        : 'rgba(99,60,180,0.09)',
+      color: theme === 'dark' ? '#c084fc' : '#7c3aed',
+      flexShrink: 0,
+    }}>
+      <Sparkles size={9} style={{ animation: 'pulse 2s infinite' }} />
+      Promo
+    </span>
+
+    {/* Discount % */}
+    {discountText && (
+      <span style={{
+        fontSize: '15px',
+        fontWeight: 900,
+        letterSpacing: '-0.02em',
+        background: 'linear-gradient(90deg, #3b82f6 0%, #a855f7 50%, #ec4899 100%)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        backgroundClip: 'text',
+        flexShrink: 0,
+      }}>
+        {discountText}
+      </span>
+    )}
+
+    {/* Title */}
+    <span style={{
+      fontSize: '13px',
+      fontWeight: 600,
+      letterSpacing: '-0.01em',
+      color: theme === 'dark' ? 'rgba(255,255,255,0.88)' : 'rgba(15,10,30,0.85)',
+      flexShrink: 0,
+    }}>
+      {remainingTitle}
+    </span>
+
+    {/* Copy code */}
+    {promo.code && <CopyCode code={promo.code} />}
+
+    {/* Expiry */}
+    {promo.expires_at && (
+      <span style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '5px',
+        fontSize: '11px',
+        fontWeight: 500,
+        padding: '2px 8px',
+        borderRadius: '5px',
+        background: theme === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+        border: theme === 'dark' ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)',
+        color: theme === 'dark' ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.45)',
+        flexShrink: 0,
+      }}>
+        <Clock size={10} />
+        Expires {new Date(promo.expires_at).toLocaleDateString()}
+      </span>
+    )}
+  </div>
+);
+
+/* ─────────────────────────────────────────────
+   Main Banner
+───────────────────────────────────────────── */
 const PromotionBanner = () => {
   const [promo, setPromo] = useState(null);
   const [dismissed, setDismissed] = useState(false);
+  const { theme } = useTheme();
 
   useEffect(() => {
     const fetchPromo = () => {
@@ -11,74 +179,179 @@ const PromotionBanner = () => {
         .then(res => setPromo(res.data))
         .catch(() => setPromo(null));
     };
-
     fetchPromo();
-    // Poll every 60 seconds so the banner auto-updates when admin changes the active promo
-    const interval = setInterval(fetchPromo, 60_000);
+    const interval = setInterval(fetchPromo, 5_000);
     return () => clearInterval(interval);
   }, []);
 
   if (!promo || dismissed) return null;
 
-  const isExpiringSoon = promo.expires_at
-    ? (new Date(promo.expires_at) - Date.now()) < 24 * 60 * 60 * 1000
-    : false;
+  const discountMatch = promo.title.match(/(\d+%\s*OFF)/i);
+  const discountText  = discountMatch ? discountMatch[1] : null;
+  const remainingTitle = discountText
+    ? promo.title.replace(discountMatch[0], '').trim()
+    : promo.title;
 
-  const PromoContent = () => (
-    <div className="promo-item">
-      <span className="promo-tag">🎉 Promo</span>
-      <span className="promo-title">{promo.title}</span>
-      {promo.code && <CopyCode code={promo.code} />}
-      {promo.expires_at && (
-        <span className="promo-expiry">
-          Expires {new Date(promo.expires_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-        </span>
-      )}
-    </div>
-  );
+  /* ── theme-aware tokens ── */
+  const isDark = theme === 'dark';
+
+  const bannerBg = isDark
+    ? 'rgba(10, 8, 20, 0.72)'
+    : 'rgba(255, 255, 255, 0.82)';
+
+  const topLineGradient = 'linear-gradient(90deg, transparent 0%, #3b82f6 25%, #a855f7 50%, #ec4899 75%, transparent 100%)';
 
   return (
-    <div className={`promo-banner ${isExpiringSoon ? 'promo-urgent' : ''}`} role="banner" aria-label="Promotion">
-      <div className="promo-ticker">
-        <div className="promo-ticker-track">
-          {/* Duplicate content for seamless scrolling */}
-          <PromoContent />
-          <PromoContent />
-          <PromoContent />
-          <PromoContent />
-        </div>
-      </div>
-      <button
-        className="promo-dismiss"
-        onClick={() => setDismissed(true)}
-        aria-label="Dismiss promotion"
+    <AnimatePresence>
+      <motion.div
+        key="promo-banner"
+        initial={{ height: 0, opacity: 0 }}
+        animate={{ height: 'auto', opacity: 1 }}
+        exit={{ height: 0, opacity: 0 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+        style={{
+          position: 'relative',
+          zIndex: 100,
+          overflow: 'hidden',
+          background: bannerBg,
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          borderBottom: isDark
+            ? '1px solid rgba(168,85,247,0.15)'
+            : '1px solid rgba(99,60,180,0.12)',
+        }}
       >
-        ✕
-      </button>
-    </div>
-  );
-};
+        {/* ── Top gradient beam ── */}
+        <div style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0,
+          height: '1.5px',
+          background: topLineGradient,
+          opacity: isDark ? 0.7 : 0.55,
+          zIndex: 2,
+        }} />
 
-const CopyCode = ({ code }) => {
-  const [copied, setCopied] = useState(false);
+        {/* ── Subtle glow orbs (decorative) ── */}
+        <div style={{
+          position: 'absolute',
+          left: '20%', top: '50%',
+          transform: 'translateY(-50%)',
+          width: 120, height: 30,
+          background: 'rgba(59,130,246,0.15)',
+          filter: 'blur(20px)',
+          borderRadius: '50%',
+          pointerEvents: 'none',
+        }} />
+        <div style={{
+          position: 'absolute',
+          right: '25%', top: '50%',
+          transform: 'translateY(-50%)',
+          width: 100, height: 25,
+          background: 'rgba(168,85,247,0.15)',
+          filter: 'blur(18px)',
+          borderRadius: '50%',
+          pointerEvents: 'none',
+        }} />
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // fallback: just show copied state
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
+        {/* ── Ticker row ── */}
+        <div style={{
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          height: '42px',
+          overflow: 'hidden',
+        }}>
+          {/* Left fade mask */}
+          <div style={{
+            position: 'absolute', left: 0, top: 0, bottom: 0,
+            width: 60,
+            background: isDark
+              ? 'linear-gradient(to right, rgba(10,8,20,0.85), transparent)'
+              : 'linear-gradient(to right, rgba(255,255,255,0.9), transparent)',
+            zIndex: 3,
+            pointerEvents: 'none',
+          }} />
 
-  return (
-    <button className={`promo-code ${copied ? 'copied' : ''}`} onClick={handleCopy} title="Copy code">
-      <span className="promo-code-text">{code}</span>
-      <span className="promo-code-action">{copied ? '✓ Copied!' : 'Copy'}</span>
-    </button>
+          {/* Scrolling ticker – key forces remount when speed changes */}
+          <motion.div
+            key={`ticker-${promo.ticker_speed ?? 40}`}
+            animate={{ x: ['0%', '-50%'] }}
+            transition={{ repeat: Infinity, ease: 'linear', duration: promo.ticker_speed ?? 40 }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              whiteSpace: 'nowrap',
+              willChange: 'transform',
+            }}
+          >
+            {[...Array(8)].map((_, i) => (
+              <PromoItem
+                key={i}
+                promo={promo}
+                discountText={discountText}
+                remainingTitle={remainingTitle}
+                theme={theme}
+              />
+            ))}
+          </motion.div>
+
+          {/* Right fade + dismiss */}
+          <div style={{
+            position: 'absolute', right: 0, top: 0, bottom: 0,
+            display: 'flex',
+            alignItems: 'center',
+            paddingLeft: 40,
+            paddingRight: 12,
+            background: isDark
+              ? 'linear-gradient(to left, rgba(10,8,20,0.95) 60%, transparent)'
+              : 'linear-gradient(to left, rgba(255,255,255,0.98) 60%, transparent)',
+            zIndex: 4,
+          }}>
+            <button
+              onClick={() => setDismissed(true)}
+              title="Dismiss"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 24,
+                height: 24,
+                borderRadius: '50%',
+                border: isDark
+                  ? '1px solid rgba(255,255,255,0.1)'
+                  : '1px solid rgba(0,0,0,0.1)',
+                background: 'transparent',
+                color: isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                flexShrink: 0,
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
+                e.currentTarget.style.color = isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.7)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)';
+              }}
+              aria-label="Dismiss promotion"
+            >
+              <X size={12} />
+            </button>
+          </div>
+        </div>
+
+        {/* ── Bottom gradient beam ── */}
+        <div style={{
+          position: 'absolute',
+          bottom: 0, left: 0, right: 0,
+          height: '1px',
+          background: topLineGradient,
+          opacity: isDark ? 0.2 : 0.15,
+          zIndex: 2,
+        }} />
+      </motion.div>
+    </AnimatePresence>
   );
 };
 

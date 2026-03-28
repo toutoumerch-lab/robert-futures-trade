@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
 
 :root {
@@ -43,6 +47,8 @@
   --font-sans: 'Outfit', sans-serif;
   --font-serif: 'Playfair Display', serif;
   --transition-smooth: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glow-beam: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), rgba(168, 85, 247, 0.5), rgba(236, 72, 153, 0.5), transparent);
 }
 
 /* Light Mode (Uber Clean Watercolor) */
@@ -909,18 +915,30 @@ textarea.input { resize: vertical; }
   border-color: transparent;
 }
 
-/* ── Additional Admin Styles ── */
-.badge-success {
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--success);
-  border: 1px solid rgba(16, 185, 129, 0.25);
+@keyframes border-beam {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
-.promo-code-display {
-  background: var(--bg-tertiary);
-  padding: 0.2rem 0.5rem;
-  border-radius: var(--radius-sm);
-  font-family: monospace;
-  color: var(--accent-primary);
-  border: 1px solid var(--border-color);
+.animate-border-beam {
+  position: relative;
+}
+
+.animate-border-beam::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--glow-beam);
+  background-size: 200% 100%;
+  animation: border-beam 4s linear infinite;
+  opacity: 0.6;
+}
+
+.liberto-noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.02;
+  pointer-events: none;
 }

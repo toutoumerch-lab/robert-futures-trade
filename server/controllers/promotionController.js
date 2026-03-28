@@ -30,13 +30,13 @@ const getAllPromotions = async (req, res) => {
 
 // POST create promotion (admin)
 const createPromotion = async (req, res) => {
-  const { title, code, status = 'inactive', expires_at } = req.body;
+  const { title, code, status = 'inactive', expires_at, ticker_speed = 40 } = req.body;
   if (!title || !code) return res.status(400).json({ error: 'title and code are required' });
   try {
     const result = await pool.query(
-      `INSERT INTO promotions (title, code, status, expires_at)
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [title, code.toUpperCase(), status, expires_at || null]
+      `INSERT INTO promotions (title, code, status, expires_at, ticker_speed)
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [title, code.toUpperCase(), status, expires_at || null, Number(ticker_speed)]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -48,13 +48,13 @@ const createPromotion = async (req, res) => {
 // PUT update promotion (admin)
 const updatePromotion = async (req, res) => {
   const { id } = req.params;
-  const { title, code, status, expires_at } = req.body;
+  const { title, code, status, expires_at, ticker_speed = 40 } = req.body;
   try {
     const result = await pool.query(
       `UPDATE promotions
-       SET title=$1, code=$2, status=$3, expires_at=$4, updated_at=NOW()
-       WHERE id=$5 RETURNING *`,
-      [title, code?.toUpperCase(), status, expires_at || null, id]
+       SET title=$1, code=$2, status=$3, expires_at=$4, ticker_speed=$5, updated_at=NOW()
+       WHERE id=$6 RETURNING *`,
+      [title, code?.toUpperCase(), status, expires_at || null, Number(ticker_speed), id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Promotion not found' });
     res.json(result.rows[0]);

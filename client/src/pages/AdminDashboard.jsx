@@ -352,7 +352,11 @@ const PromotionsTab = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({ title: '', code: '', status: 'inactive', expires_at: '' });
+  const [form, setForm] = useState({ title: '', code: '', status: 'inactive', expires_at: '', ticker_speed: 40 });
+
+  // Always keep a ref in sync with form so handleSave never reads stale closure
+  const formRef = React.useRef(form);
+  useEffect(() => { formRef.current = form; }, [form]);
 
   const fetchPromos = useCallback(() => {
     setLoading(true);
@@ -366,7 +370,7 @@ const PromotionsTab = () => {
 
   const openCreate = () => { 
     setEditing(null); 
-    setForm({ title: '', code: '', status: 'inactive', expires_at: '' }); 
+    setForm({ title: '', code: '', status: 'inactive', expires_at: '', ticker_speed: 40 }); 
     setShowModal(true); 
   };
   
@@ -376,23 +380,33 @@ const PromotionsTab = () => {
       title: p.title, 
       code: p.code, 
       status: p.status, 
-      expires_at: p.expires_at ? new Date(p.expires_at).toISOString().slice(0, 16) : '' 
+      expires_at: p.expires_at ? new Date(p.expires_at).toISOString().slice(0, 16) : '',
+      ticker_speed: Number(p.ticker_speed) || 40,
     }); 
     setShowModal(true); 
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
+    // Read from ref to always get the latest values (avoids stale closure)
+    const latest = formRef.current;
+    const payload = {
+      title:        latest.title,
+      code:         latest.code,
+      status:       latest.status,
+      expires_at:   latest.expires_at || null,
+      ticker_speed: Number(latest.ticker_speed) || 40,
+    };
     try {
       if (editing) {
-        await axios.put(`http://localhost:5000/api/promotions/${editing.id}`, form);
+        await axios.put(`http://localhost:5000/api/promotions/${editing.id}`, payload);
       } else {
-        await axios.post('http://localhost:5000/api/promotions', form);
+        await axios.post('http://localhost:5000/api/promotions', payload);
       }
       setShowModal(false);
       fetchPromos();
     } catch (err) {
-      alert(err.response?.data?.error || 'Error saving promotion');
+      alert(err.response?.data?.error || `Save failed (${err.message}). Make sure you're logged in as admin.`);
     }
   };
 
@@ -412,7 +426,7 @@ const PromotionsTab = () => {
       <div className="admin-table-wrap">
         <table className="admin-table">
           <thead>
-            <tr><th>Title</th><th>Code</th><th>Status</th><th>Expires At</th><th>Actions</th></tr>
+            <tr><th>Title</th><th>Code</th><th>Status</th><th>Speed</th><th>Expires At</th><th>Actions</th></tr>
           </thead>
           <tbody>
             {promos.map(p => (
@@ -422,6 +436,15 @@ const PromotionsTab = () => {
                 <td>
                   <span className={`badge ${p.status === 'active' ? 'badge-success' : 'badge-user'}`}>
                     {p.status}
+                  </span>
+                </td>
+                <td>
+                  <span style={{
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: (p.ticker_speed ?? 40) <= 20 ? '#ec4899' : (p.ticker_speed ?? 40) <= 60 ? '#3b82f6' : '#10b981',
+                  }}>
+                    {(p.ticker_speed ?? 40) <= 20 ? '🔥' : (p.ticker_speed ?? 40) <= 60 ? '⚡' : '🐢'} {p.ticker_speed ?? 40}s
                   </span>
                 </td>
                 <td style={{ color: 'var(--text-secondary)' }}>
@@ -450,6 +473,54 @@ const PromotionsTab = () => {
               </select>
             </div>
             <Field label="Expiration Date" type="datetime-local" value={form.expires_at} onChange={e => setForm({ ...form, expires_at: e.target.value })} />
+
+            {/* ── Ticker Speed ── */}
+            <div className="form-group">
+              <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>Banner Scroll Speed</span>
+                <span style={{
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  padding: '1px 8px',
+                  borderRadius: '100px',
+                  background: form.ticker_speed <= 20
+                    ? 'rgba(236,72,153,0.12)'
+                    : form.ticker_speed <= 60
+                    ? 'rgba(59,130,246,0.12)'
+                    : 'rgba(16,185,129,0.12)',
+                  color: form.ticker_speed <= 20
+                    ? '#ec4899'
+                    : form.ticker_speed <= 60
+                    ? '#3b82f6'
+                    : '#10b981',
+                  border: '1px solid currentColor',
+                }}>
+                  {form.ticker_speed <= 20 ? '🔥 Fast' : form.ticker_speed <= 60 ? '⚡ Medium' : '🐢 Slow'} &nbsp;·&nbsp; {form.ticker_speed}s
+                </span>
+              </label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingTop: '4px' }}>
+                <span style={{ fontSize: '11px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>Fast (5s)</span>
+                <input
+                  type="range"
+                  min={5}
+                  max={120}
+                  step={5}
+                  value={form.ticker_speed}
+                   onChange={e => { const v = Number(e.target.value); setForm(prev => ({ ...prev, ticker_speed: v })); }}
+                  style={{
+                    flex: 1,
+                    accentColor: 'var(--accent-purple)',
+                    cursor: 'pointer',
+                    height: '4px',
+                  }}
+                />
+                <span style={{ fontSize: '11px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>Slow (120s)</span>
+              </div>
+              <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                Lower = faster scrolling. Changes apply live when saved.
+              </p>
+            </div>
+
             <div className="modal-footer">
               <Button type="button" variant="outline" onClick={() => setShowModal(false)}>Cancel</Button>
               <Button type="submit">{editing ? 'Save Changes' : 'Create Promotion'}</Button>
