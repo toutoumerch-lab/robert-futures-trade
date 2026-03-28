@@ -22,6 +22,37 @@ const createPropFirm = async (req, res) => {
   }
 };
 
+const bulkCreatePropFirms = async (req, res) => {
+  const propFirms = req.body;
+  if (!Array.isArray(propFirms) || propFirms.length === 0) {
+    return res.status(400).json({ error: 'Invalid data format. Expected a non-empty array of prop firms.' });
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const insertedFirms = [];
+
+    for (const firm of propFirms) {
+      const { name, description, max_allocation, profit_split, cost } = firm;
+      const result = await client.query(
+        'INSERT INTO prop_firms (name, description, max_allocation, profit_split, cost) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+        [name, description, max_allocation, profit_split, cost]
+      );
+      insertedFirms.push(result.rows[0]);
+    }
+
+    await client.query('COMMIT');
+    res.status(201).json({ message: 'Bulk import successful', count: insertedFirms.length, data: insertedFirms });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Bulk Import Error:', error);
+    res.status(500).json({ error: 'Server error during bulk import.' });
+  } finally {
+    client.release();
+  }
+};
+
 const updatePropFirm = async (req, res) => {
   const { id } = req.params;
   const { name, description, max_allocation, profit_split, cost } = req.body;
@@ -47,4 +78,4 @@ const deletePropFirm = async (req, res) => {
   }
 };
 
-module.exports = { getPropFirms, createPropFirm, updatePropFirm, deletePropFirm };
+module.exports = { getPropFirms, createPropFirm, bulkCreatePropFirms, updatePropFirm, deletePropFirm };

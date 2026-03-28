@@ -342,6 +342,66 @@ button {
   padding: 7rem 0 5rem;
   overflow: hidden;
 }
+
+/* ── Hero Watermark Animation ── */
+.hero-watermark {
+  /* Dark mode default - rich, prominent */
+  opacity: 0.22;
+  transform: translate(-50%, -50%);
+  animation: heroWatermarkLiquidDark 18s ease-in-out infinite;
+  transition: opacity 0.8s ease;
+  object-fit: cover;
+  border: 1px solid rgba(168, 85, 247, 0.15);
+}
+
+.light-mode .hero-watermark {
+  /* Light mode - elegant, subtle */
+  opacity: 0.15;
+  animation: heroWatermarkLiquidLight 18s ease-in-out infinite;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+@keyframes heroWatermarkLiquidDark {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    box-shadow: 0 0 40px rgba(168, 85, 247, 0.25);
+    filter: brightness(1.1) hue-rotate(0deg);
+  }
+  33% {
+    transform: translate(-50%, -54%) scale(1.04) rotate(4deg);
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    box-shadow: 0 0 65px rgba(16, 185, 129, 0.35);
+    border-color: rgba(16, 185, 129, 0.2);
+    filter: brightness(1.2) hue-rotate(20deg);
+  }
+  66% {
+    transform: translate(-50%, -48%) scale(1.02) rotate(-3deg);
+    border-radius: 50% 50% 60% 40% / 50% 60% 40% 60%;
+    box-shadow: 0 0 55px rgba(59, 130, 246, 0.3);
+    border-color: rgba(59, 130, 246, 0.25);
+    filter: brightness(1.15) hue-rotate(-15deg);
+  }
+}
+
+@keyframes heroWatermarkLiquidLight {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    box-shadow: 0 5px 20px rgba(168, 85, 247, 0.1);
+    filter: grayscale(10%) hue-rotate(0deg);
+  }
+  50% {
+    transform: translate(-50%, -53%) scale(1.03) rotate(2deg);
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    box-shadow: 0 15px 40px rgba(59, 130, 246, 0.15);
+    filter: grayscale(10%) hue-rotate(15deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-watermark { animation: none; transform: translate(-50%, -50%); border-radius: 50%; }
+}
 .hero-glow {
   position: absolute;
   top: -200px;

@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
+import * as XLSX from 'xlsx';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
@@ -267,6 +268,8 @@ const PropFirmsTab = () => {
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({ name: '', description: '', max_allocation: '', profit_split: '', cost: '' });
+  const fileInputRef = useRef(null);
+  const [importPreview, setImportPreview] = useState(null);
 
   const fetchFirms = useCallback(() => {
     setLoading(true);
@@ -280,6 +283,53 @@ const PropFirmsTab = () => {
 
   const openCreate = () => { setEditing(null); setForm({ name: '', description: '', max_allocation: '', profit_split: '', cost: '' }); setShowModal(true); };
   const openEdit = (f) => { setEditing(f); setForm({ name: f.name, description: f.description, max_allocation: f.max_allocation, profit_split: f.profit_split, cost: f.cost }); setShowModal(true); };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const bstr = evt.target.result;
+        const wb = XLSX.read(bstr, { type: 'binary' });
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
+        const data = XLSX.utils.sheet_to_json(ws);
+        
+        const mappedData = data.map(row => {
+          const mapped = { name: '', description: '', max_allocation: '', profit_split: '', cost: '' };
+          for (const key in row) {
+            const k = key.toLowerCase().trim();
+            if (k.includes('name')) mapped.name = row[key];
+            if (k.includes('desc')) mapped.description = row[key];
+            if (k.includes('alloc') || k.includes('max')) mapped.max_allocation = row[key];
+            if (k.includes('split') || k.includes('profit')) mapped.profit_split = row[key];
+            if (k.includes('cost') || k.includes('price')) mapped.cost = row[key];
+          }
+          return mapped;
+        }).filter(item => item.name);
+
+        setImportPreview(mappedData);
+      } catch (err) {
+        alert("Error parsing file. Please make sure it is a valid Excel or CSV file.");
+      }
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+    reader.readAsBinaryString(file);
+  };
+
+  const confirmImport = async () => {
+    if (!importPreview || importPreview.length === 0) return;
+    try {
+      await axios.post('http://localhost:5000/api/prop-firms/bulk', importPreview);
+      setImportPreview(null);
+      fetchFirms();
+      alert("Successfully imported records!");
+    } catch (err) {
+      alert("Error importing records.");
+    }
+  };
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -302,8 +352,18 @@ const PropFirmsTab = () => {
 
   return (
     <div>
-      <div className="tab-toolbar">
+      <div className="tab-toolbar" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
         <Button onClick={openCreate}>+ Add Prop Firm</Button>
+        <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+          Import Excel/CSV
+        </Button>
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          onChange={handleFileUpload} 
+          accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" 
+          style={{ display: 'none' }} 
+        />
       </div>
       <div className="admin-table-wrap">
         <table className="admin-table">
@@ -340,6 +400,34 @@ const PropFirmsTab = () => {
               <Button type="submit">{editing ? 'Save Changes' : 'Add Firm'}</Button>
             </div>
           </form>
+        </Modal>
+      )}
+      {importPreview && (
+        <Modal title="Import Preview" onClose={() => setImportPreview(null)}>
+          <div className="modal-body">
+            <p>Ready to import <strong>{importPreview.length}</strong> prop firms.</p>
+            <div style={{ maxHeight: '300px', overflowY: 'auto', marginTop: '1rem', border: '1px solid var(--border)', borderRadius: '8px' }}>
+              <table className="admin-table" style={{ margin: 0 }}>
+                <thead>
+                  <tr><th>Name</th><th>Allocation</th><th>Split</th><th>Cost</th></tr>
+                </thead>
+                <tbody>
+                  {importPreview.map((item, i) => (
+                    <tr key={i}>
+                      <td>{item.name}</td>
+                      <td>{item.max_allocation}</td>
+                      <td>{item.profit_split}</td>
+                      <td>{item.cost}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="modal-footer" style={{ marginTop: '1.5rem' }}>
+              <Button type="button" variant="outline" onClick={() => setImportPreview(null)}>Cancel</Button>
+              <Button type="button" onClick={confirmImport}>Confirm Import</Button>
+            </div>
+          </div>
         </Modal>
       )}
     </div>

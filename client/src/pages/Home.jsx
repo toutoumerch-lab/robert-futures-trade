@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Card from '../components/common/Card';
+import { useBranding } from '../context/BrandingContext';
 
 const StatItem = ({ value, label }) => (
   <div className="stat-item text-center">
@@ -56,6 +57,8 @@ const Step = ({ num, title, desc }) => (
 );
 
 const Home = () => {
+  const { siteLogo } = useBranding();
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => entries.forEach(e => e.target.classList.toggle('visible', e.isIntersecting)),
@@ -72,7 +75,24 @@ const Home = () => {
       <AnimatedBlob className="blob-hero-2" color1="var(--accent-purple)" color2="rgba(168, 85, 247, 0)" delay={3} style={{ top: '20%', right: '5%' }} size="500px" />
       
       {/* ── Hero ── */}
-      <section className="hero-section" style={{ minHeight: '85vh', display: 'flex', alignItems: 'center' }}>
+      <section className="hero-section" style={{ minHeight: '85vh', display: 'flex', alignItems: 'center', position: 'relative' }}>
+        
+        {/* Static Background Image from Branding */}
+        {siteLogo && (
+          <img 
+            src={`http://localhost:5000${siteLogo}`} 
+            alt="Background Logo"
+            className="hero-watermark absolute pointer-events-none select-none"
+            style={{ 
+              top: '50%',
+              left: '50%',
+              width: 'clamp(300px, 50vw, 600px)', 
+              aspectRatio: '1 / 1',
+              zIndex: 0
+            }}
+          />
+        )}
+
         <div className="container text-center" style={{ position: 'relative', zIndex: 1 }}>
           <div className="hero-badge fade-in inline-block py-2 px-6 mb-8 glass" style={{ borderRadius: 'var(--radius-full)', fontWeight: '600', fontSize: '0.9rem' }}>
             ✨ Precision-Engineered Trading Experience
