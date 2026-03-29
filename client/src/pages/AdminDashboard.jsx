@@ -6,28 +6,35 @@ import { useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';
 import BrandingManager from '../components/admin/BrandingManager';
+import MultiSelect from '../components/common/MultiSelect';
+import Toggle from '../components/common/Toggle';
 
 // ── Generic Modal ──────────────────────────────────────────────────────────────
-const Modal = ({ title, onClose, children }) => (
-  <div className="modal-overlay" onClick={onClose}>
-    <div className="modal-box" onClick={e => e.stopPropagation()}>
-      <div className="modal-header">
-        <h3>{title}</h3>
-        <button className="modal-close" onClick={onClose}>✕</button>
-      </div>
-      <div className="modal-body">{children}</div>
+const Modal = ({ title, onClose, hideHeader, style, children }) => (
+  <div className="modal-overlay" onClick={onClose} style={{ zIndex: 99999 }}>
+    <div className="modal-box" onClick={e => e.stopPropagation()} style={{ position: 'relative', ...style }}>
+      {!hideHeader && (
+        <div className="modal-header">
+          <h3>{title}</h3>
+          <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+      )}
+      {hideHeader && (
+        <button className="modal-close" onClick={onClose} style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 100, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(4px)', width: '36px', height: '36px', borderRadius: '50%', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}>✕</button>
+      )}
+      <div className="modal-body" style={{ padding: hideHeader ? '0' : '1.5rem' }}>{children}</div>
     </div>
   </div>
 );
 
 // ── FormField helper ───────────────────────────────────────────────────────────
-const Field = ({ label, type = 'text', value, onChange, placeholder, as }) => (
+const Field = ({ label, type = 'text', value, onChange, placeholder, as, ...rest }) => (
   <div className="form-group">
     <label className="form-label">{label}</label>
     {as === 'textarea' ? (
-      <textarea className="input" rows={4} value={value} onChange={onChange} placeholder={placeholder} />
+      <textarea className="input" rows={4} value={value} onChange={onChange} placeholder={placeholder} {...rest} />
     ) : (
-      <input className="input" type={type} value={value} onChange={onChange} placeholder={placeholder} />
+      <input className="input" type={type} value={value} onChange={onChange} placeholder={placeholder} {...rest} />
     )}
   </div>
 );
@@ -267,22 +274,68 @@ const PropFirmsTab = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({ name: '', description: '', max_allocation: '', profit_split: '', cost: '' });
+  const [viewingFirm, setViewingFirm] = useState(null);
   const fileInputRef = useRef(null);
   const [importPreview, setImportPreview] = useState(null);
+  const [availablePlatforms, setAvailablePlatforms] = useState([]);
+
+  const initialFormState = {
+    name: '', importance: 'Medium', featured: false, rating: '', website: '', affiliate_link: '',
+    twitter: '', discord: '', last_checked: '', is_affiliate: false,
+    discount_code: '', overall_score: '', platforms: [], account_category: '', price: '',
+    activation_fee: '', profit_split: '', max_withdrawal: '',
+    profit_target: '', drawdown_limit: '', days_to_pass: '', days_to_payout: '', notes: '',
+    status_color: 'green', buffer: false, eval: '', pa: '', reset_fee: '', 
+    copy_trade: false, vpn: false, max_accounts: '', dll: '',
+    fifty_k_all_in: '', fifty_k_initial_cost: '', without_discount_usd: '', 
+    discount_usd: '', discount_percent: '', dca: false, news: false, 
+    bots: false, micro_scalping: false
+  };
+  const [form, setForm] = useState(initialFormState);
 
   const fetchFirms = useCallback(() => {
     setLoading(true);
-    axios.get('http://localhost:5000/api/prop-firms')
+    axios.get('http://localhost:5000/api/prop-firms/admin')
       .then(res => setFirms(res.data))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(fetchFirms, [fetchFirms]);
+  useEffect(() => {
+    fetchFirms();
+    axios.get('http://localhost:5000/api/prop-firms/platforms')
+      .then(res => setAvailablePlatforms(res.data))
+      .catch(console.error);
+  }, [fetchFirms]);
 
-  const openCreate = () => { setEditing(null); setForm({ name: '', description: '', max_allocation: '', profit_split: '', cost: '' }); setShowModal(true); };
-  const openEdit = (f) => { setEditing(f); setForm({ name: f.name, description: f.description, max_allocation: f.max_allocation, profit_split: f.profit_split, cost: f.cost }); setShowModal(true); };
+  const openCreate = () => { setEditing(null); setForm(initialFormState); setShowModal(true); };
+  
+  const openEdit = (f) => { 
+    setEditing(f); 
+    setForm({
+      name: f.name || '', importance: f.importance || 'Medium', featured: f.featured || false,
+      rating: f.rating || '', website: f.website || '', affiliate_link: f.affiliate_link || '',
+      twitter: f.twitter || '', discord: f.discord || '',
+      last_checked: f.last_checked ? new Date(f.last_checked).toISOString().split('T')[0] : '',
+      is_affiliate: f.is_affiliate || false,
+      discount_code: f.discount_code || '', overall_score: f.overall_score || '',
+      platforms: Array.isArray(f.platforms) ? f.platforms : [], account_category: f.account_category || '',
+      price: f.price || '',
+      activation_fee: f.activation_fee || '', profit_split: f.profit_split || '',
+      max_withdrawal: f.max_withdrawal || '', profit_target: f.profit_target || '',
+      drawdown_limit: f.drawdown_limit || '', days_to_pass: f.days_to_pass || '',
+      days_to_payout: f.days_to_payout || '', notes: f.notes || '',
+      status_color: f.status_color || 'green',
+      buffer: f.buffer || false, eval: f.eval || '', pa: f.pa || '', 
+      reset_fee: f.reset_fee || '', copy_trade: f.copy_trade || false, vpn: f.vpn || false,
+      max_accounts: f.max_accounts || '', dll: f.dll || '',
+      fifty_k_all_in: f.fifty_k_all_in || '', fifty_k_initial_cost: f.fifty_k_initial_cost || '', 
+      without_discount_usd: f.without_discount_usd || '', discount_usd: f.discount_usd || '', 
+      discount_percent: f.discount_percent || '', dca: f.dca || false, news: f.news || false, 
+      bots: f.bots || false, micro_scalping: f.micro_scalping || false
+    }); 
+    setShowModal(true); 
+  };
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
@@ -298,14 +351,12 @@ const PropFirmsTab = () => {
         const data = XLSX.utils.sheet_to_json(ws);
         
         const mappedData = data.map(row => {
-          const mapped = { name: '', description: '', max_allocation: '', profit_split: '', cost: '' };
+          const mapped = { ...initialFormState };
           for (const key in row) {
             const k = key.toLowerCase().trim();
             if (k.includes('name')) mapped.name = row[key];
-            if (k.includes('desc')) mapped.description = row[key];
-            if (k.includes('alloc') || k.includes('max')) mapped.max_allocation = row[key];
             if (k.includes('split') || k.includes('profit')) mapped.profit_split = row[key];
-            if (k.includes('cost') || k.includes('price')) mapped.cost = row[key];
+            if (k.includes('cost') || k.includes('price')) mapped.price = row[key];
           }
           return mapped;
         }).filter(item => item.name);
@@ -333,13 +384,18 @@ const PropFirmsTab = () => {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (editing) {
-      await axios.put(`http://localhost:5000/api/prop-firms/${editing.id}`, form);
-    } else {
-      await axios.post('http://localhost:5000/api/prop-firms', form);
+    try {
+      if (editing) {
+        await axios.put(`http://localhost:5000/api/prop-firms/${editing.id}`, form);
+      } else {
+        await axios.post('http://localhost:5000/api/prop-firms', form);
+      }
+      setShowModal(false);
+      fetchFirms();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to save. Please double check all numeric fields are correctly formatted without symbols.');
     }
-    setShowModal(false);
-    fetchFirms();
   };
 
   const deleteFirm = async (id) => {
@@ -347,6 +403,57 @@ const PropFirmsTab = () => {
     await axios.delete(`http://localhost:5000/api/prop-firms/${id}`);
     fetchFirms();
   };
+
+  const getStatusTheme = (status) => {
+    switch (status) {
+      case 'green': return {
+        bg: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.03) 100%)',
+        text: 'linear-gradient(to right, #34d399, #10b981)',
+        border: 'rgba(16, 185, 129, 0.3)',
+        shadow: '0 8px 20px rgba(16, 185, 129, 0.2)'
+      };
+      case 'blue': return {
+        bg: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.03) 100%)',
+        text: 'linear-gradient(to right, #93c5fd, #3b82f6)',
+        border: 'rgba(59, 130, 246, 0.3)',
+        shadow: '0 8px 20px rgba(59, 130, 246, 0.2)'
+      };
+      case 'yellow': return {
+        bg: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.03) 100%)',
+        text: 'linear-gradient(to right, #fcd34d, #f59e0b)',
+        border: 'rgba(245, 158, 11, 0.3)',
+        shadow: '0 8px 20px rgba(245, 158, 11, 0.2)'
+      };
+      case 'red': return {
+        bg: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.03) 100%)',
+        text: 'linear-gradient(to right, #fca5a5, #ef4444)',
+        border: 'rgba(239, 68, 68, 0.3)',
+        shadow: '0 8px 20px rgba(239, 68, 68, 0.2)'
+      };
+      default: return {
+        bg: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%)',
+        text: 'linear-gradient(to right, #818cf8, #f472b6)',
+        border: 'rgba(236, 72, 153, 0.2)',
+        shadow: '0 8px 20px rgba(168,85,247,0.3)'
+      };
+    }
+  };
+
+  const StatBox = ({ label, value }) => (
+    <div style={{
+      background: 'linear-gradient(145deg, var(--bg-tertiary), rgba(255,255,255,0.01))',
+      border: '1px solid var(--border)',
+      borderRadius: '12px',
+      padding: '1rem',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '0.4rem',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+    }}>
+      <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--accent-purple)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</span>
+      <strong style={{ fontSize: '15px', color: 'var(--text-primary)' }}>{value || '-'}</strong>
+    </div>
+  );
 
   if (loading) return <div className="tab-loading">Loading prop firms…</div>;
 
@@ -368,16 +475,27 @@ const PropFirmsTab = () => {
       <div className="admin-table-wrap">
         <table className="admin-table">
           <thead>
-            <tr><th>Name</th><th>Max Allocation</th><th>Profit Split</th><th>Cost</th><th>Actions</th></tr>
+            <tr><th>Name</th><th>Rating</th><th>Status</th><th>Actions</th></tr>
           </thead>
           <tbody>
             {firms.map(f => (
               <tr key={f.id}>
-                <td style={{ fontWeight: 600 }}>{f.name}</td>
-                <td>${f.max_allocation?.toLocaleString()}</td>
-                <td style={{ color: 'var(--success)' }}>{f.profit_split}</td>
-                <td>${f.cost}</td>
+                <td style={{ fontWeight: 600 }}>{f.name} {f.featured && <span style={{fontSize:'12px'}}>⭐️</span>}</td>
+                <td>{f.rating ? `${f.rating} / 5` : '-'}</td>
+                <td>
+                  <span 
+                    style={{ 
+                      display: 'inline-block',
+                      width: '12px', height: '12px',
+                      borderRadius: '50%',
+                      backgroundColor: f.status_color === 'green' ? '#10b981' : f.status_color === 'blue' ? '#3b82f6' : f.status_color === 'yellow' ? '#f59e0b' : '#ef4444',
+                      boxShadow: '0 0 5px rgba(0,0,0,0.2)'
+                    }} 
+                    title={f.status_color === 'green' ? 'Top Ranked' : f.status_color === 'blue' ? 'Community Trusted' : f.status_color === 'yellow' ? 'New / Building Trust' : 'Avoid / Possible Scam'}
+                  />
+                </td>
                 <td className="table-actions">
+                  <button className="action-btn" style={{backgroundColor: 'var(--bg-tertiary)'}} onClick={() => setViewingFirm(f)}>View</button>
                   <button className="action-btn" onClick={() => openEdit(f)}>Edit</button>
                   <button className="action-btn danger" onClick={() => deleteFirm(f.id)}>Delete</button>
                 </td>
@@ -389,13 +507,100 @@ const PropFirmsTab = () => {
       </div>
       {showModal && (
         <Modal title={editing ? 'Edit Prop Firm' : 'New Prop Firm'} onClose={() => setShowModal(false)}>
-          <form onSubmit={handleSave} className="modal-form">
-            <Field label="Name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Firm name…" />
-            <Field label="Description" as="textarea" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Brief description…" />
-            <Field label="Max Allocation (USD)" type="number" value={form.max_allocation} onChange={e => setForm({ ...form, max_allocation: e.target.value })} placeholder="200000" />
-            <Field label="Profit Split (e.g. 80%)" value={form.profit_split} onChange={e => setForm({ ...form, profit_split: e.target.value })} placeholder="80%" />
-            <Field label="Evaluation Cost (USD)" type="number" value={form.cost} onChange={e => setForm({ ...form, cost: e.target.value })} placeholder="149" />
-            <div className="modal-footer">
+          <form onSubmit={handleSave} className="modal-form" style={{ position: 'relative' }}>
+            <div style={{ paddingRight: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              
+              <div className="form-section">
+                <h3 className="form-section-title">🏢 Basic Information</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                  <Field label="Name (required)" required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Firm name…" />
+                  <div className="form-group">
+                    <label className="form-label">Internal Status (Admin Only)</label>
+                    <select className="input" required value={form.status_color} onChange={e => setForm({ ...form, status_color: e.target.value })}>
+                      <option value="green">🟢 Green (Top Ranked)</option>
+                      <option value="blue">🔵 Blue (Community Trusted)</option>
+                      <option value="yellow">🟡 Yellow (New / Building Trust)</option>
+                      <option value="red">🔴 Red (Avoid / Possible Scam)</option>
+                    </select>
+                  </div>
+                  <Field label="Account Category" value={form.account_category} onChange={e => setForm({ ...form, account_category: e.target.value })} placeholder="e.g. Futures, Forex" />
+                  <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                    <label className="form-label">Supported Platforms</label>
+                    <MultiSelect options={availablePlatforms} value={form.platforms} onChange={newVal => setForm({ ...form, platforms: newVal })} placeholder="Select or type to add new platform..." />
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-section">
+                <h3 className="form-section-title">💲 Pricing Details</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+
+                  <Field label="Activation Fee (USD)" type="number" value={form.activation_fee} onChange={e => setForm({ ...form, activation_fee: e.target.value })} placeholder="e.g. 140" />
+                  <Field label="Reset Fee (USD)" type="number" value={form.reset_fee} onChange={e => setForm({ ...form, reset_fee: e.target.value })} placeholder="e.g. 50" />
+                  <Field label="50k All In (USD)" type="number" value={form.fifty_k_all_in} onChange={e => setForm({ ...form, fifty_k_all_in: e.target.value })} placeholder="e.g. 200" />
+                  <Field label="50k Initial Cost (USD)" type="number" value={form.fifty_k_initial_cost} onChange={e => setForm({ ...form, fifty_k_initial_cost: e.target.value })} placeholder="e.g. 99" />
+                  <Field label="Without Discount (USD)" type="number" value={form.without_discount_usd} onChange={e => setForm({ ...form, without_discount_usd: e.target.value })} placeholder="e.g. 199" />
+                  <Field label="Discount (USD)" type="number" value={form.discount_usd} onChange={e => setForm({ ...form, discount_usd: e.target.value })} placeholder="e.g. 20" />
+                  <Field label="Discount (%)" type="number" value={form.discount_percent} onChange={e => setForm({ ...form, discount_percent: e.target.value })} placeholder="e.g. 15" />
+                  <Field label="Discount Code" value={form.discount_code} onChange={e => setForm({ ...form, discount_code: e.target.value })} placeholder="e.g. SAVE20" />
+                </div>
+              </div>
+
+              <div className="form-section">
+                <h3 className="form-section-title">⚙️ Trading Rules & Metrics</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                  <Field label="Profit Target" type="text" value={form.profit_target} onChange={e => setForm({ ...form, profit_target: e.target.value })} placeholder="e.g. $4,000 for max withdrawal, $1,000 for min" />
+                  <Field label="Profit Split" type="text" value={form.profit_split} onChange={e => setForm({ ...form, profit_split: e.target.value })} placeholder="e.g. EOD, $2,000" />
+                  <Field label="Drawdown & Amt" type="number" value={form.drawdown_limit} onChange={e => setForm({ ...form, drawdown_limit: e.target.value })} placeholder="e.g. 2500" />
+                  <Field label="DLL (Daily Loss Limit)" type="text" value={form.dll} onChange={e => setForm({ ...form, dll: e.target.value })} placeholder="e.g. $1,200 until $52,100 then 60% of highest day profit after" />
+                  <Field label="Max Withdrawal" type="text" value={form.max_withdrawal} onChange={e => setForm({ ...form, max_withdrawal: e.target.value })} placeholder="e.g. (1-6) $2,000" />
+                  <Field label="Days to Pass" type="text" value={form.days_to_pass} onChange={e => setForm({ ...form, days_to_pass: e.target.value })} placeholder="e.g. N/A" />
+                  <Field label="Days to Payout" type="text" value={form.days_to_payout} onChange={e => setForm({ ...form, days_to_payout: e.target.value })} placeholder="e.g. N/A" />
+                  <Field label="Maximum of Accounts" type="text" value={form.max_accounts} onChange={e => setForm({ ...form, max_accounts: e.target.value })} placeholder="e.g. 20" />
+                  <Field label="Eval (%)" type="text" value={form.eval} onChange={e => setForm({ ...form, eval: e.target.value })} placeholder="e.g. 1 Step, 2 Step (%)" />
+                  <Field label="PA (%)" type="text" value={form.pa} onChange={e => setForm({ ...form, pa: e.target.value })} placeholder="e.g. Trailing, EOD (%)" />
+                </div>
+              </div>
+
+              <div className="form-section">
+                <h3 className="form-section-title">🔗 Socials, Links & Ratings</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                  <Field label="Overall Score" type="number" step="0.1" value={form.overall_score} onChange={e => setForm({ ...form, overall_score: e.target.value })} placeholder="e.g. 9.5" />
+                  <Field label="Rating (Trustpilot)" type="number" step="0.1" value={form.rating} onChange={e => setForm({ ...form, rating: e.target.value })} placeholder="e.g. 4.8" />
+                  <Field label="Website URL" type="url" value={form.website} onChange={e => setForm({ ...form, website: e.target.value })} placeholder="https://..." />
+                </div>
+              </div>
+
+              <div className="form-section">
+                <h3 className="form-section-title">🔧 Toggles & Settings</h3>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                  <Toggle label="Feature in Banner" checked={form.featured} onChange={val => setForm({ ...form, featured: val })} />
+                  <Toggle label="Is Affiliate Link" checked={form.is_affiliate} onChange={val => setForm({ ...form, is_affiliate: val })} />
+                  <Toggle label="Buffer Support" checked={form.buffer} onChange={val => setForm({ ...form, buffer: val })} />
+                  <Toggle label="Copy Trade Allowed" checked={form.copy_trade} onChange={val => setForm({ ...form, copy_trade: val })} />
+                  <Toggle label="VPN Allowed" checked={form.vpn} onChange={val => setForm({ ...form, vpn: val })} />
+                  <Toggle label="DCA Allowed" checked={form.dca} onChange={val => setForm({ ...form, dca: val })} />
+                  <Toggle label="News Trading" checked={form.news} onChange={val => setForm({ ...form, news: val })} />
+                  <Toggle label="Bots Allowed" checked={form.bots} onChange={val => setForm({ ...form, bots: val })} />
+                  <Toggle label="MicroScalping" checked={form.micro_scalping} onChange={val => setForm({ ...form, micro_scalping: val })} />
+                </div>
+                <div style={{ marginTop: '1rem' }}>
+                  <Field label="Administrative Notes" as="textarea" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="Additional internal information..." />
+                </div>
+              </div>
+
+            </div>
+
+            <div className="modal-footer" style={{ 
+              position: 'sticky', 
+              bottom: '-24px', 
+              background: 'var(--bg-secondary)', 
+              zIndex: 100, 
+              marginTop: '1.5rem', 
+              paddingTop: '1rem', 
+              paddingBottom: '1rem',
+              borderTop: '1px solid var(--border)' 
+            }}>
               <Button type="button" variant="outline" onClick={() => setShowModal(false)}>Cancel</Button>
               <Button type="submit">{editing ? 'Save Changes' : 'Add Firm'}</Button>
             </div>
@@ -409,15 +614,14 @@ const PropFirmsTab = () => {
             <div style={{ maxHeight: '300px', overflowY: 'auto', marginTop: '1rem', border: '1px solid var(--border)', borderRadius: '8px' }}>
               <table className="admin-table" style={{ margin: 0 }}>
                 <thead>
-                  <tr><th>Name</th><th>Allocation</th><th>Split</th><th>Cost</th></tr>
+                  <tr><th>Name</th><th>Split</th><th>Price</th></tr>
                 </thead>
                 <tbody>
                   {importPreview.map((item, i) => (
                     <tr key={i}>
                       <td>{item.name}</td>
-                      <td>{item.max_allocation}</td>
                       <td>{item.profit_split}</td>
-                      <td>{item.cost}</td>
+                      <td>{item.price}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -430,6 +634,132 @@ const PropFirmsTab = () => {
           </div>
         </Modal>
       )}
+      {viewingFirm && (() => {
+        const theme = getStatusTheme(viewingFirm.status_color);
+        return (
+        <Modal hideHeader onClose={() => setViewingFirm(null)} style={{ background: 'var(--bg-primary)', backgroundImage: 'var(--gradient-mesh)', borderColor: theme.border }}>
+          <div className="view-firm-details" style={{ padding: '0', display: 'flex', flexDirection: 'column', gap: '2.5rem', maxHeight: '85vh', overflowY: 'auto', scrollbarWidth: 'thin', borderTopLeftRadius: 'var(--radius-xl)', borderTopRightRadius: 'var(--radius-xl)' }}>
+            
+            {/* Hero Banner Component */}
+            <div style={{
+               background: theme.bg,
+               padding: '3rem 2rem 2rem 2rem',
+               borderBottom: `1px solid ${theme.border}`,
+               position: 'relative',
+               marginTop: '0'
+            }}>
+               <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <h2 style={{ fontSize: '2.5rem', fontWeight: 800, margin: 0, paddingBottom: '0.25em', lineHeight: 1.4, background: theme.text, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block' }}>
+                    {viewingFirm.name}
+                  </h2>
+                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <span className={`badge`} style={{ padding: '0.4rem 0.8rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff'}}>
+                       {viewingFirm.status_color === 'green' ? '🟢 Top Ranked' : viewingFirm.status_color === 'blue' ? '🔵 Trusted' : viewingFirm.status_color === 'yellow' ? '🟡 New / Warning' : '🔴 Avoid'}
+                    </span>
+                    {viewingFirm.featured && <span style={{fontSize: '13px', color: '#f59e0b', fontWeight: 600}}>⭐️ Featured Firm</span>}
+                    {viewingFirm.is_affiliate && <span style={{fontSize: '13px', color: 'var(--accent-blue)', fontWeight: 600}}>🔗 Affiliate Partner</span>}
+                  </div>
+               </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', padding: '0 2rem' }}>
+                {/* General Info */}
+                <div>
+                   <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
+                     🏢 Basic Information
+                   </h4>
+                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                     <StatBox label="Account Category" value={viewingFirm.account_category} />
+                     <StatBox label="Supported Platforms" value={(viewingFirm.platforms || []).join(', ')} />
+                     <StatBox label="Trustpilot Rating" value={viewingFirm.rating ? `${viewingFirm.rating} / 5` : null} />
+                     <StatBox label="Website URL" value={viewingFirm.website ? <a href={viewingFirm.website} target="_blank" rel="noreferrer" style={{color: '#818cf8', textDecoration: 'none'}}>{viewingFirm.website}</a> : null} />
+                   </div>
+                </div>
+
+                {/* Pricing Details */}
+                <div>
+                   <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
+                     💲 Pricing Details
+                   </h4>
+                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
+                     <StatBox label="Activation Fee" value={viewingFirm.activation_fee ? `$${viewingFirm.activation_fee}` : null} />
+                     <StatBox label="Reset Fee" value={viewingFirm.reset_fee ? `$${viewingFirm.reset_fee}` : null} />
+                     <StatBox label="50K All In" value={viewingFirm.fifty_k_all_in ? `$${viewingFirm.fifty_k_all_in}` : null} />
+                     <StatBox label="50K Initial Cost" value={viewingFirm.fifty_k_initial_cost ? `$${viewingFirm.fifty_k_initial_cost}` : null} />
+                     <StatBox label="Without Discount" value={viewingFirm.without_discount_usd ? `$${viewingFirm.without_discount_usd}` : null} />
+                     <StatBox label="Discount Applied" value={viewingFirm.discount_usd ? `$${viewingFirm.discount_usd} ${viewingFirm.discount_percent ? '('+viewingFirm.discount_percent+'%)' : ''}` : null} />
+                     <StatBox label="Discount Code" value={viewingFirm.discount_code} />
+                   </div>
+                </div>
+
+                {/* Trading Metrics */}
+                <div>
+                   <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
+                     ⚙️ Trading Rules & Metrics
+                   </h4>
+                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                     <StatBox label="Profit Target" value={viewingFirm.profit_target} />
+                     <StatBox label="Profit Split" value={viewingFirm.profit_split} />
+                     <StatBox label="Daily Loss Limit (DLL)" value={viewingFirm.dll} />
+                     <StatBox label="Max Withdrawal" value={viewingFirm.max_withdrawal} />
+                     <StatBox label="Drawdown & Amt" value={viewingFirm.drawdown_limit} />
+                     <StatBox label="Days to Pass" value={viewingFirm.days_to_pass} />
+                     <StatBox label="Days to Payout" value={viewingFirm.days_to_payout} />
+                     <StatBox label="Eval (%)" value={viewingFirm.eval} />
+                     <StatBox label="PA (%)" value={viewingFirm.pa} />
+                     <StatBox label="Max Accounts" value={viewingFirm.max_accounts} />
+                   </div>
+                </div>
+
+                {/* Badges / Toggles Block */}
+                <div>
+                   <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
+                     🔧 Feature Support
+                   </h4>
+                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+                      {['buffer', 'copy_trade', 'vpn', 'dca', 'news', 'bots', 'micro_scalping'].map(feat => (
+                         <span key={feat} style={{ 
+                           padding: '0.5rem 1rem', 
+                           background: viewingFirm[feat] ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.03)', 
+                           color: viewingFirm[feat] ? '#10b981' : 'var(--text-secondary)', 
+                           borderRadius: '10px', 
+                           fontSize: '13px', 
+                           fontWeight: 600, 
+                           border: viewingFirm[feat] ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid var(--border)'
+                         }}>
+                           {viewingFirm[feat] ? '✓' : '✗'} {feat.replace('_', ' ').toUpperCase()}
+                         </span>
+                      ))}
+                   </div>
+                   
+                   {viewingFirm.notes && (
+                     <div style={{ marginTop: '2rem', padding: '1.5rem', background: 'rgba(255,255,255,0.02)', borderLeft: '4px solid var(--accent-blue)', borderRadius: '0 12px 12px 0', fontSize: '14px', lineHeight: 1.6, boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
+                       <strong style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent-blue)', marginBottom: '0.75rem', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                          <i className="fi fi-rr-document"></i> Administrative Notes
+                       </strong>
+                       {viewingFirm.notes}
+                     </div>
+                   )}
+                </div>
+            </div>
+
+          </div>
+          <div className="modal-footer" style={{ 
+              position: 'sticky', 
+              bottom: '0', 
+              background: 'linear-gradient(to top, var(--bg-primary) 80%, transparent)', 
+              zIndex: 100, 
+              marginTop: '0', 
+              padding: '2rem 2rem', 
+              display: 'flex',
+              justifyContent: 'flex-end',
+              pointerEvents: 'none'
+            }}>
+            <Button onClick={() => setViewingFirm(null)} variant="primary" style={{ borderRadius: '8px', padding: '0.75rem 2.5rem', pointerEvents: 'auto', boxShadow: theme.shadow }}>Close Summary</Button>
+          </div>
+        </Modal>
+        );
+      })()}
     </div>
   );
 };
@@ -634,6 +964,11 @@ const AdminDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('users');
+  const [layout, setLayout] = useState(() => localStorage.getItem('adminLayout') || 'horizontal');
+
+  useEffect(() => {
+    localStorage.setItem('adminLayout', layout);
+  }, [layout]);
 
   if (!user) {
     return (
@@ -655,7 +990,7 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="container py-16">
+    <div className={`container py-16 admin-dashboard-root ${layout === 'vertical' ? 'is-vertical' : ''}`}>
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
@@ -663,43 +998,52 @@ const AdminDashboard = () => {
           <p style={{ color: 'var(--text-secondary)', marginTop: '0.25rem' }}>Manage your platform content</p>
         </div>
         <div className="flex gap-4 items-center">
+          <Button variant="outline" onClick={() => setLayout(prev => prev === 'horizontal' ? 'vertical' : 'horizontal')} style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
+            {layout === 'horizontal' ? '📱 Vertical Layout' : '💻 Horizontal Layout'}
+          </Button>
           <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{user.name}</span>
           <Button variant="outline" onClick={() => { logout(); navigate('/'); }}>Logout</Button>
         </div>
       </div>
 
-      {/* Stats Row */}
-      <div className="admin-stats-row mb-8">
-        {TABS.map(t => (
-          <Card key={t.id} style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => setActiveTab(t.id)}>
-            <div style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>{t.label.split(' ')[0]}</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{t.label.split(' ').slice(1).join(' ')}</div>
+      <div className="admin-layout-wrapper">
+        <div className="admin-navigation">
+          {/* Tab Bar */}
+          <div className="admin-tabs mb-6 md:mb-0">
+            {TABS.map(t => (
+              <button
+                key={t.id}
+                className={`admin-tab ${activeTab === t.id ? 'active' : ''}`}
+                onClick={() => setActiveTab(t.id)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="admin-workspace flex-1">
+          {/* Stats Row */}
+          <div className="admin-stats-row mb-8">
+            {TABS.map(t => (
+              <Card key={t.id} style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => setActiveTab(t.id)}>
+                <div style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>{t.label.split(' ')[0]}</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{t.label.split(' ').slice(1).join(' ')}</div>
+              </Card>
+            ))}
+          </div>
+
+          {/* Tab Content */}
+          <Card className="admin-tab-content">
+            {activeTab === 'users'      && <UsersTab />}
+            {activeTab === 'posts'      && <PostsTab adminUser={user} />}
+            {activeTab === 'courses'    && <CoursesTab />}
+            {activeTab === 'prop-firms' && <PropFirmsTab />}
+            {activeTab === 'promos'     && <PromotionsTab />}
+            {activeTab === 'branding'   && <BrandingManager />}
           </Card>
-        ))}
+        </div>
       </div>
-
-      {/* Tab Bar */}
-      <div className="admin-tabs">
-        {TABS.map(t => (
-          <button
-            key={t.id}
-            className={`admin-tab ${activeTab === t.id ? 'active' : ''}`}
-            onClick={() => setActiveTab(t.id)}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Tab Content */}
-      <Card className="admin-tab-content">
-        {activeTab === 'users'      && <UsersTab />}
-        {activeTab === 'posts'      && <PostsTab adminUser={user} />}
-        {activeTab === 'courses'    && <CoursesTab />}
-        {activeTab === 'prop-firms' && <PropFirmsTab />}
-        {activeTab === 'promos'     && <PromotionsTab />}
-        {activeTab === 'branding'   && <BrandingManager />}
-      </Card>
     </div>
   );
 };

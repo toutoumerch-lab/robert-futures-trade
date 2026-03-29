@@ -695,6 +695,32 @@ button {
 }
 
 /* ── Admin Dashboard ── */
+.admin-workspace {
+  min-width: 0;
+}
+.admin-layout-wrapper {
+  display: block;
+}
+.is-vertical .admin-layout-wrapper {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+.is-vertical .admin-navigation {
+  position: sticky;
+  top: 6rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: 1.25rem 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+  backdrop-filter: blur(10px);
+}
+.light-mode .is-vertical .admin-navigation {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255,255,255,0.5);
+}
+
 .admin-stats-row {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -703,6 +729,11 @@ button {
 @media (min-width: 768px) {
   .admin-stats-row { grid-template-columns: repeat(4, 1fr); }
 }
+/* Hide the massive redundant stat cards in vertical mode since the sidebar replaces them */
+.is-vertical .admin-stats-row {
+  display: none;
+}
+
 .admin-tabs {
   display: flex;
   gap: 0.25rem;
@@ -711,26 +742,106 @@ button {
   overflow-x: auto;
   padding-bottom: 0;
 }
+.is-vertical .admin-tabs {
+  flex-direction: column;
+  border-bottom: none;
+  border-right: none;
+  padding-right: 0;
+  gap: 0.5rem;
+}
 .admin-tab {
   padding: 0.75rem 1.25rem;
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 500;
   border-bottom: 2px solid transparent;
   white-space: nowrap;
-  transition: all 0.2s;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   background: none;
+  text-align: left;
 }
 .admin-tab:hover { color: var(--text-primary); }
 .admin-tab.active {
   color: var(--accent-primary);
   border-bottom-color: var(--accent-primary);
 }
+
+.is-vertical .admin-tab {
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.is-vertical .admin-tab:hover {
+  background: rgba(255,255,255,0.03);
+  color: var(--text-primary);
+  transform: translateX(4px);
+}
+.is-vertical .admin-tab.active {
+  color: var(--text-primary);
+  background: linear-gradient(90deg, rgba(168,85,247,0.15) 0%, rgba(59,130,246,0.05) 100%);
+  border-left: 3px solid var(--accent-primary);
+  /* Reset left rounded corners slightly to fit the solid vertical bar */
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(168,85,247,0.1);
+  transform: translateX(4px);
+}
+
 .admin-tab-content {
   border-top-left-radius: 0;
   border-top: none;
   min-height: 400px;
+}
+.is-vertical .admin-tab-content {
+  border-top-left-radius: var(--radius-lg);
+  border-top: 1px solid var(--border-color);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  background: var(--bg-secondary);
+}
+
+@media (max-width: 900px) {
+  .is-vertical .admin-layout-wrapper { display: block; }
+  .is-vertical .admin-navigation { 
+    position: static; 
+    margin-bottom: 1.5rem; 
+    background: transparent;
+    border: none;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+  .is-vertical .admin-tabs {
+    flex-direction: row;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .is-vertical .admin-tab {
+    border-radius: 0;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+    transform: none;
+  }
+  .is-vertical .admin-tab:hover {
+    transform: none;
+    background: none;
+  }
+  .is-vertical .admin-tab.active {
+    border-left: none;
+    border-bottom-color: var(--accent-primary);
+    background: none;
+    transform: none;
+    box-shadow: none;
+    color: var(--accent-primary);
+  }
+  .is-vertical .admin-tab-content {
+    border-top-left-radius: 0;
+    border-top: none;
+    box-shadow: none;
+    background: var(--bg-tertiary); /* Card standard fallback */
+  }
 }
 .tab-toolbar { margin-bottom: 1.5rem; }
 .tab-loading {
@@ -792,13 +903,13 @@ button {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.7);
-  backdrop-filter: blur(4px);
+  background: rgba(0,0,0,0.85); /* Removed backdrop-filter to prevent hardware compositing screen tremble */
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  transform: translateZ(0); /* Hardware acceleration fix */
 }
 .modal-box {
   background: var(--bg-secondary);
@@ -833,6 +944,28 @@ button {
 .modal-close:hover { color: var(--text-primary); }
 .modal-body { padding: 1.5rem; }
 .modal-form { display: flex; flex-direction: column; gap: 1rem; }
+
+.form-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 0.5rem;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+.form-section-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .modal-footer {
   display: flex;
   gap: 0.75rem;
