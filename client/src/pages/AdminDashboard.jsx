@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import { useAuth } from '../context/AuthContext';
@@ -10,22 +11,40 @@ import MultiSelect from '../components/common/MultiSelect';
 import Toggle from '../components/common/Toggle';
 
 // ── Generic Modal ──────────────────────────────────────────────────────────────
-const Modal = ({ title, onClose, hideHeader, style, children }) => (
-  <div className="modal-overlay" onClick={onClose} style={{ zIndex: 99999 }}>
-    <div className="modal-box" onClick={e => e.stopPropagation()} style={{ position: 'relative', ...style }}>
-      {!hideHeader && (
-        <div className="modal-header">
-          <h3>{title}</h3>
-          <button className="modal-close" onClick={onClose}>✕</button>
-        </div>
-      )}
-      {hideHeader && (
-        <button className="modal-close" onClick={onClose} style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 100, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(4px)', width: '36px', height: '36px', borderRadius: '50%', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}>✕</button>
-      )}
-      <div className="modal-body" style={{ padding: hideHeader ? '0' : '1.5rem' }}>{children}</div>
-    </div>
-  </div>
-);
+const Modal = ({ title, onClose, hideHeader, style, children }) => {
+  useEffect(() => {
+    // Lock body scroll and prevent layout shift from scrollbar disappearing
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    const originalOverflow = window.getComputedStyle(document.body).overflow;
+    const originalPaddingRight = window.getComputedStyle(document.body).paddingRight;
+    
+    document.body.style.overflow = 'hidden';
+    document.body.style.paddingRight = `calc(${originalPaddingRight} + ${scrollbarWidth}px)`;
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.paddingRight = originalPaddingRight;
+    };
+  }, []);
+
+  return createPortal(
+    <div className="modal-overlay" onClick={onClose} style={{ zIndex: 999999, pointerEvents: 'auto' }}>
+      <div className="modal-box" onClick={e => e.stopPropagation()} style={{ position: 'relative', cursor: 'auto', ...style }}>
+        {!hideHeader && (
+          <div className="modal-header">
+            <h3>{title}</h3>
+            <button className="modal-close" onClick={onClose}>✕</button>
+          </div>
+        )}
+        {hideHeader && (
+          <button className="modal-close" onClick={onClose} style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 100, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(4px)', width: '36px', height: '36px', borderRadius: '50%', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}>✕</button>
+        )}
+        <div className="modal-body" style={{ padding: hideHeader ? '0' : '1.5rem' }}>{children}</div>
+      </div>
+    </div>,
+    document.body
+  );
+};
 
 // ── FormField helper ───────────────────────────────────────────────────────────
 const Field = ({ label, type = 'text', value, onChange, placeholder, as, ...rest }) => (
@@ -382,19 +401,55 @@ const PropFirmsTab = () => {
     }
   };
 
+  const formRef = React.useRef(form);
+  useEffect(() => { formRef.current = form; }, [form]);
+
   const handleSave = async (e) => {
     e.preventDefault();
+    
+    // Sanitize numeric fields to prevent 500 API errors from string mismatches
+    const cleanNumeric = (val) => {
+      if (val === null || val === undefined || val === '') return null;
+      const numText = String(val).replace(/[^0-9.-]/g, '');
+      return numText === '' ? null : Number(numText);
+    };
+
+    const latest = formRef.current;
+    
+    // Construct sanitized payload matching backend expectations perfectly
+    const payload = {
+      ...latest,
+      importance: cleanNumeric(latest.importance),
+      rating: cleanNumeric(latest.rating),
+      overall_score: cleanNumeric(latest.overall_score),
+      price: cleanNumeric(latest.price),
+      activation_fee: cleanNumeric(latest.activation_fee),
+      reset_fee: cleanNumeric(latest.reset_fee),
+      fifty_k_all_in: cleanNumeric(latest.fifty_k_all_in),
+      fifty_k_initial_cost: cleanNumeric(latest.fifty_k_initial_cost),
+      without_discount_usd: cleanNumeric(latest.without_discount_usd),
+      discount_usd: cleanNumeric(latest.discount_usd),
+      discount_percent: cleanNumeric(latest.discount_percent),
+      
+      // Kept faithfully as text (will not treat as numbers)
+      drawdown_limit: latest.drawdown_limit,
+      profit_target: latest.profit_target,
+      max_withdrawal: latest.max_withdrawal
+    };
+
+    console.log("Submitting Sanitized Payload to API:", payload);
+
     try {
       if (editing) {
-        await axios.put(`http://localhost:5000/api/prop-firms/${editing.id}`, form);
+        await axios.put(`http://localhost:5000/api/prop-firms/${editing.id}`, payload);
       } else {
-        await axios.post('http://localhost:5000/api/prop-firms', form);
+        await axios.post('http://localhost:5000/api/prop-firms', payload);
       }
       setShowModal(false);
       fetchFirms();
     } catch (err) {
-      console.error(err);
-      alert('Failed to save. Please double check all numeric fields are correctly formatted without symbols.');
+      console.error("API Save Error:", err);
+      alert('Failed to save. Check the browser console for exact error details.');
     }
   };
 
@@ -551,7 +606,7 @@ const PropFirmsTab = () => {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                   <Field label="Profit Target" type="text" value={form.profit_target} onChange={e => setForm({ ...form, profit_target: e.target.value })} placeholder="e.g. $4,000 for max withdrawal, $1,000 for min" />
                   <Field label="Profit Split" type="text" value={form.profit_split} onChange={e => setForm({ ...form, profit_split: e.target.value })} placeholder="e.g. EOD, $2,000" />
-                  <Field label="Drawdown & Amt" type="number" value={form.drawdown_limit} onChange={e => setForm({ ...form, drawdown_limit: e.target.value })} placeholder="e.g. 2500" />
+                  <Field label="Drawdown & Amt" type="text" value={form.drawdown_limit} onChange={e => setForm({ ...form, drawdown_limit: e.target.value })} placeholder="e.g. EOD, $2,000, Trailing" />
                   <Field label="DLL (Daily Loss Limit)" type="text" value={form.dll} onChange={e => setForm({ ...form, dll: e.target.value })} placeholder="e.g. $1,200 until $52,100 then 60% of highest day profit after" />
                   <Field label="Max Withdrawal" type="text" value={form.max_withdrawal} onChange={e => setForm({ ...form, max_withdrawal: e.target.value })} placeholder="e.g. (1-6) $2,000" />
                   <Field label="Days to Pass" type="text" value={form.days_to_pass} onChange={e => setForm({ ...form, days_to_pass: e.target.value })} placeholder="e.g. N/A" />
@@ -682,12 +737,12 @@ const PropFirmsTab = () => {
                      💲 Pricing Details
                    </h4>
                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
-                     <StatBox label="Activation Fee" value={viewingFirm.activation_fee ? `$${viewingFirm.activation_fee}` : null} />
-                     <StatBox label="Reset Fee" value={viewingFirm.reset_fee ? `$${viewingFirm.reset_fee}` : null} />
-                     <StatBox label="50K All In" value={viewingFirm.fifty_k_all_in ? `$${viewingFirm.fifty_k_all_in}` : null} />
-                     <StatBox label="50K Initial Cost" value={viewingFirm.fifty_k_initial_cost ? `$${viewingFirm.fifty_k_initial_cost}` : null} />
-                     <StatBox label="Without Discount" value={viewingFirm.without_discount_usd ? `$${viewingFirm.without_discount_usd}` : null} />
-                     <StatBox label="Discount Applied" value={viewingFirm.discount_usd ? `$${viewingFirm.discount_usd} ${viewingFirm.discount_percent ? '('+viewingFirm.discount_percent+'%)' : ''}` : null} />
+                     <StatBox label="Activation Fee" value={viewingFirm.activation_fee != null && viewingFirm.activation_fee !== '' ? `$${viewingFirm.activation_fee}` : '-'} />
+                     <StatBox label="Reset Fee" value={viewingFirm.reset_fee != null && viewingFirm.reset_fee !== '' ? `$${viewingFirm.reset_fee}` : '-'} />
+                     <StatBox label="50K All In" value={viewingFirm.fifty_k_all_in != null && viewingFirm.fifty_k_all_in !== '' ? `$${viewingFirm.fifty_k_all_in}` : '-'} />
+                     <StatBox label="50K Initial Cost" value={viewingFirm.fifty_k_initial_cost != null && viewingFirm.fifty_k_initial_cost !== '' ? `$${viewingFirm.fifty_k_initial_cost}` : '-'} />
+                     <StatBox label="Without Discount" value={viewingFirm.without_discount_usd != null && viewingFirm.without_discount_usd !== '' ? `$${viewingFirm.without_discount_usd}` : '-'} />
+                     <StatBox label="Discount Applied" value={viewingFirm.discount_usd != null && viewingFirm.discount_usd !== '' ? `$${viewingFirm.discount_usd} ${viewingFirm.discount_percent ? '('+viewingFirm.discount_percent+'%)' : ''}` : '-'} />
                      <StatBox label="Discount Code" value={viewingFirm.discount_code} />
                    </div>
                 </div>
