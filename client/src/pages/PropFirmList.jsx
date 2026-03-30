@@ -82,13 +82,37 @@ const PropFirmList = () => {
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-4">
                     {firm.logo_url && (
-                      <div style={{ width: '48px', height: '48px', borderRadius: '8px', overflow: 'hidden', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <img src={`http://localhost:5000${firm.logo_url}`} alt={firm.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                      <div style={{ width: '56px', height: '56px', borderRadius: '12px', overflow: 'hidden', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+                        <img src={`http://localhost:5000${firm.logo_url}`} alt={firm.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px' }} />
                       </div>
                     )}
-                    <h3 className="text-gradient" style={{ fontSize: '1.3rem', margin: 0 }}>{firm.name}</h3>
+                    <div>
+                      <h3 className="text-gradient" style={{ fontSize: '1.4rem', margin: 0, fontWeight: 700 }}>{firm.name}</h3>
+                      {firm.featured && <span className="text-yellow-500 text-xs font-semibold mt-1 block tracking-wide">⭐ FEATURED</span>}
+                    </div>
                   </div>
-                  {firm.featured && <span className="badge badge-user" style={{ background: 'var(--accent)', color: '#fff', border: 'none' }}>Featured</span>}
+                  
+                  {/* Discount Code Badge */}
+                  {firm.discount_code && (
+                    <div className="flex flex-col items-end">
+                      <button 
+                        onClick={(e) => { 
+                          navigator.clipboard.writeText(firm.discount_code); 
+                          const btn = e.currentTarget; 
+                          const originalHtml = btn.innerHTML; 
+                          btn.innerHTML = 'Copied! ✅'; 
+                          setTimeout(() => { btn.innerHTML = originalHtml; }, 1500); 
+                        }}
+                        className="badge" 
+                        style={{ cursor: 'pointer', background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.3)', fontWeight: 700, letterSpacing: '0.5px', transition: 'transform 0.1s' }}
+                        onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
+                        onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+                        title="Click to Copy Promo Code"
+                      >
+                        Code: {firm.discount_code} 📋
+                      </button>
+                    </div>
+                  )}
                 </div>
                 {firm.notes && (
                   <p className="mb-6" style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>
@@ -98,30 +122,51 @@ const PropFirmList = () => {
 
                 <div className="firm-stats-grid mb-6">
                   <div className="firm-stat">
-                    <div className="firm-stat-label">Max Funding</div>
-                    <div className="firm-stat-value">{firm.max_accounts || 'Varied'}</div>
+                    <div className="firm-stat-label">Trustpilot</div>
+                    <div className="firm-stat-value" style={{ color: firm.rating >= 4.5 ? 'var(--success)' : firm.rating >= 4.0 ? 'var(--accent-blue)' : 'var(--text-primary)' }}>
+                      {firm.rating ? `⭐ ${firm.rating}` : 'N/A'}
+                    </div>
                   </div>
+
                   <div className="firm-stat">
-                    <div className="firm-stat-label">Profit Split</div>
-                    <div className="firm-stat-value" style={{ color: 'var(--success)' }}>{firm.profit_split || '-'}</div>
+                    <div className="firm-stat-label">Activation Fee</div>
+                    <div className="firm-stat-value">{firm.activation_fee ? `$${firm.activation_fee}` : 'None'}</div>
                   </div>
-                  <div className="firm-stat">
+                  <div className="firm-stat" style={firm.discount_usd ? { background: 'rgba(236, 72, 153, 0.05)', border: '1px solid rgba(236, 72, 153, 0.2)' } : {}}>
                     <div className="firm-stat-label">Initial Cost</div>
-                    <div className="firm-stat-value" style={{ color: 'var(--accent-tertiary)' }}>
-                       {firm.activation_fee ? `$${firm.activation_fee}` : firm.fifty_k_initial_cost ? `$${firm.fifty_k_initial_cost}` : '-'}
+                    <div className="firm-stat-value">
+                      {firm.discount_usd ? (
+                         <div className="flex flex-col">
+                           <span style={{ color: 'var(--accent-tertiary)', fontWeight: 800, fontSize: '1.25rem' }}>${firm.discount_usd}</span>
+                           <div className="flex items-center gap-2 mt-1">
+                             <span style={{ textDecoration: 'line-through', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>${firm.without_discount_usd}</span>
+                             {firm.discount_percent && <span style={{ background: 'var(--accent-tertiary)', color: '#fff', fontSize: '0.7rem', padding: '0.1rem 0.3rem', borderRadius: '4px', fontWeight: 700 }}>-{firm.discount_percent}%</span>}
+                           </div>
+                         </div>
+                      ) : (
+                         <span style={{ color: 'var(--text-primary)', fontSize: '1.1rem' }}>
+                           {firm.activation_fee ? `$${firm.activation_fee}` : firm.fifty_k_initial_cost ? `$${firm.fifty_k_initial_cost}` : 'N/A'}
+                         </span>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-4 flex gap-4">
+                <div className="mt-8 flex flex-wrap gap-4 items-center justify-between border-t pt-5" style={{ borderColor: 'var(--border-color)' }}>
+                  <div className="flex gap-3">
+                    {firm.discord && (
+                      <a href={firm.discord} target="_blank" rel="noreferrer" className="badge" style={{ color: '#5865F2', background: 'rgba(88, 101, 242, 0.1)', textDecoration: 'none', border: '1px solid rgba(88, 101, 242, 0.3)', fontWeight: 600 }}>
+                        💬 Discord
+                      </a>
+                    )}
+                  </div>
                   {firm.website && (
-                    <a href={firm.website} target="_blank" rel="noreferrer" className="badge" style={{ color: '#fff', background: 'rgba(255,255,255,0.05)', textDecoration: 'none' }}>
-                      🔗 Visit Website
-                    </a>
-                  )}
-                  {firm.discord && (
-                    <a href={firm.discord} target="_blank" rel="noreferrer" className="badge" style={{ color: '#fff', background: 'rgba(88, 101, 242, 0.2)', textDecoration: 'none' }}>
-                      💬 Discord
+                    <a href={firm.website} target="_blank" rel="noreferrer" 
+                       style={{ background: 'linear-gradient(135deg, var(--accent-pink), var(--accent-purple))', color: '#fff', padding: '0.6rem 1.5rem', borderRadius: '8px', fontWeight: 600, textDecoration: 'none', boxShadow: '0 4px 15px rgba(236, 72, 153, 0.3)', transition: 'transform 0.2s, box-shadow 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                       onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(236, 72, 153, 0.4)'; }}
+                       onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 15px rgba(236, 72, 153, 0.3)'; }}
+                    >
+                      Visit Website 🚀
                     </a>
                   )}
                 </div>
