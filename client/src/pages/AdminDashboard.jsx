@@ -308,7 +308,7 @@ const PropFirmsTab = () => {
     copy_trade: false, vpn: false, max_accounts: '', dll: '',
     fifty_k_all_in: '', fifty_k_initial_cost: '', without_discount_usd: '', 
     discount_usd: '', discount_percent: '', dca: false, news: false, 
-    bots: false, micro_scalping: false
+    bots: false, micro_scalping: false, logo_url: '', imageFile: null
   };
   const [form, setForm] = useState(initialFormState);
 
@@ -351,7 +351,8 @@ const PropFirmsTab = () => {
       fifty_k_all_in: f.fifty_k_all_in || '', fifty_k_initial_cost: f.fifty_k_initial_cost || '', 
       without_discount_usd: f.without_discount_usd || '', discount_usd: f.discount_usd || '', 
       discount_percent: f.discount_percent || '', dca: f.dca || false, news: f.news || false, 
-      bots: f.bots || false, micro_scalping: f.micro_scalping || false
+      bots: f.bots || false, micro_scalping: f.micro_scalping || false,
+      logo_url: f.logo_url || '', imageFile: null
     }); 
     setShowModal(true); 
   };
@@ -417,7 +418,7 @@ const PropFirmsTab = () => {
     const latest = formRef.current;
     
     // Construct sanitized payload matching backend expectations perfectly
-    const payload = {
+    const sanitizePayload = {
       ...latest,
       importance: cleanNumeric(latest.importance),
       rating: cleanNumeric(latest.rating),
@@ -437,13 +438,36 @@ const PropFirmsTab = () => {
       max_withdrawal: latest.max_withdrawal
     };
 
-    console.log("Submitting Sanitized Payload to API:", payload);
+    const formData = new FormData();
+    Object.keys(sanitizePayload).forEach(key => {
+      // 1. Convert platforms array to JSON so it transits as a unified string
+      if (key === 'platforms') {
+        formData.append(key, JSON.stringify(sanitizePayload[key]));
+      } 
+      // 2. Attach physical file binary to "logo" property
+      else if (key === 'imageFile') {
+        if (sanitizePayload[key] instanceof File) {
+          formData.append('logo', sanitizePayload[key]);
+        }
+      } 
+      // 3. Stringify standard empty strings nicely or append valid data
+      else {
+        let val = sanitizePayload[key];
+        if (val === null || val === undefined) val = ''; 
+        formData.append(key, val);
+      }
+    });
+
+    console.log("Submitting FormData Payload to API:");
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}:`, value instanceof File ? value.name : value);
+    }
 
     try {
       if (editing) {
-        await axios.put(`http://localhost:5000/api/prop-firms/${editing.id}`, payload);
+        await axios.put(`http://localhost:5000/api/prop-firms/${editing.id}`, formData);
       } else {
-        await axios.post('http://localhost:5000/api/prop-firms', payload);
+        await axios.post('http://localhost:5000/api/prop-firms', formData);
       }
       setShowModal(false);
       fetchFirms();
@@ -565,6 +589,52 @@ const PropFirmsTab = () => {
           <form onSubmit={handleSave} className="modal-form" style={{ position: 'relative' }}>
             <div style={{ paddingRight: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               
+              <div className="form-section">
+                <h3 className="form-section-title">🖼️ Branding</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 1fr)', gap: '1rem', marginBottom: '1rem' }}>
+                  <div className="form-group" style={{ 
+                    border: '2px dashed var(--border-color)', 
+                    borderRadius: 'var(--radius)', 
+                    padding: '1.5rem', 
+                    textAlign: 'center', 
+                    position: 'relative',
+                    overflow: 'hidden' 
+                  }}>
+                    <label className="form-label" style={{ marginBottom: '1rem', display: 'block' }}>Prop Firm Logo (SVG, PNG, JPG, WebP)</label>
+                    
+                    {(form.imageFile || form.logo_url) ? (
+                      <div style={{ position: 'relative', width: '120px', height: '120px', margin: '0 auto 1rem', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <img 
+                          src={form.imageFile ? URL.createObjectURL(form.imageFile) : `http://localhost:5000${form.logo_url}`} 
+                          alt="Logo Preview" 
+                          style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+                        />
+                        <button 
+                          type="button"
+                          onClick={(e) => { e.preventDefault(); setForm({ ...form, imageFile: null, logo_url: '' }) }}
+                          style={{ position: 'absolute', top: '-8px', right: '-8px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}
+                        >✕</button>
+                      </div>
+                    ) : (
+                      <div style={{ margin: '1rem 0', pointerEvents: 'none' }}>
+                        <svg style={{ width: '48px', height: '48px', color: 'var(--text-secondary)', margin: '0 auto 1rem' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                        <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Click to upload or drag and drop</p>
+                      </div>
+                    )}
+                    
+                    <input 
+                      type="file" 
+                      accept="image/png, image/jpeg, image/jpg, image/webp, image/svg+xml"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          setForm({ ...form, imageFile: e.target.files[0] });
+                        }
+                      }}
+                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
+                    />
+                  </div>
+                </div>
+              </div>
               <div className="form-section">
                 <h3 className="form-section-title">🏢 Basic Information</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
@@ -704,9 +774,20 @@ const PropFirmsTab = () => {
                marginTop: '0'
             }}>
                <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <h2 style={{ fontSize: '2.5rem', fontWeight: 800, margin: 0, paddingBottom: '0.25em', lineHeight: 1.4, background: theme.text, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block' }}>
-                    {viewingFirm.name}
-                  </h2>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    {viewingFirm.logo_url && (
+                      <div style={{ background: '#fff', padding: '0.25rem', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                        <img 
+                          src={`http://localhost:5000${viewingFirm.logo_url}`} 
+                          alt="Logo" 
+                          style={{ width: '48px', height: '48px', objectFit: 'contain', display: 'block' }} 
+                        />
+                      </div>
+                    )}
+                    <h2 style={{ fontSize: '2.5rem', fontWeight: 800, margin: 0, paddingBottom: '0.25em', lineHeight: 1.4, background: theme.text, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block' }}>
+                      {viewingFirm.name}
+                    </h2>
+                  </div>
                   <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
                     <span className={`badge`} style={{ padding: '0.4rem 0.8rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff'}}>
                        {viewingFirm.status_color === 'green' ? '🟢 Top Ranked' : viewingFirm.status_color === 'blue' ? '🔵 Trusted' : viewingFirm.status_color === 'yellow' ? '🟡 New / Warning' : '🔴 Avoid'}

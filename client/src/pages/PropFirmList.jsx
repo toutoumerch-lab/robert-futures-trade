@@ -27,8 +27,11 @@ const PropFirmList = () => {
   }, []);
 
   const sorted = [...firms].sort((a, b) => {
-    if (sort === 'allocation') return b.max_allocation - a.max_allocation;
-    if (sort === 'cost') return a.cost - b.cost;
+    // We map backend data to sorting variables since database column names changed
+    const aCost = Number(a.activation_fee || a.fifty_k_initial_cost || 0);
+    const bCost = Number(b.activation_fee || b.fifty_k_initial_cost || 0);
+    
+    if (sort === 'cost') return aCost - bCost;
     return a.name.localeCompare(b.name);
   });
 
@@ -52,7 +55,7 @@ const PropFirmList = () => {
         {!loading && firms.length > 0 && (
           <div className="flex items-center gap-4 mb-8">
             <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Sort by:</span>
-            {[['name', 'Name'], ['allocation', 'Max Allocation'], ['cost', 'Lowest Cost']].map(([val, label]) => (
+            {[['name', 'Name'], ['cost', 'Lowest Cost']].map(([val, label]) => (
               <button
                 key={val}
                 className={`sort-btn ${sort === val ? 'active' : ''}`}
@@ -77,34 +80,50 @@ const PropFirmList = () => {
             {sorted.map(firm => (
               <Card key={firm.id} className="firm-card">
                 <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-gradient" style={{ fontSize: '1.3rem' }}>{firm.name}</h3>
-                  <span className="badge badge-user">Reviewed</span>
+                  <div className="flex items-center gap-4">
+                    {firm.logo_url && (
+                      <div style={{ width: '48px', height: '48px', borderRadius: '8px', overflow: 'hidden', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <img src={`http://localhost:5000${firm.logo_url}`} alt={firm.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                      </div>
+                    )}
+                    <h3 className="text-gradient" style={{ fontSize: '1.3rem', margin: 0 }}>{firm.name}</h3>
+                  </div>
+                  {firm.featured && <span className="badge badge-user" style={{ background: 'var(--accent)', color: '#fff', border: 'none' }}>Featured</span>}
                 </div>
-                <p className="mb-6" style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-                  {firm.description}
-                </p>
+                {firm.notes && (
+                  <p className="mb-6" style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+                    {firm.notes.length > 150 ? firm.notes.substring(0, 150) + "..." : firm.notes}
+                  </p>
+                )}
 
                 <div className="firm-stats-grid mb-6">
                   <div className="firm-stat">
-                    <div className="firm-stat-label">Max Allocation</div>
-                    <div className="firm-stat-value">${Number(firm.max_allocation).toLocaleString()}</div>
+                    <div className="firm-stat-label">Max Funding</div>
+                    <div className="firm-stat-value">{firm.max_accounts || 'Varied'}</div>
                   </div>
                   <div className="firm-stat">
                     <div className="firm-stat-label">Profit Split</div>
-                    <div className="firm-stat-value" style={{ color: 'var(--success)' }}>{firm.profit_split}</div>
+                    <div className="firm-stat-value" style={{ color: 'var(--success)' }}>{firm.profit_split || '-'}</div>
                   </div>
                   <div className="firm-stat">
-                    <div className="firm-stat-label">Eval Cost</div>
-                    <div className="firm-stat-value" style={{ color: 'var(--accent-tertiary)' }}>${firm.cost}</div>
+                    <div className="firm-stat-label">Initial Cost</div>
+                    <div className="firm-stat-value" style={{ color: 'var(--accent-tertiary)' }}>
+                       {firm.activation_fee ? `$${firm.activation_fee}` : firm.fifty_k_initial_cost ? `$${firm.fifty_k_initial_cost}` : '-'}
+                    </div>
                   </div>
                 </div>
 
-                <ScoreBar label="Profit Split Score" value={parseFloat(firm.profit_split)} max={100} />
-
-                <div className="mt-4">
-                  <a href="#" style={{ color: 'var(--accent-primary)', fontWeight: 500 }}>
-                    Read Full Review →
-                  </a>
+                <div className="mt-4 flex gap-4">
+                  {firm.website && (
+                    <a href={firm.website} target="_blank" rel="noreferrer" className="badge" style={{ color: '#fff', background: 'rgba(255,255,255,0.05)', textDecoration: 'none' }}>
+                      🔗 Visit Website
+                    </a>
+                  )}
+                  {firm.discord && (
+                    <a href={firm.discord} target="_blank" rel="noreferrer" className="badge" style={{ color: '#fff', background: 'rgba(88, 101, 242, 0.2)', textDecoration: 'none' }}>
+                      💬 Discord
+                    </a>
+                  )}
                 </div>
               </Card>
             ))}

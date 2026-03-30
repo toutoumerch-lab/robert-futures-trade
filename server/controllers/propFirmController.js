@@ -25,6 +25,8 @@ const linkPlatforms = async (client, firmId, platforms) => {
 };
 
 const num = (v) => (v === '' || v === undefined || v === 'undefined' || v === null) ? null : v;
+const parseBool = (v) => v === 'true' || v === true;
+const parseArray = (v) => { if (Array.isArray(v)) return v; if (!v) return []; try { return JSON.parse(v); } catch(e) { return [v]; } };
 
 const getPropFirms = async (req, res) => {
   try {
@@ -37,7 +39,7 @@ const getPropFirms = async (req, res) => {
         buffer, eval, pa, reset_fee, copy_trade, vpn, max_accounts, dll,
         fifty_k_all_in, fifty_k_initial_cost, without_discount_usd, discount_usd, discount_percent,
         dca, news, bots, micro_scalping,
-        created_at,
+        logo_url, created_at,
         COALESCE(
           (SELECT json_agg(p.name) 
            FROM prop_firm_platforms pfp 
@@ -87,6 +89,9 @@ const createPropFirm = async (req, res) => {
     status_color, platforms
   } = req.body;
 
+  const logo_url = req.file ? `/uploads/prop-firms/${req.file.filename}` : null;
+  const parsedPlatforms = parseArray(req.body.platforms);
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -100,31 +105,31 @@ const createPropFirm = async (req, res) => {
         buffer, eval, pa, reset_fee, copy_trade, vpn, max_accounts, dll, 
         fifty_k_all_in, fifty_k_initial_cost, without_discount_usd, discount_usd, discount_percent,
         dca, news, bots, micro_scalping,
-        status_color
+        status_color, logo_url
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, 
         $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, 
-        $31, $32, $33, $34, $35, $36, $37, $38, $39, $40
+        $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41
       ) RETURNING *`,
       [
-        name, num(importance), featured || false, num(rating), num(website), num(affiliate_link), num(twitter), num(discord), 
-        num(last_checked), is_affiliate || false, num(discount_code), num(overall_score), 
+        name, num(importance), parseBool(featured), num(rating), num(website), num(affiliate_link), num(twitter), num(discord), 
+        num(last_checked), parseBool(is_affiliate), num(discount_code), num(overall_score), 
         num(account_category), num(price), num(activation_fee), num(profit_split), 
         num(max_withdrawal), num(profit_target), num(drawdown_limit), num(days_to_pass), num(days_to_payout), num(notes),
-        buffer || false, num(eval_type), num(pa), num(reset_fee), copy_trade || false, vpn || false,
+        parseBool(buffer), num(eval_type), num(pa), num(reset_fee), parseBool(copy_trade), parseBool(vpn),
         num(max_accounts), num(dll), 
         num(fifty_k_all_in), num(fifty_k_initial_cost), num(without_discount_usd), num(discount_usd), num(discount_percent),
-        dca || false, news || false, bots || false, micro_scalping || false, 
-        status_color || 'green'
+        parseBool(dca), parseBool(news), parseBool(bots), parseBool(micro_scalping), 
+        status_color || 'green', logo_url
       ]
     );
 
     const firmId = result.rows[0].id;
-    await linkPlatforms(client, firmId, platforms);
+    await linkPlatforms(client, firmId, parsedPlatforms);
     
     await client.query('COMMIT');
     
-    const newFirm = { ...result.rows[0], platforms: platforms || [] };
+    const newFirm = { ...result.rows[0], platforms: parsedPlatforms };
     res.status(201).json(newFirm);
   } catch (error) {
     await client.query('ROLLBACK');
@@ -208,6 +213,9 @@ const updatePropFirm = async (req, res) => {
     status_color, platforms
   } = req.body;
 
+  const logo_url = req.file ? `/uploads/prop-firms/${req.file.filename}` : req.body.logo_url;
+  const parsedPlatforms = parseArray(req.body.platforms);
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -223,18 +231,18 @@ const updatePropFirm = async (req, res) => {
         copy_trade=$27, vpn=$28, max_accounts=$29, dll=$30, 
         fifty_k_all_in=$31, fifty_k_initial_cost=$32, without_discount_usd=$33, 
         discount_usd=$34, discount_percent=$35, dca=$36, news=$37, bots=$38, 
-        micro_scalping=$39, status_color=$40 
-      WHERE id=$41 RETURNING *`,
+        micro_scalping=$39, status_color=$40, logo_url=$41
+      WHERE id=$42 RETURNING *`,
       [
-        name, num(importance), featured || false, num(rating), num(website), num(affiliate_link), num(twitter), num(discord), 
-        num(last_checked), is_affiliate || false, num(discount_code), num(overall_score), 
+        name, num(importance), parseBool(featured), num(rating), num(website), num(affiliate_link), num(twitter), num(discord), 
+        num(last_checked), parseBool(is_affiliate), num(discount_code), num(overall_score), 
         num(account_category), num(price), num(activation_fee), num(profit_split), 
         num(max_withdrawal), num(profit_target), num(drawdown_limit), num(days_to_pass), num(days_to_payout), num(notes), 
-        buffer || false, num(eval_type), num(pa), num(reset_fee), copy_trade || false, vpn || false,
+        parseBool(buffer), num(eval_type), num(pa), num(reset_fee), parseBool(copy_trade), parseBool(vpn),
         num(max_accounts), num(dll), 
         num(fifty_k_all_in), num(fifty_k_initial_cost), num(without_discount_usd), num(discount_usd), num(discount_percent),
-        dca || false, news || false, bots || false, micro_scalping || false,
-        status_color || 'green', id
+        parseBool(dca), parseBool(news), parseBool(bots), parseBool(micro_scalping),
+        status_color || 'green', logo_url, id
       ]
     );
 
@@ -247,10 +255,10 @@ const updatePropFirm = async (req, res) => {
     await client.query('DELETE FROM prop_firm_platforms WHERE prop_firm_id = $1', [id]);
     
     // Relink
-    await linkPlatforms(client, id, platforms);
+    await linkPlatforms(client, id, parsedPlatforms);
 
     await client.query('COMMIT');
-    res.json({ ...result.rows[0], platforms: platforms || [] });
+    res.json({ ...result.rows[0], platforms: parsedPlatforms });
   } catch (error) {
     await client.query('ROLLBACK');
     console.error('Error updating prop firm:', error);
