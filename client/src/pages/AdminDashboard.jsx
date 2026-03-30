@@ -520,17 +520,21 @@ const PropFirmsTab = () => {
 
   const StatBox = ({ label, value }) => (
     <div style={{
-      background: 'linear-gradient(145deg, var(--bg-tertiary), rgba(255,255,255,0.01))',
-      border: '1px solid var(--border)',
-      borderRadius: '12px',
-      padding: '1rem',
+      background: 'var(--bg-secondary)',
+      border: 'none',
+      borderRadius: '24px',
+      padding: '1.5rem 1rem',
       display: 'flex',
       flexDirection: 'column',
-      gap: '0.4rem',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
-    }}>
-      <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--accent-purple)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</span>
-      <strong style={{ fontSize: '15px', color: 'var(--text-primary)' }}>{value || '-'}</strong>
+      alignItems: 'center',
+      justifyContent: 'center',
+      textAlign: 'center',
+      gap: '0.5rem',
+      boxShadow: '0 8px 25px -5px rgba(0,0,0,0.03)',
+      transition: 'transform 0.2s ease-out'
+    }} className="hover:-translate-y-1">
+      <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>{label}</span>
+      <span style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--text-primary)', lineHeight: 1.1, letterSpacing: '-0.5px' }}>{value || '-'}</span>
     </div>
   );
 
@@ -762,8 +766,8 @@ const PropFirmsTab = () => {
       {viewingFirm && (() => {
         const theme = getStatusTheme(viewingFirm.status_color);
         return (
-        <Modal hideHeader onClose={() => setViewingFirm(null)} style={{ background: 'var(--bg-primary)', backgroundImage: 'var(--gradient-mesh)', borderColor: theme.border }}>
-          <div className="view-firm-details" style={{ padding: '0', display: 'flex', flexDirection: 'column', gap: '2.5rem', maxHeight: '85vh', overflowY: 'auto', scrollbarWidth: 'thin', borderTopLeftRadius: 'var(--radius-xl)', borderTopRightRadius: 'var(--radius-xl)' }}>
+        <Modal hideHeader onClose={() => setViewingFirm(null)} style={{ background: 'var(--bg-primary)', backgroundImage: 'var(--gradient-mesh)', borderColor: theme.border, maxWidth: '950px', width: '95%' }}>
+          <div className="view-firm-details" style={{ padding: '0', display: 'flex', flexDirection: 'column', gap: '3rem', maxHeight: '85vh', overflowY: 'auto', scrollbarWidth: 'none', borderTopLeftRadius: 'var(--radius-xl)', borderTopRightRadius: 'var(--radius-xl)' }}>
             
             {/* Hero Banner Component */}
             <div style={{
@@ -804,11 +808,34 @@ const PropFirmsTab = () => {
                    <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
                      🏢 Basic Information
                    </h4>
-                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                     <StatBox label="Account Category" value={viewingFirm.account_category} />
-                     <StatBox label="Supported Platforms" value={(viewingFirm.platforms || []).join(', ')} />
-                     <StatBox label="Trustpilot Rating" value={viewingFirm.rating ? `${viewingFirm.rating} / 5` : null} />
-                     <StatBox label="Website URL" value={viewingFirm.website ? <a href={viewingFirm.website} target="_blank" rel="noreferrer" style={{color: '#818cf8', textDecoration: 'none'}}>{viewingFirm.website}</a> : null} />
+                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
+                     
+                     <div style={{ background: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '20px', display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.5rem' }}>Account Category</span>
+                        <span style={{ color: 'var(--text-primary)', fontSize: '1.25rem', fontWeight: 800 }}>{viewingFirm.account_category || '-'}</span>
+                     </div>
+                     
+                     <div style={{ background: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '20px', display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.5rem' }}>Trustpilot Rating</span>
+                        <span style={{ color: 'var(--text-primary)', fontSize: '1.25rem', fontWeight: 800 }}>⭐ {viewingFirm.rating ? `${viewingFirm.rating} / 5` : '-'}</span>
+                     </div>
+
+                     <div style={{ background: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '20px', display: 'flex', flexDirection: 'column', gridColumn: '1 / -1' }}>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '1rem' }}>Supported Platforms</span>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                          {(viewingFirm.platforms && viewingFirm.platforms.length > 0) ? viewingFirm.platforms.map(p => (
+                               <span key={p} style={{ background: 'var(--bg-primary)', padding: '0.6rem 1.2rem', borderRadius: '99px', fontSize: '0.9rem', fontWeight: 700, border: '1px solid var(--border)', color: 'var(--text-primary)', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>{p}</span>
+                          )) : <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>No platforms listed</span>}
+                        </div>
+                     </div>
+
+                     {viewingFirm.website && (
+                       <div style={{ background: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '20px', display: 'flex', flexDirection: 'column', gridColumn: '1 / -1' }}>
+                          <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.5rem' }}>Affiliate / Website URL</span>
+                          <a href={viewingFirm.website} target="_blank" rel="noreferrer" style={{color: 'var(--accent-blue)', textDecoration: 'none', fontSize: '1.1rem', fontWeight: 700, wordBreak: 'break-all'}} className="hover:underline">{viewingFirm.website}</a>
+                       </div>
+                     )}
+
                    </div>
                 </div>
 
@@ -848,7 +875,7 @@ const PropFirmsTab = () => {
                 </div>
 
                 {/* Badges / Toggles Block */}
-                <div>
+                <div style={{ paddingBottom: '2rem' }}>
                    <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
                      🔧 Feature Support
                    </h4>
