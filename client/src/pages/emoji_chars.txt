@@ -1,0 +1,4 @@
+Region after close tag (char codes):
+[0xf0(240)][0x178(376)][0x201c(8220)][0x161(353)]<
+Broken emoji string: "ðxa"
+Code points: 0xf0, 0x178, 0x201c, 0x161

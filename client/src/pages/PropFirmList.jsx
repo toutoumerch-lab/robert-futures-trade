@@ -255,10 +255,40 @@ const PropFirmList = () => {
 
             <div style={{ padding: '3rem', display: 'flex', flexDirection: 'column', gap: '4rem' }}>
                 
-                {/* 1. Huge Pricing Module */}
+                {/* 1. Basic Information */}
                 <div>
-                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '1.5rem' }}>
-                     <h4 style={{ fontSize: '1.5rem', margin: 0, color: 'var(--text-primary)', fontWeight: 800, letterSpacing: '-0.5px' }}>Pricing & Discounts</h4>
+                   <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
+                     🏢 Basic Information
+                   </h4>
+                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
+                     
+                     <div style={{ background: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '20px', display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.5rem' }}>Account Category</span>
+                        <span style={{ color: 'var(--text-primary)', fontSize: '1.25rem', fontWeight: 800 }}>{viewingFirm.account_category || '-'}</span>
+                     </div>
+                     
+                     <div style={{ background: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '20px', display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.5rem' }}>Trustpilot Rating</span>
+                        <span style={{ color: 'var(--text-primary)', fontSize: '1.25rem', fontWeight: 800 }}>⭐ {viewingFirm.rating ? `${viewingFirm.rating} / 5` : '-'}</span>
+                     </div>
+
+                     <div style={{ background: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '20px', display: 'flex', flexDirection: 'column', gridColumn: '1 / -1' }}>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '1rem' }}>Supported Platforms</span>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                          {(viewingFirm.platforms && viewingFirm.platforms.length > 0) ? viewingFirm.platforms.map(p => (
+                               <span key={p} style={{ background: 'var(--bg-primary)', padding: '0.6rem 1.2rem', borderRadius: '99px', fontSize: '0.9rem', fontWeight: 700, border: '1px solid var(--border)', color: 'var(--text-primary)', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>{p}</span>
+                          )) : <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>No platforms listed</span>}
+                        </div>
+                     </div>
+                   </div>
+                </div>
+
+                {/* 2. Pricing Details */}
+                <div>
+                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '1.25rem' }}>
+                     <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', margin: 0, color: 'var(--text-primary)' }}>
+                       💲 Pricing Details
+                     </h4>
                      {viewingFirm.discount_code && (
                         <button 
                           onClick={(e) => {
@@ -277,59 +307,55 @@ const PropFirmList = () => {
                         </button>
                      )}
                    </div>
-                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1.5rem' }}>
-                     <StatBox large label="Price without discount (50K)" value={viewingFirm.without_discount_usd != null && viewingFirm.without_discount_usd !== '' ? `$${viewingFirm.without_discount_usd}` : viewingFirm.fifty_k_initial_cost != null && viewingFirm.fifty_k_initial_cost !== '' ? `$${viewingFirm.fifty_k_initial_cost}` : '-'} />
-                     {viewingFirm.discount_usd != null && viewingFirm.discount_usd !== '' && (
-                        <StatBox large highlight label="Discount Price" value={`$${viewingFirm.discount_usd}`} />
-                     )}
-                     <StatBox large label="Activation Fee" value={viewingFirm.activation_fee != null && viewingFirm.activation_fee !== '' ? `$${viewingFirm.activation_fee}` : '-'} />
-                     <StatBox large label="Reset Fee" value={viewingFirm.reset_fee != null && viewingFirm.reset_fee !== '' ? `$${viewingFirm.reset_fee}` : '-'} />
+                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
+                     <StatBox label="Activation Fee" value={viewingFirm.activation_fee != null && viewingFirm.activation_fee !== '' ? `$${viewingFirm.activation_fee}` : '-'} />
+                     <StatBox label="Reset Fee" value={viewingFirm.reset_fee != null && viewingFirm.reset_fee !== '' ? `$${viewingFirm.reset_fee}` : '-'} />
+                     <StatBox label="50K All In" value={viewingFirm.fifty_k_all_in != null && viewingFirm.fifty_k_all_in !== '' ? `$${viewingFirm.fifty_k_all_in}` : '-'} />
+                     <StatBox label="50K Initial Cost" value={viewingFirm.fifty_k_initial_cost != null && viewingFirm.fifty_k_initial_cost !== '' ? `$${viewingFirm.fifty_k_initial_cost}` : '-'} />
+                     <StatBox label="Without Discount" value={viewingFirm.without_discount_usd != null && viewingFirm.without_discount_usd !== '' ? `$${viewingFirm.without_discount_usd}` : '-'} />
+                     <StatBox label="Discount Applied" value={viewingFirm.discount_usd != null && viewingFirm.discount_usd !== '' ? `$${viewingFirm.discount_usd} ${viewingFirm.discount_percent ? '('+viewingFirm.discount_percent+'%)' : ''}` : '-'} highlight />
                    </div>
                 </div>
 
-                {/* 2. Apple Style Evaluation Rules */}
+                {/* 3. Trading Rules & Metrics */}
                 <div>
-                   <h4 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--text-primary)', fontWeight: 800, letterSpacing: '-0.5px' }}>Evaluation Protocol</h4>
-                   <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                   <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
+                     ⚙️ Trading Rules & Metrics
+                   </h4>
+                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                      <StatBox label="Profit Target" value={viewingFirm.profit_target} />
                      <StatBox label="Profit Split" value={viewingFirm.profit_split} highlight />
-                     <StatBox label="Daily Loss Limit" value={viewingFirm.dll} />
-                     <StatBox label="Drawdown Style" value={viewingFirm.drawdown_limit} />
-                     <StatBox label="Max Accounts" value={viewingFirm.max_accounts} />
-                     <StatBox label="Eval Phase (%)" value={viewingFirm.eval} />
-                     <StatBox label="Funded Phase (%)" value={viewingFirm.pa} />
+                     <StatBox label="Daily Loss Limit (DLL)" value={viewingFirm.dll} />
+                     <StatBox label="Max Withdrawal" value={viewingFirm.max_withdrawal} />
+                     <StatBox label="Drawdown & Amt" value={viewingFirm.drawdown_limit} />
+                     <StatBox label="Days to Pass" value={viewingFirm.days_to_pass} />
                      <StatBox label="Days to Payout" value={viewingFirm.days_to_payout} />
+                     <StatBox label="Eval (%)" value={viewingFirm.eval} />
+                     <StatBox label="PA (%)" value={viewingFirm.pa} />
+                     <StatBox label="Max Accounts" value={viewingFirm.max_accounts} />
                    </div>
                 </div>
 
-                {/* 3. Platform & Approvals as Glossy Pills */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                  <div>
-                     <h4 style={{ fontSize: '1.3rem', marginBottom: '1.25rem', color: 'var(--text-primary)', fontWeight: 800, letterSpacing: '-0.5px' }}>Allowed Features</h4>
-                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-                        {['buffer', 'copy_trade', 'vpn', 'dca', 'news', 'bots', 'micro_scalping'].map(feat => {
-                           if (!viewingFirm[feat]) return null;
-                           return (
-                             <span key={feat} style={{ padding: '0.6rem 1.25rem', background: 'rgba(16,185,129,0.08)', color: '#10b981', borderRadius: '99px', fontSize: '13px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                               <div style={{ width: '6px', height: '6px', background: '#10b981', borderRadius: '50%', boxShadow: '0 0 10px #10b981' }} /> {feat.replace('_', ' ').toUpperCase()}
-                             </span>
-                           );
-                        })}
-                     </div>
-                  </div>
-                  <div>
-                     <h4 style={{ fontSize: '1.3rem', marginBottom: '1.25rem', color: 'var(--text-primary)', fontWeight: 800, letterSpacing: '-0.5px' }}>Terminals & Brokers</h4>
-                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-                        <span style={{ padding: '0.6rem 1.25rem', background: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderRadius: '99px', fontSize: '13px', fontWeight: 700 }}>
-                           💻 {viewingFirm.account_category || 'Futures'}
-                        </span>
-                        {viewingFirm.platforms?.map(p => (
-                           <span key={p} style={{ padding: '0.6rem 1.25rem', background: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderRadius: '99px', fontSize: '13px', fontWeight: 700 }}>
-                             📈 {p}
-                           </span>
-                        ))}
-                     </div>
-                  </div>
+                {/* 4. Feature Support */}
+                <div style={{ paddingBottom: '0.5rem' }}>
+                   <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
+                     🔧 Feature Support
+                   </h4>
+                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+                      {['buffer', 'copy_trade', 'vpn', 'dca', 'news', 'bots', 'micro_scalping'].map(feat => (
+                         <span key={feat} style={{ 
+                           padding: '0.6rem 1.2rem', 
+                           background: viewingFirm[feat] ? 'rgba(16, 185, 129, 0.1)' : 'var(--bg-secondary)', 
+                           color: viewingFirm[feat] ? '#10b981' : 'var(--text-secondary)', 
+                           borderRadius: '12px', 
+                           fontSize: '13px', 
+                           fontWeight: 700, 
+                           border: viewingFirm[feat] ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid var(--border)'
+                         }}>
+                           {viewingFirm[feat] ? '✓' : '✗'} {feat.replace('_', ' ').toUpperCase()}
+                         </span>
+                      ))}
+                   </div>
                 </div>
                 
                 {/* 4. Notes Context */}

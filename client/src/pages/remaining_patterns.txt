@@ -1,0 +1,6 @@
+Found 4 patterns:
+
+pos=56379 seq=[c3 b0 c5 b8 c2 8f c2 a2] ctx="ame="form-section-title">"
+pos=69638 seq=[c3 b0 c5 b8 c2 8f c2 a2] ctx="}}>?                     "
+pos=82855 seq=[c3 b0 c5 b8 c2 90 c2 a2] ctx=" 40) <= 60 ? 'C"E!B!' : '"
+pos=85656 seq=[c3 b0 c5 b8 c2 90 c2 a2] ctx=" 60 ? 'C"E!B! Medium' : '"

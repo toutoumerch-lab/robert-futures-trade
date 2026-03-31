@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+�import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
@@ -9,14 +9,8 @@ import Card from '../components/common/Card';
 import BrandingManager from '../components/admin/BrandingManager';
 import MultiSelect from '../components/common/MultiSelect';
 import Toggle from '../components/common/Toggle';
-import {
-  Image, Building2, DollarSign, Settings, Link2, Wrench,
-  Star, Check, X, Zap, Flame, Turtle,
-  Users, FileText, GraduationCap, Briefcase, PartyPopper, Palette,
-  Monitor, Smartphone
-} from 'lucide-react';
 
-// â”€â”€ Generic Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ���� Generic Modal ����������������������������������������������������������������������������������������������������������������������������
 const Modal = ({ title, onClose, hideHeader, style, children }) => {
   useEffect(() => {
     // Lock body scroll and prevent layout shift from scrollbar disappearing
@@ -39,11 +33,11 @@ const Modal = ({ title, onClose, hideHeader, style, children }) => {
         {!hideHeader && (
           <div className="modal-header">
             <h3>{title}</h3>
-            <button className="modal-close" onClick={onClose}><X size={16} /></button>
+            <button className="modal-close" onClick={onClose}>�S"</button>
           </div>
         )}
         {hideHeader && (
-          <button className="modal-close" onClick={onClose} style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 100, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(4px)', width: '36px', height: '36px', borderRadius: '50%', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}><X size={16} /></button>
+          <button className="modal-close" onClick={onClose} style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 100, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(4px)', width: '36px', height: '36px', borderRadius: '50%', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}>�S"</button>
         )}
         <div className="modal-body" style={{ padding: hideHeader ? '0' : '1.5rem' }}>{children}</div>
       </div>
@@ -52,7 +46,7 @@ const Modal = ({ title, onClose, hideHeader, style, children }) => {
   );
 };
 
-// â”€â”€ FormField helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ���� FormField helper ����������������������������������������������������������������������������������������������������������������������
 const Field = ({ label, type = 'text', value, onChange, placeholder, as, ...rest }) => (
   <div className="form-group">
     <label className="form-label">{label}</label>
@@ -64,7 +58,7 @@ const Field = ({ label, type = 'text', value, onChange, placeholder, as, ...rest
   </div>
 );
 
-// â”€â”€ Users Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ���� Users Tab ������������������������������������������������������������������������������������������������������������������������������������
 const UsersTab = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -91,7 +85,7 @@ const UsersTab = () => {
     fetchUsers();
   };
 
-  if (loading) return <div className="tab-loading">Loading users...</div>;
+  if (loading) return <div className="tab-loading">Loading users⬦</div>;
 
   return (
     <div>
@@ -128,7 +122,7 @@ const UsersTab = () => {
   );
 };
 
-// â”€â”€ Posts Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ���� Posts Tab ������������������������������������������������������������������������������������������������������������������������������������
 const PostsTab = ({ adminUser }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -166,7 +160,7 @@ const PostsTab = ({ adminUser }) => {
     fetchPosts();
   };
 
-  if (loading) return <div className="tab-loading">Loading posts...</div>;
+  if (loading) return <div className="tab-loading">Loading posts⬦</div>;
 
   return (
     <div>
@@ -197,8 +191,8 @@ const PostsTab = ({ adminUser }) => {
       {showModal && (
         <Modal title={editing ? 'Edit Post' : 'New Post'} onClose={() => setShowModal(false)}>
           <form onSubmit={handleSave} className="modal-form">
-            <Field label="Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Post title..." />
-            <Field label="Content" as="textarea" value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} placeholder="Write your post..." />
+            <Field label="Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Post title⬦" />
+            <Field label="Content" as="textarea" value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} placeholder="Write your post⬦" />
             <div className="modal-footer">
               <Button type="button" variant="outline" onClick={() => setShowModal(false)}>Cancel</Button>
               <Button type="submit">{editing ? 'Save Changes' : 'Publish Post'}</Button>
@@ -210,7 +204,7 @@ const PostsTab = ({ adminUser }) => {
   );
 };
 
-// â”€â”€ Courses Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ���� Courses Tab ��������������������������������������������������������������������������������������������������������������������������������
 const CoursesTab = () => {
   const { user } = useAuth();
   const [courses, setCourses] = useState([]);
@@ -352,7 +346,7 @@ const CoursesTab = () => {
     fetchCourses();
   };
 
-  if (loading) return <div className="tab-loading">Loading courses...</div>;
+  if (loading) return <div className="tab-loading">Loading courses⬦</div>;
 
   return (
     <div>
@@ -372,13 +366,13 @@ const CoursesTab = () => {
             <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
               <div style={{ display: 'flex', gap: '8px', marginBottom: '1rem', flexWrap: 'wrap' }}>
                 <span style={{ fontSize: '0.75rem', background: 'var(--bg-primary)', padding: '4px 12px', borderRadius: '99px', color: 'var(--accent-purple)', fontWeight: 800, border: '1px solid var(--border)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{c.level || 'Beginner'}</span>
-                <span style={{ fontSize: '0.75rem', background: 'var(--bg-primary)', padding: '4px 12px', borderRadius: '99px', color: 'var(--text-secondary)', fontWeight: 700, border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '4px' }}>â± {c.duration || 'N/A'}</span>
+                <span style={{ fontSize: '0.75rem', background: 'var(--bg-primary)', padding: '4px 12px', borderRadius: '99px', color: 'var(--text-secondary)', fontWeight: 700, border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '4px' }}>⏱ {c.duration || 'N/A'}</span>
               </div>
               <h3 style={{ margin: '0 0 1.25rem 0', fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.3, letterSpacing: '-0.5px' }}>{c.title}</h3>
               
               <div style={{ marginTop: 'auto', display: 'flex', gap: '10px' }}>
                 <button onClick={() => openEdit(c)} style={{ flex: 1, background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border)', padding: '0.7rem', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }} className="hover:bg-[var(--accent-purple)] hover:text-white hover:border-transparent">Edit Course</button>
-                <button onClick={() => deleteCourse(c.id)} style={{ padding: '0.7rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s', width: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="hover:bg-red-500 hover:text-white" title="Delete Course">âœ–</button>
+                <button onClick={() => deleteCourse(c.id)} style={{ padding: '0.7rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s', width: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="hover:bg-red-500 hover:text-white" title="Delete Course">�S</button>
               </div>
             </div>
           </div>
@@ -387,7 +381,7 @@ const CoursesTab = () => {
       
       {courses.length === 0 && (
         <div style={{ textAlign: 'center', padding: '6rem 2rem', background: 'var(--bg-secondary)', borderRadius: '32px', border: '1px dashed var(--border)' }}>
-          <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>📚</div>
+          <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>�xa</div>
           <h3 style={{ fontSize: '1.5rem', color: 'var(--text-primary)', marginBottom: '0.5rem', fontWeight: 800 }}>No courses available</h3>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '1.1rem' }}>Get started by building your first premium trading course.</p>
           <Button onClick={openCreate} style={{ padding: '0.8rem 2rem', borderRadius: '99px', fontSize: '1.1rem', fontWeight: 700 }}>Deploy First Course</Button>
@@ -550,7 +544,7 @@ const CoursesTab = () => {
                                boxShadow: isActive ? '0 0 10px rgba(124, 58, 237, 0.4)' : 'none'
                              }}
                            >
-                             <span onClick={() => setForm({ ...form, category: cat.name })} style={{ cursor: 'pointer' }}>{cat.name}</span>                           {user?.role === 'admin' && (<button type="button" onClick={e => handleDeleteCategory(cat.id, cat.name, e)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: isActive ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.25)', fontSize: '0.75rem', lineHeight: 1, padding: '0 0 0 2px', display: 'flex', alignItems: 'center', transition: 'color 0.15s' }} onMouseOver={e => { e.currentTarget.style.color = '#ef4444'; }} onMouseOut={e => { e.currentTarget.style.color = isActive ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.25)'; }} title={`Delete "${cat.name}"`}>✕</button>)}                           </div>
+                             <span onClick={() => setForm({ ...form, category: cat.name })} style={{ cursor: 'pointer' }}>{cat.name}</span>                           {user?.role === 'admin' && (<button type="button" onClick={e => handleDeleteCategory(cat.id, cat.name, e)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: isActive ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.25)', fontSize: '0.75rem', lineHeight: 1, padding: '0 0 0 2px', display: 'flex', alignItems: 'center', transition: 'color 0.15s' }} onMouseOver={e => { e.currentTarget.style.color = '#ef4444'; }} onMouseOut={e => { e.currentTarget.style.color = isActive ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.25)'; }} title={`Delete "${cat.name}"`}></button>)}                           </div>
                          );
                        })}
                      </div>
@@ -583,7 +577,7 @@ const CoursesTab = () => {
                    
                    {/* Thumbnail Upload */}
                    <div className="form-group" style={{ border: '2px dashed var(--border)', padding: '2.5rem 2rem', borderRadius: '24px', textAlign: 'center', background: 'var(--bg-secondary)' }}>
-                     <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📸</div>
+                     <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>�x�</div>
                      <label className="form-label text-center" style={{ fontSize: '1.25rem', marginBottom: '0.5rem', fontWeight: 800 }}>Course Cover Art</label>
                      <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Upload a high-quality 16:9 thumbnail image (JPG/PNG)</p>
                      
@@ -591,14 +585,14 @@ const CoursesTab = () => {
                        <input type="file" accept="image/*" onChange={e => setForm({...form, image: e.target.files[0]})} style={{ width: '100%', padding: '0.75rem', background: 'var(--bg-primary)', borderRadius: '12px', color: 'var(--text-primary)', border: '1px solid var(--border)' }} />
                      </div>
                      {editing && editing.image_url && !form.image && (
-                       <div style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Current banner: <a href={`http://localhost:5000${editing.image_url}`} target="_blank" rel="noreferrer" style={{color: 'var(--accent-pink)', fontWeight: 700}}>View active image â†’</a></div>
+                       <div style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Current banner: <a href={`http://localhost:5000${editing.image_url}`} target="_blank" rel="noreferrer" style={{color: 'var(--accent-pink)', fontWeight: 700}}>View active image � </a></div>
                      )}
                    </div>
 
                    {/* Video Options */}
                    <div style={{ background: 'var(--bg-secondary)', padding: '2.5rem', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.1)' }}>
                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                       <div style={{ fontSize: '2rem' }}>🎬</div>
+                       <div style={{ fontSize: '2rem' }}>�x}�</div>
                        <div>
                          <h4 style={{ margin: '0 0 0.25rem 0', color: 'var(--text-primary)', fontSize: '1.25rem', fontWeight: 800 }}>Video Engine</h4>
                          <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>We support either YouTube links or secure raw MP4 uploads. Do not use both simultaneously.</span>
@@ -615,19 +609,19 @@ const CoursesTab = () => {
                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '-0.25rem 0 1rem 0' }}>Max Size: 500MB payload limit injected directly to Node relay.</p>
                        <input type="file" accept="video/mp4,video/webm" onChange={e => setForm({...form, video_file: e.target.files[0]})} style={{ width: '100%', padding: '0.75rem', background: 'var(--bg-primary)', borderRadius: '12px', border: '1px solid var(--border)', color: 'var(--text-primary)' }} />
                        {editing && editing.video_file && !form.video_file && (
-                         <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'rgba(16,185,129,0.1)', color: '#10b981', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600 }}>âœ… Raw MP4 actively streaming from server.</div>
+                         <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'rgba(16,185,129,0.1)', color: '#10b981', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600 }}>�S& Raw MP4 actively streaming from server.</div>
                        )}
                      </div>
                    </div>
 
                    {/* PDF Upload */}
                    <div className="form-group" style={{ border: '2px dashed var(--border)', padding: '2.5rem', borderRadius: '24px', background: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                     <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📄</div>
+                     <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>�x</div>
                      <label className="form-label" style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.5rem' }}>Supporting Documentation</label>
                      <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Attach any PDF cheatsheets or study guides associated with this course.</p>
                      <input type="file" accept="application/pdf" onChange={e => setForm({...form, pdf_file: e.target.files[0]})} style={{ width: '100%', maxWidth: '400px', padding: '0.75rem', background: 'var(--bg-primary)', borderRadius: '12px', border: '1px solid var(--border)', color: 'var(--text-primary)' }} />
                      {editing && editing.pdf_url && !form.pdf_file && (
-                       <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>PDF Payload Active: <a href={`http://localhost:5000${editing.pdf_url}`} target="_blank" rel="noreferrer" style={{color: 'var(--accent-purple)', fontWeight: 700}}>Verify PDF â†’</a></div>
+                       <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>PDF Payload Active: <a href={`http://localhost:5000${editing.pdf_url}`} target="_blank" rel="noreferrer" style={{color: 'var(--accent-purple)', fontWeight: 700}}>Verify PDF � </a></div>
                      )}
                    </div>
 
@@ -646,7 +640,7 @@ const CoursesTab = () => {
   );
 };
 
-// â”€â”€ Prop Firms Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ���� Prop Firms Tab ��������������������������������������������������������������������������������������������������������������������������
 const PropFirmsTab = () => {
   const [firms, setFirms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -897,7 +891,7 @@ const PropFirmsTab = () => {
     </div>
   );
 
-  if (loading) return <div className="tab-loading">Loading prop firms...</div>;
+  if (loading) return <div className="tab-loading">Loading prop firms⬦</div>;
 
   return (
     <div>
@@ -922,7 +916,7 @@ const PropFirmsTab = () => {
           <tbody>
             {firms.map(f => (
               <tr key={f.id}>
-                <td style={{ fontWeight: 600 }}>{f.name} {f.featured && <Star size={14} style={{ display: 'inline', color: '#f59e0b', fill: '#f59e0b', verticalAlign: 'middle', marginLeft: '4px' }} />}</td>
+                <td style={{ fontWeight: 600 }}>{f.name} {f.featured && <span style={{fontSize:'12px'}}>⭐️</span>}</td>
                 <td>{f.rating ? `${f.rating} / 5` : '-'}</td>
                 <td>
                   <span 
@@ -953,7 +947,7 @@ const PropFirmsTab = () => {
             <div style={{ paddingRight: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               
               <div className="form-section">
-                <h3 className="form-section-title"><Image size={18} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />Branding</h3>
+                <h3 className="form-section-title">�x�️ Branding</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 1fr)', gap: '1rem', marginBottom: '1rem' }}>
                   <div className="form-group" style={{ 
                     border: '2px dashed var(--border-color)', 
@@ -976,7 +970,7 @@ const PropFirmsTab = () => {
                           type="button"
                           onClick={(e) => { e.preventDefault(); setForm({ ...form, imageFile: null, logo_url: '' }) }}
                           style={{ position: 'absolute', top: '-8px', right: '-8px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}
-                        >âœ•</button>
+                        >�S"</button>
                       </div>
                     ) : (
                       <div style={{ margin: '1rem 0', pointerEvents: 'none' }}>
@@ -999,16 +993,16 @@ const PropFirmsTab = () => {
                 </div>
               </div>
               <div className="form-section">
-                <h3 className="form-section-title"><Building2 size={18} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />Basic Information</h3>
+                <h3 className="form-section-title">�x�� Basic Information</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                  <Field label="Name (required)" required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Firm name..." />
+                  <Field label="Name (required)" required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Firm name⬦" />
                   <div className="form-group">
                     <label className="form-label">Internal Status (Admin Only)</label>
                     <select className="input" required value={form.status_color} onChange={e => setForm({ ...form, status_color: e.target.value })}>
-                      <option value="green">🟢 Green (Top Ranked)</option>
-                      <option value="blue">🔵 Blue (Community Trusted)</option>
-                      <option value="yellow">🟡 Yellow (New / Building Trust)</option>
-                      <option value="red">🔴 Red (Avoid / Possible Scam)</option>
+                      <option value="green">�xx� Green (Top Ranked)</option>
+                      <option value="blue">�x� Blue (Community Trusted)</option>
+                      <option value="yellow">�xx� Yellow (New / Building Trust)</option>
+                      <option value="red">�x� Red (Avoid / Possible Scam)</option>
                     </select>
                   </div>
                   <Field label="Account Category" value={form.account_category} onChange={e => setForm({ ...form, account_category: e.target.value })} placeholder="e.g. Futures, Forex" />
@@ -1020,7 +1014,7 @@ const PropFirmsTab = () => {
               </div>
 
               <div className="form-section">
-                <h3 className="form-section-title"><DollarSign size={18} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />Pricing Details</h3>
+                <h3 className="form-section-title">�x� Pricing Details</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
 
                   <Field label="Activation Fee (USD)" type="number" value={form.activation_fee} onChange={e => setForm({ ...form, activation_fee: e.target.value })} placeholder="e.g. 140" />
@@ -1035,7 +1029,7 @@ const PropFirmsTab = () => {
               </div>
 
               <div className="form-section">
-                <h3 className="form-section-title"><Settings size={18} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />Trading Rules & Metrics</h3>
+                <h3 className="form-section-title">�a"️ Trading Rules & Metrics</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                   <Field label="Profit Target" type="text" value={form.profit_target} onChange={e => setForm({ ...form, profit_target: e.target.value })} placeholder="e.g. $4,000 for max withdrawal, $1,000 for min" />
                   <Field label="Profit Split" type="text" value={form.profit_split} onChange={e => setForm({ ...form, profit_split: e.target.value })} placeholder="e.g. EOD, $2,000" />
@@ -1051,7 +1045,7 @@ const PropFirmsTab = () => {
               </div>
 
               <div className="form-section">
-                <h3 className="form-section-title"><Link2 size={18} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />Socials, Links & Ratings</h3>
+                <h3 className="form-section-title">�x Socials, Links & Ratings</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                   <Field label="Overall Score" type="number" step="0.1" value={form.overall_score} onChange={e => setForm({ ...form, overall_score: e.target.value })} placeholder="e.g. 9.5" />
                   <Field label="Rating (Trustpilot)" type="number" step="0.1" value={form.rating} onChange={e => setForm({ ...form, rating: e.target.value })} placeholder="e.g. 4.8" />
@@ -1060,7 +1054,7 @@ const PropFirmsTab = () => {
               </div>
 
               <div className="form-section">
-                <h3 className="form-section-title"><Wrench size={18} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />Toggles & Settings</h3>
+                <h3 className="form-section-title">�x� Toggles & Settings</h3>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
                   <Toggle label="Feature in Banner" checked={form.featured} onChange={val => setForm({ ...form, featured: val })} />
                   <Toggle label="Is Affiliate Link" checked={form.is_affiliate} onChange={val => setForm({ ...form, is_affiliate: val })} />
@@ -1153,11 +1147,10 @@ const PropFirmsTab = () => {
                   </div>
                   <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
                     <span className={`badge`} style={{ padding: '0.4rem 0.8rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff'}}>
-                       <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: viewingFirm.status_color === 'green' ? '#10b981' : viewingFirm.status_color === 'blue' ? '#3b82f6' : viewingFirm.status_color === 'yellow' ? '#f59e0b' : '#ef4444', marginRight: '6px' }} />
-                       {viewingFirm.status_color === 'green' ? 'Top Ranked' : viewingFirm.status_color === 'blue' ? 'Trusted' : viewingFirm.status_color === 'yellow' ? 'New / Warning' : 'Avoid'}
+                       {viewingFirm.status_color === 'green' ? '�xx� Top Ranked' : viewingFirm.status_color === 'blue' ? '�x� Trusted' : viewingFirm.status_color === 'yellow' ? '�xx� New / Warning' : '�x� Avoid'}
                     </span>
-                    {viewingFirm.featured && <span style={{fontSize: '13px', color: '#f59e0b', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px'}}><Star size={14} style={{ fill: '#f59e0b', color: '#f59e0b' }} /> Featured Firm</span>}
-                    {viewingFirm.is_affiliate && <span style={{fontSize: '13px', color: 'var(--accent-blue)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px'}}><Link2 size={14} /> Affiliate Partner</span>}
+                    {viewingFirm.featured && <span style={{fontSize: '13px', color: '#f59e0b', fontWeight: 600}}>⭐️ Featured Firm</span>}
+                    {viewingFirm.is_affiliate && <span style={{fontSize: '13px', color: 'var(--accent-blue)', fontWeight: 600}}>�x Affiliate Partner</span>}
                   </div>
                </div>
             </div>
@@ -1166,7 +1159,7 @@ const PropFirmsTab = () => {
                 {/* General Info */}
                 <div>
                    <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
-                     <Building2 size={20} /> Basic Information
+                     �x�� Basic Information
                    </h4>
                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
                      
@@ -1177,7 +1170,7 @@ const PropFirmsTab = () => {
                      
                      <div style={{ background: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '20px', display: 'flex', flexDirection: 'column' }}>
                         <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.5rem' }}>Trustpilot Rating</span>
-                        <span style={{ color: 'var(--text-primary)', fontSize: '1.25rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}><Star size={18} style={{ color: '#f59e0b', fill: '#f59e0b' }} /> {viewingFirm.rating ? `${viewingFirm.rating} / 5` : '-'}</span>
+                        <span style={{ color: 'var(--text-primary)', fontSize: '1.25rem', fontWeight: 800 }}>⭐ {viewingFirm.rating ? `${viewingFirm.rating} / 5` : '-'}</span>
                      </div>
 
                      <div style={{ background: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '20px', display: 'flex', flexDirection: 'column', gridColumn: '1 / -1' }}>
@@ -1202,7 +1195,7 @@ const PropFirmsTab = () => {
                 {/* Pricing Details */}
                 <div>
                    <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
-                     <DollarSign size={20} /> Pricing Details
+                     �x� Pricing Details
                    </h4>
                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
                      <StatBox label="Activation Fee" value={viewingFirm.activation_fee != null && viewingFirm.activation_fee !== '' ? `$${viewingFirm.activation_fee}` : '-'} />
@@ -1218,7 +1211,7 @@ const PropFirmsTab = () => {
                 {/* Trading Metrics */}
                 <div>
                    <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
-                     <Settings size={20} /> Trading Rules & Metrics
+                     �a"️ Trading Rules & Metrics
                    </h4>
                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                      <StatBox label="Profit Target" value={viewingFirm.profit_target} />
@@ -1237,7 +1230,7 @@ const PropFirmsTab = () => {
                 {/* Badges / Toggles Block */}
                 <div style={{ paddingBottom: '2rem' }}>
                    <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
-                     <Wrench size={20} /> Feature Support
+                     �x� Feature Support
                    </h4>
                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
                       {['buffer', 'copy_trade', 'vpn', 'dca', 'news', 'bots', 'micro_scalping'].map(feat => (
@@ -1250,7 +1243,7 @@ const PropFirmsTab = () => {
                            fontWeight: 600, 
                            border: viewingFirm[feat] ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid var(--border)'
                          }}>
-                           {viewingFirm[feat] ? <Check size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> : <X size={14} style={{ display: 'inline', verticalAlign: 'middle' }} />} {feat.replace('_', ' ').toUpperCase()}
+                           {viewingFirm[feat] ? '�S' : '�S'} {feat.replace('_', ' ').toUpperCase()}
                          </span>
                       ))}
                    </div>
@@ -1287,7 +1280,7 @@ const PropFirmsTab = () => {
   );
 };
 
-// â”€â”€ Promotions Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ���� Promotions Tab ��������������������������������������������������������������������������������������������������������������������������
 const PromotionsTab = () => {
   const [promos, setPromos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -1357,7 +1350,7 @@ const PromotionsTab = () => {
     fetchPromos();
   };
 
-  if (loading) return <div className="tab-loading">Loading promotions...</div>;
+  if (loading) return <div className="tab-loading">Loading promotions⬦</div>;
 
   return (
     <div>
@@ -1385,7 +1378,7 @@ const PromotionsTab = () => {
                     fontWeight: 600,
                     color: (p.ticker_speed ?? 40) <= 20 ? '#ec4899' : (p.ticker_speed ?? 40) <= 60 ? '#3b82f6' : '#10b981',
                   }}>
-                    {(p.ticker_speed ?? 40) <= 20 ? <Flame size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> : (p.ticker_speed ?? 40) <= 60 ? <Zap size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> : <Turtle size={14} style={{ display: 'inline', verticalAlign: 'middle' }} />} {p.ticker_speed ?? 40}s
+                    {(p.ticker_speed ?? 40) <= 20 ? '�x�' : (p.ticker_speed ?? 40) <= 60 ? '�a�' : '�x��'} {p.ticker_speed ?? 40}s
                   </span>
                 </td>
                 <td style={{ color: 'var(--text-secondary)' }}>
@@ -1415,7 +1408,7 @@ const PromotionsTab = () => {
             </div>
             <Field label="Expiration Date" type="datetime-local" value={form.expires_at} onChange={e => setForm({ ...form, expires_at: e.target.value })} />
 
-            {/* â”€â”€ Ticker Speed â”€â”€ */}
+            {/* ���� Ticker Speed ���� */}
             <div className="form-group">
               <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>Banner Scroll Speed</span>
@@ -1436,7 +1429,7 @@ const PromotionsTab = () => {
                     : '#10b981',
                   border: '1px solid currentColor',
                 }}>
-                  {form.ticker_speed <= 20 ? <><Flame size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> Fast</> : form.ticker_speed <= 60 ? <><Zap size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> Medium</> : <><Turtle size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> Slow</>} &nbsp;&middot;&nbsp; {form.ticker_speed}s
+                  {form.ticker_speed <= 20 ? '�x� Fast' : form.ticker_speed <= 60 ? '�a� Medium' : '�x�� Slow'} &nbsp;·&nbsp; {form.ticker_speed}s
                 </span>
               </label>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingTop: '4px' }}>
@@ -1473,14 +1466,14 @@ const PromotionsTab = () => {
   );
 };
 
-// â”€â”€ Main Admin Dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ���� Main Admin Dashboard ��������������������������������������������������������������������������������������������������������������
 const TABS = [
-  { id: 'users',      label: 'Users',      Icon: Users,         color: '#8b5cf6' },
-  { id: 'posts',      label: 'Blog Posts',  Icon: FileText,     color: '#3b82f6' },
-  { id: 'courses',    label: 'Courses',     Icon: GraduationCap, color: '#10b981' },
-  { id: 'prop-firms', label: 'Prop Firms',  Icon: Briefcase,     color: '#f59e0b' },
-  { id: 'promos',     label: 'Promotions',  Icon: PartyPopper,   color: '#ec4899' },
-  { id: 'branding',   label: 'Branding',    Icon: Palette,       color: '#06b6d4' },
+  { id: 'users',      label: '�x� Users' },
+  { id: 'posts',      label: '�x� Blog Posts' },
+  { id: 'courses',    label: '�x} Courses' },
+  { id: 'prop-firms', label: '�x�� Prop Firms' },
+  { id: 'promos',     label: '�x}� Promotions' },
+  { id: 'branding',   label: '�x}� Branding' },
 ];
 
 const AdminDashboard = () => {
@@ -1521,8 +1514,8 @@ const AdminDashboard = () => {
           <p style={{ color: 'var(--text-secondary)', marginTop: '0.25rem' }}>Manage your platform content</p>
         </div>
         <div className="flex gap-4 items-center">
-          <Button variant="outline" onClick={() => setLayout(prev => prev === 'horizontal' ? 'vertical' : 'horizontal')} style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-            {layout === 'horizontal' ? <><Smartphone size={14} /> Vertical Layout</> : <><Monitor size={14} /> Horizontal Layout</>}
+          <Button variant="outline" onClick={() => setLayout(prev => prev === 'horizontal' ? 'vertical' : 'horizontal')} style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
+            {layout === 'horizontal' ? '�x� Vertical Layout' : '�x� Horizontal Layout'}
           </Button>
           <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{user.name}</span>
           <Button variant="outline" onClick={() => { logout(); navigate('/'); }}>Logout</Button>
@@ -1533,34 +1526,27 @@ const AdminDashboard = () => {
         <div className="admin-navigation">
           {/* Tab Bar */}
           <div className="admin-tabs mb-6 md:mb-0">
-            {TABS.map(t => {
-              const TabIcon = t.Icon;
-              return (
+            {TABS.map(t => (
               <button
                 key={t.id}
                 className={`admin-tab ${activeTab === t.id ? 'active' : ''}`}
                 onClick={() => setActiveTab(t.id)}
-                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
               >
-                <TabIcon size={18} style={{ color: activeTab === t.id ? 'currentColor' : t.color }} /> {t.label}
+                {t.label}
               </button>
-              );
-            })}
+            ))}
           </div>
         </div>
 
         <div className="admin-workspace flex-1">
           {/* Stats Row */}
           <div className="admin-stats-row mb-8">
-            {TABS.map(t => {
-              const TabIcon = t.Icon;
-              return (
+            {TABS.map(t => (
               <Card key={t.id} style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => setActiveTab(t.id)}>
-                <div style={{ fontSize: '1.5rem', marginBottom: '0.25rem', display: 'flex', justifyContent: 'center' }}><TabIcon size={24} style={{ color: t.color }} /></div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{t.label}</div>
+                <div style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>{t.label.split(' ')[0]}</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{t.label.split(' ').slice(1).join(' ')}</div>
               </Card>
-              );
-            })}
+            ))}
           </div>
 
           {/* Tab Content */}

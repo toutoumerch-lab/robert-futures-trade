@@ -1,0 +1,8 @@
+const TABS = [
+  { id: 'users',      label: '[F0][178][2018][A5] Users' },
+  { id: 'posts',      label: '[F0][178][201C][9D] Blog Posts' },
+  { id: 'courses',    label: '[F0][178][17D][201C] Courses' },
+  { id: 'prop-firms', label: '[F0][178][8F][A6] Prop Firms' },
+  { id: 'promos',     label: '[F0][178][17D][81] Promotions' },
+  { id: 'branding',   label: '[F0][178][17D][A8] Branding' },
+];

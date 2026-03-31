@@ -41,8 +41,25 @@ const Navbar = () => {
             </Link>
           )}
 
-          <button className="theme-toggle glass" style={{ width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={toggleTheme} aria-label="Toggle Theme">
-            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          <button 
+            className="theme-toggle hover:-translate-y-1 transition-transform" 
+            style={{ 
+              width: '40px', 
+              height: '40px', 
+              borderRadius: '50%', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              background: 'var(--bg-secondary)',
+              border: '1px solid var(--border)',
+              color: theme === 'dark' ? '#fbbf24' : '#475569',
+              boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+              cursor: 'pointer'
+            }} 
+            onClick={toggleTheme} 
+            aria-label="Toggle Theme"
+          >
+            {theme === 'dark' ? <Sun size={19} /> : <Moon size={19} />}
           </button>
 
           <div className="nav-divider"></div>

@@ -15,6 +15,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import BlogList from './pages/BlogList';
 import BlogDetail from './pages/BlogDetail';
 import CourseList from './pages/CourseList';
+import CourseDetail from './pages/CourseDetail';
 import PropFirmList from './pages/PropFirmList';
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
                 <Route path="/blog" element={<BlogList />} />
                 <Route path="/blog/:id" element={<BlogDetail />} />
                 <Route path="/courses" element={<CourseList />} />
+                <Route path="/courses/:id" element={<CourseDetail />} />
                 <Route path="/prop-firms" element={<PropFirmList />} />
               </Routes>
             </main>
