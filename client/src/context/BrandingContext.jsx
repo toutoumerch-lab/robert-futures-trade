@@ -3,16 +3,34 @@ import axios from 'axios';
 
 const BrandingContext = createContext();
 
+const API_BASE = 'http://localhost:5000';
+
+// Dynamically update the browser tab favicon
+const applyFavicon = (faviconUrl) => {
+  let link = document.querySelector("link[rel~='icon']");
+  if (!link) {
+    link = document.createElement('link');
+    link.rel = 'icon';
+    document.head.appendChild(link);
+  }
+  if (faviconUrl) {
+    link.href = `${API_BASE}${faviconUrl}`;
+  } else {
+    link.href = '/favicon.svg'; // default
+  }
+};
+
 export const BrandingProvider = ({ children }) => {
   const [siteLogo, setSiteLogo] = useState(null);
   const [siteName, setSiteName] = useState(() => localStorage.getItem('branding_site_name') || "Robert's Trades");
   const [logoSize, setLogoSize] = useState(() => localStorage.getItem('branding_logo_size') || '32');
   const [siteNameColor, setSiteNameColor] = useState(() => localStorage.getItem('branding_site_name_color') || '');
+  const [siteFavicon, setSiteFavicon] = useState(() => localStorage.getItem('branding_site_favicon') || '');
   const [loading, setLoading] = useState(true);
 
   const fetchSettings = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/settings');
+      const res = await axios.get(`${API_BASE}/api/settings`);
       if (res.data.site_logo) setSiteLogo(res.data.site_logo);
 
       if (res.data.site_name) {
@@ -32,6 +50,16 @@ export const BrandingProvider = ({ children }) => {
       } else {
         localStorage.removeItem('branding_site_name_color');
       }
+
+      // Favicon
+      const favicon = res.data.site_favicon || '';
+      setSiteFavicon(favicon);
+      applyFavicon(favicon);
+      if (favicon) {
+        localStorage.setItem('branding_site_favicon', favicon);
+      } else {
+        localStorage.removeItem('branding_site_favicon');
+      }
     } catch (error) {
       console.error('Error fetching branding settings:', error);
     } finally {
@@ -40,6 +68,10 @@ export const BrandingProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    // Apply cached favicon immediately (before API loads)
+    const cachedFavicon = localStorage.getItem('branding_site_favicon');
+    if (cachedFavicon) applyFavicon(cachedFavicon);
+
     fetchSettings();
   }, []);
 
@@ -65,12 +97,23 @@ export const BrandingProvider = ({ children }) => {
     }
   }, []);
 
+  const updateFavicon = useCallback((faviconUrl) => {
+    setSiteFavicon(faviconUrl || '');
+    applyFavicon(faviconUrl);
+    if (faviconUrl) {
+      localStorage.setItem('branding_site_favicon', faviconUrl);
+    } else {
+      localStorage.removeItem('branding_site_favicon');
+    }
+  }, []);
+
   return (
     <BrandingContext.Provider value={{
-      siteLogo, siteName, logoSize, siteNameColor, loading,
+      siteLogo, siteName, logoSize, siteNameColor, siteFavicon, loading,
       refreshBranding: fetchSettings,
       updateBranding,
       updateSiteNameColor,
+      updateFavicon,
     }}>
       {children}
     </BrandingContext.Provider>

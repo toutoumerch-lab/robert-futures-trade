@@ -10,5 +10,6 @@ router.get('/', settingsController.getSettings);
 // Admin routes
 router.put('/', authenticateToken, isAdmin, settingsController.updateSettings);
 router.post('/logo', authenticateToken, isAdmin, upload.single('logo'), settingsController.updateLogo);
+router.post('/favicon', authenticateToken, isAdmin, upload.single('favicon'), settingsController.updateFavicon);
 
 module.exports = router;

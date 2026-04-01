@@ -75,9 +75,32 @@ const updateLogo = async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 };
+const updateFavicon = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No favicon file uploaded' });
+    }
+
+    const faviconUrl = `/uploads/branding/${req.file.filename}`;
+    
+    await pool.query(
+      'INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2',
+      ['site_favicon', faviconUrl]
+    );
+
+    res.json({ 
+      message: 'Favicon updated successfully',
+      favicon_url: faviconUrl 
+    });
+  } catch (error) {
+    console.error('Error updating favicon:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
 
 module.exports = {
   getSettings,
   updateSettings,
-  updateLogo
+  updateLogo,
+  updateFavicon
 };

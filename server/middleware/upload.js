@@ -12,21 +12,23 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'logo-' + uniqueSuffix + path.extname(file.originalname));
+    // Use 'favicon-' prefix for favicon uploads, 'logo-' for logos
+    const prefix = file.fieldname === 'favicon' ? 'favicon-' : 'logo-';
+    cb(null, prefix + uniqueSuffix + path.extname(file.originalname));
   }
 });
 
 const upload = multer({ 
   storage: storage,
   fileFilter: (req, file, cb) => {
-    const filetypes = /jpeg|jpg|png|svg|webp/;
+    const filetypes = /jpeg|jpg|png|svg|webp|ico|x-icon|vnd\.microsoft\.icon/;
     const mimetype = filetypes.test(file.mimetype);
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const extname = /jpeg|jpg|png|svg|webp|ico/.test(path.extname(file.originalname).toLowerCase().replace('.', ''));
 
-    if (mimetype && extname) {
+    if (mimetype || extname) {
       return cb(null, true);
     }
-    cb(new Error("Only image files are allowed!"));
+    cb(new Error("Only image files (JPG, PNG, SVG, ICO) are allowed!"));
   }
 });
 
