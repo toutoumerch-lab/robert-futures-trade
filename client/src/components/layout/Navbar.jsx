@@ -9,7 +9,7 @@ const Navbar = () => {
   const location = useLocation();
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const { siteLogo, siteName, logoSize } = useBranding();
+  const { siteLogo, siteName, logoSize, siteNameColor } = useBranding();
 
   const isActive = (path) => location.pathname.startsWith(path) && path !== '/' ? 'active' : location.pathname === '/' && path === '/' ? 'active' : '';
 
@@ -26,7 +26,15 @@ const Navbar = () => {
           ) : (
             <div className="brand-dot" style={{ width: '10px', height: '10px', background: 'var(--gradient-lotus)', borderRadius: '50%' }}></div>
           )}
-          <span className="text-gradient" style={{ fontWeight: '800', fontSize: '1.25rem', letterSpacing: '-0.02em' }}>
+          <span
+            className={siteNameColor ? '' : 'text-gradient'}
+            style={{
+              fontWeight: '800',
+              fontSize: '1.25rem',
+              letterSpacing: '-0.02em',
+              ...(siteNameColor ? { color: siteNameColor } : {}),
+            }}
+          >
             {siteName}
           </span>
         </Link>

@@ -15,7 +15,9 @@ const getSettings = async (req, res) => {
 };
 
 const updateSettings = async (req, res) => {
-  const { site_name } = req.body;
+  const { site_name, site_name_color } = req.body;
+  const hexRegex = /^#[0-9A-Fa-f]{6}$/;
+
   try {
     if (site_name) {
       await pool.query(
@@ -29,6 +31,21 @@ const updateSettings = async (req, res) => {
         ['site_logo_size', req.body.site_logo_size.toString()]
       );
     }
+
+    // Site Name Color
+    if (site_name_color !== undefined) {
+      if (site_name_color === '' || site_name_color === null) {
+        await pool.query('DELETE FROM settings WHERE key = $1', ['site_name_color']);
+      } else if (hexRegex.test(site_name_color)) {
+        await pool.query(
+          'INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2',
+          ['site_name_color', site_name_color]
+        );
+      } else {
+        return res.status(400).json({ error: 'Invalid color. Must be a valid HEX code (e.g. #6C5CE7).' });
+      }
+    }
+
     res.json({ message: 'Settings updated successfully' });
   } catch (error) {
     console.error('Error updating settings:', error);
