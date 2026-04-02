@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
-import { LayoutGrid, List, Search, SlidersHorizontal, X, Star, ExternalLink, Copy, Check, Filter, Heart, GitCompareArrows, Zap, TrendingUp } from 'lucide-react';
+import { LayoutGrid, List, Search, SlidersHorizontal, X, Star, ExternalLink, Copy, Check, Filter, Heart, GitCompareArrows, Zap, TrendingUp, ChevronDown, ChevronRight, Shield, DollarSign, Activity, Clock, Bot, Newspaper, Globe, BarChart3 } from 'lucide-react';
 
 const API = 'http://localhost:5000';
 
@@ -747,7 +747,7 @@ const FirmListRow = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTog
 const PropFirmList = () => {
   const [firms, setFirms] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [sort, setSort] = useState('name');
+  const [sort, setSort] = useState('cost');
   const [viewLayout, setViewLayout] = useState(() => localStorage.getItem('pf_layout') || 'grid');
   const [viewingFirm, setViewingFirm] = useState(null);
 
@@ -759,6 +759,16 @@ const PropFirmList = () => {
   const [freeActivation, setFreeActivation] = useState(false);
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  // Advanced filters
+  const [hasBuffer, setHasBuffer] = useState(false);
+  const [maxPayout, setMaxPayout] = useState('');
+  const [rulesBots, setRulesBots] = useState(false);
+  const [rulesNews, setRulesNews] = useState(false);
+  const [rulesCopy, setRulesCopy] = useState(false);
+  const [rulesVpn, setRulesVpn] = useState(false);
+  // Collapsible sections
+  const [openSections, setOpenSections] = useState({ pricing: true, performance: true, rules: false, payout: false, personal: true, sort: false });
+  const toggleSection = (key) => setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
 
   // Compare
   const [compareIds, setCompareIds] = useState([]);
@@ -795,7 +805,6 @@ const PropFirmList = () => {
 
   const filtered = useMemo(() => {
     return firms.filter(f => {
-      // Smart search: match name, code, or keywords
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
         const nameMatch = f.name.toLowerCase().includes(q);
@@ -811,9 +820,19 @@ const PropFirmList = () => {
       if (discountOnly && !f.discount_code) return false;
       if (freeActivation && f.activation_fee && Number(f.activation_fee) > 0) return false;
       if (favoritesOnly && !favorites.includes(f.id)) return false;
+      // Advanced filters
+      if (hasBuffer && !f.buffer) return false;
+      if (maxPayout && f.days_to_payout) {
+        const days = parseInt(f.days_to_payout);
+        if (!isNaN(days) && days > Number(maxPayout)) return false;
+      }
+      if (rulesBots && !f.bots) return false;
+      if (rulesNews && !f.news) return false;
+      if (rulesCopy && !f.copy_trade) return false;
+      if (rulesVpn && !f.vpn) return false;
       return true;
     });
-  }, [firms, searchQuery, minRating, maxPrice, discountOnly, freeActivation, favoritesOnly, favorites]);
+  }, [firms, searchQuery, minRating, maxPrice, discountOnly, freeActivation, favoritesOnly, favorites, hasBuffer, maxPayout, rulesBots, rulesNews, rulesCopy, rulesVpn]);
 
   const sorted = useMemo(() => {
     return [...filtered].sort((a, b) => {
@@ -830,23 +849,38 @@ const PropFirmList = () => {
     });
   }, [filtered, sort]);
 
-  const activeFilterCount = [searchQuery, minRating > 0, maxPrice, discountOnly, freeActivation, favoritesOnly].filter(Boolean).length;
+  // Active filter tracking (for tags + badge count)
+  const activeFilters = useMemo(() => {
+    const tags = [];
+    if (searchQuery) tags.push({ key: 'search', label: `Search: "${searchQuery}"`, clear: () => setSearchQuery('') });
+    if (minRating > 0) tags.push({ key: 'rating', label: `Rating: ${minRating}+`, clear: () => setMinRating(0) });
+    if (maxPrice) tags.push({ key: 'price', label: `Max: $${maxPrice}`, clear: () => setMaxPrice('') });
+    if (discountOnly) tags.push({ key: 'discount', label: 'Has Discount', clear: () => setDiscountOnly(false) });
+    if (freeActivation) tags.push({ key: 'free', label: 'Free Activation', clear: () => setFreeActivation(false) });
+    if (favoritesOnly) tags.push({ key: 'fav', label: 'Favorites', clear: () => setFavoritesOnly(false) });
+    if (hasBuffer) tags.push({ key: 'buffer', label: 'Has Buffer', clear: () => setHasBuffer(false) });
+    if (maxPayout) tags.push({ key: 'payout', label: `Payout ≤${maxPayout}d`, clear: () => setMaxPayout('') });
+    if (rulesBots) tags.push({ key: 'bots', label: 'Bots Allowed', clear: () => setRulesBots(false) });
+    if (rulesNews) tags.push({ key: 'news', label: 'News Trading', clear: () => setRulesNews(false) });
+    if (rulesCopy) tags.push({ key: 'copy', label: 'Copy Trading', clear: () => setRulesCopy(false) });
+    if (rulesVpn) tags.push({ key: 'vpn', label: 'VPN Allowed', clear: () => setRulesVpn(false) });
+    return tags;
+  }, [searchQuery, minRating, maxPrice, discountOnly, freeActivation, favoritesOnly, hasBuffer, maxPayout, rulesBots, rulesNews, rulesCopy, rulesVpn]);
+
+  const activeFilterCount = activeFilters.length;
 
   const clearFilters = () => {
     setSearchQuery(''); setMinRating(0); setMaxPrice('');
     setDiscountOnly(false); setFreeActivation(false); setFavoritesOnly(false);
+    setHasBuffer(false); setMaxPayout('');
+    setRulesBots(false); setRulesNews(false); setRulesCopy(false); setRulesVpn(false);
   };
 
   const compareFirms = useMemo(() => firms.filter(f => compareIds.includes(f.id)), [firms, compareIds]);
 
   const sortOptions = [
-    ['name', 'Name'],
-    ['cost', 'Price'],
+    ['cost', 'Lowest Price'],
     ['rating', 'Rating'],
-  ];
-
-  const advancedSortOptions = [
-    ['deal', 'Best Deal'],
     ['free', 'Free Activation First'],
     ['popular', 'Most Popular'],
   ];
@@ -916,66 +950,147 @@ const PropFirmList = () => {
                   <button className="pf-filter-close-btn" onClick={() => setFiltersOpen(false)}><X size={18} /></button>
                 </div>
 
-                {/* Favorites filter */}
-                <div className="pf-filter-group">
-                  <label className="pf-filter-toggle-label">
-                    <input type="checkbox" checked={favoritesOnly} onChange={e => setFavoritesOnly(e.target.checked)} />
-                    <span className="pf-checkbox-custom" />
-                    <Heart size={14} style={{ color: '#ec4899' }} /> Favorites Only ({favorites.length})
-                  </label>
-                </div>
-
-                <div className="pf-filter-group">
-                  <label className="pf-filter-label"><Star size={14} /> Min Rating</label>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <input type="range" min="0" max="5" step="0.5" value={minRating} onChange={e => setMinRating(Number(e.target.value))} style={{ flex: 1 }} />
-                    <span className="pf-filter-value">{minRating > 0 ? `${minRating}+` : 'Any'}</span>
+                {/* ── Active Filter Tags ── */}
+                {activeFilters.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', paddingBottom: '0.75rem', borderBottom: '1px solid var(--border-color)' }}>
+                    {activeFilters.map(tag => (
+                      <button key={tag.key} onClick={tag.clear} style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '4px',
+                        padding: '3px 10px', borderRadius: '99px', fontSize: '0.7rem', fontWeight: 700,
+                        background: 'rgba(139,92,246,0.1)', color: 'var(--accent-purple)',
+                        border: '1px solid rgba(139,92,246,0.2)', cursor: 'pointer',
+                        transition: 'all 0.15s'
+                      }}>
+                        {tag.label} <X size={11} />
+                      </button>
+                    ))}
                   </div>
-                </div>
+                )}
 
-                <div className="pf-filter-group">
-                  <label className="pf-filter-label">Max Price ($)</label>
-                  <input type="number" className="pf-filter-input" placeholder="e.g. 200" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} min="0" />
-                </div>
+                {/* ═══ SECTION: Personal ═══ */}
+                <button className="pf-section-toggle" onClick={() => toggleSection('personal')}>
+                  <span><Heart size={14} style={{ color: '#ec4899' }} /> Personal</span>
+                  {openSections.personal ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+                </button>
+                {openSections.personal && (
+                  <div className="pf-section-content">
+                    <label className="pf-filter-toggle-label">
+                      <input type="checkbox" checked={favoritesOnly} onChange={e => setFavoritesOnly(e.target.checked)} />
+                      <span className="pf-checkbox-custom" />
+                      Favorites Only ({favorites.length})
+                    </label>
+                  </div>
+                )}
 
-                <div className="pf-filter-group">
-                  <label className="pf-filter-toggle-label">
-                    <input type="checkbox" checked={discountOnly} onChange={e => setDiscountOnly(e.target.checked)} />
-                    <span className="pf-checkbox-custom" />
-                    Has Discount / Promo Code
-                  </label>
-                </div>
+                {/* ═══ SECTION: Pricing ═══ */}
+                <button className="pf-section-toggle" onClick={() => toggleSection('pricing')}>
+                  <span><DollarSign size={14} style={{ color: '#10b981' }} /> Pricing</span>
+                  {openSections.pricing ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+                </button>
+                {openSections.pricing && (
+                  <div className="pf-section-content">
+                    <div className="pf-filter-group">
+                      <label className="pf-filter-label">Max Price ($)</label>
+                      <input type="number" className="pf-filter-input" placeholder="e.g. 200" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} min="0" />
+                    </div>
+                    <label className="pf-filter-toggle-label">
+                      <input type="checkbox" checked={discountOnly} onChange={e => setDiscountOnly(e.target.checked)} />
+                      <span className="pf-checkbox-custom" />
+                      Has Discount / Promo Code
+                    </label>
+                    <label className="pf-filter-toggle-label">
+                      <input type="checkbox" checked={freeActivation} onChange={e => setFreeActivation(e.target.checked)} />
+                      <span className="pf-checkbox-custom" />
+                      Free Activation
+                    </label>
+                  </div>
+                )}
 
-                <div className="pf-filter-group">
-                  <label className="pf-filter-toggle-label">
-                    <input type="checkbox" checked={freeActivation} onChange={e => setFreeActivation(e.target.checked)} />
-                    <span className="pf-checkbox-custom" />
-                    Free Activation
-                  </label>
-                </div>
+                {/* ═══ SECTION: Performance ═══ */}
+                <button className="pf-section-toggle" onClick={() => toggleSection('performance')}>
+                  <span><BarChart3 size={14} style={{ color: '#3b82f6' }} /> Performance</span>
+                  {openSections.performance ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+                </button>
+                {openSections.performance && (
+                  <div className="pf-section-content">
+                    <div className="pf-filter-group">
+                      <label className="pf-filter-label"><Star size={13} /> Min Rating</label>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <input type="range" min="0" max="5" step="0.5" value={minRating} onChange={e => setMinRating(Number(e.target.value))} style={{ flex: 1, accentColor: 'var(--accent-purple)' }} />
+                        <span className="pf-filter-value">{minRating > 0 ? `${minRating}+` : 'Any'}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
-                {/* Sort Options */}
-                <div className="pf-filter-group" style={{ paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
-                  <label className="pf-filter-label"><TrendingUp size={14} /> Sort By</label>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                    {[...sortOptions, ...advancedSortOptions].map(([val, label]) => (
+                {/* ═══ SECTION: Trading Rules ═══ */}
+                <button className="pf-section-toggle" onClick={() => toggleSection('rules')}>
+                  <span><Shield size={14} style={{ color: '#f59e0b' }} /> Trading Rules</span>
+                  {openSections.rules ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+                </button>
+                {openSections.rules && (
+                  <div className="pf-section-content">
+                    <label className="pf-filter-toggle-label">
+                      <input type="checkbox" checked={hasBuffer} onChange={e => setHasBuffer(e.target.checked)} />
+                      <span className="pf-checkbox-custom" />
+                      Has Buffer Support
+                    </label>
+                    <label className="pf-filter-toggle-label">
+                      <input type="checkbox" checked={rulesBots} onChange={e => setRulesBots(e.target.checked)} />
+                      <span className="pf-checkbox-custom" />
+                      <Bot size={13} /> Bots Allowed
+                    </label>
+                    <label className="pf-filter-toggle-label">
+                      <input type="checkbox" checked={rulesNews} onChange={e => setRulesNews(e.target.checked)} />
+                      <span className="pf-checkbox-custom" />
+                      <Newspaper size={13} /> News Trading
+                    </label>
+                    <label className="pf-filter-toggle-label">
+                      <input type="checkbox" checked={rulesCopy} onChange={e => setRulesCopy(e.target.checked)} />
+                      <span className="pf-checkbox-custom" />
+                      <Copy size={13} /> Copy Trading
+                    </label>
+                    <label className="pf-filter-toggle-label">
+                      <input type="checkbox" checked={rulesVpn} onChange={e => setRulesVpn(e.target.checked)} />
+                      <span className="pf-checkbox-custom" />
+                      <Globe size={13} /> VPN Allowed
+                    </label>
+                  </div>
+                )}
+
+                {/* ═══ SECTION: Payout ═══ */}
+                <button className="pf-section-toggle" onClick={() => toggleSection('payout')}>
+                  <span><Clock size={14} style={{ color: '#8b5cf6' }} /> Payout</span>
+                  {openSections.payout ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+                </button>
+                {openSections.payout && (
+                  <div className="pf-section-content">
+                    <div className="pf-filter-group">
+                      <label className="pf-filter-label">Max Days to Payout</label>
+                      <input type="number" className="pf-filter-input" placeholder="e.g. 7" value={maxPayout} onChange={e => setMaxPayout(e.target.value)} min="1" />
+                    </div>
+                  </div>
+                )}
+
+                {/* ═══ SECTION: Sort ═══ */}
+                <button className="pf-section-toggle" onClick={() => toggleSection('sort')}>
+                  <span><TrendingUp size={14} style={{ color: 'var(--accent-purple)' }} /> Sort By</span>
+                  {openSections.sort ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+                </button>
+                {openSections.sort && (
+                  <div className="pf-section-content">
+                    {sortOptions.map(([val, label]) => (
                       <button
                         key={val}
                         onClick={() => setSort(val)}
                         style={{
-                          padding: '0.5rem 0.75rem',
-                          borderRadius: '8px',
+                          padding: '0.45rem 0.75rem', borderRadius: '8px', width: '100%',
                           border: sort === val ? '1px solid var(--accent-purple)' : '1px solid transparent',
                           background: sort === val ? 'rgba(139,92,246,0.08)' : 'transparent',
                           color: sort === val ? 'var(--accent-purple)' : 'var(--text-primary)',
-                          fontWeight: sort === val ? 700 : 500,
-                          fontSize: '0.82rem',
-                          cursor: 'pointer',
-                          textAlign: 'left',
-                          transition: 'all 0.15s',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.4rem'
+                          fontWeight: sort === val ? 700 : 500, fontSize: '0.82rem',
+                          cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s',
+                          display: 'flex', alignItems: 'center', gap: '0.4rem'
                         }}
                       >
                         {sort === val && <Check size={13} />}
@@ -983,8 +1098,9 @@ const PropFirmList = () => {
                       </button>
                     ))}
                   </div>
-                </div>
+                )}
 
+                {/* Results count */}
                 <div className="pf-filter-results">
                   <span>{filtered.length}</span> of {firms.length} firms
                 </div>

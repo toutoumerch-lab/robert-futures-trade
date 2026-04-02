@@ -1694,6 +1694,42 @@ textarea.input { resize: vertical; }
 }
 .pf-filter-results span { color: var(--accent-purple); font-weight: 800; }
 
+/* ── Collapsible Filter Sections ── */
+.pf-section-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.65rem 0;
+  border: none;
+  border-top: 1px solid var(--border-color);
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  transition: color 0.15s;
+}
+.pf-section-toggle > span {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.pf-section-toggle:hover {
+  color: var(--accent-purple);
+}
+.pf-section-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding-bottom: 0.5rem;
+  animation: pf-section-in 0.2s ease-out;
+}
+@keyframes pf-section-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* ── Results ── */
 .pf-results { flex: 1; min-width: 0; }
 .pf-grid {
