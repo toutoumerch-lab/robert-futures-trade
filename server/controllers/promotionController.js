@@ -1,16 +1,15 @@
 const { pool } = require('../config/db');
 
-// GET active promotion (public)
-const getActivePromotion = async (req, res) => {
+// GET all active promotions (public - used by banner)
+const getActivePromotions = async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT * FROM promotions
       WHERE status = 'active'
         AND (expires_at IS NULL OR expires_at > NOW())
       ORDER BY created_at DESC
-      LIMIT 1
     `);
-    res.json(result.rows[0] || null);
+    res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }
@@ -75,4 +74,4 @@ const deletePromotion = async (req, res) => {
   }
 };
 
-module.exports = { getActivePromotion, getAllPromotions, createPromotion, updatePromotion, deletePromotion };
+module.exports = { getActivePromotions, getAllPromotions, createPromotion, updatePromotion, deletePromotion };

@@ -663,7 +663,7 @@ const PropFirmsTab = () => {
     discount_code: '', overall_score: '', platforms: [], account_category: '', price: '',
     activation_fee: '', profit_split: '', max_withdrawal: '',
     profit_target: '', drawdown_limit: '', days_to_pass: '', days_to_payout: '', notes: '',
-    status_color: 'green', buffer: false, eval: '', pa: '', reset_fee: '', 
+    status_color: 'green', buffer: false, buffer_amount: '', eval: '', pa: '', reset_fee: '', 
     copy_trade: false, vpn: false, max_accounts: '', dll: '',
     fifty_k_all_in: '', fifty_k_initial_cost: '', without_discount_usd: '', 
     discount_usd: '', discount_percent: '', dca: false, news: false, 
@@ -704,8 +704,8 @@ const PropFirmsTab = () => {
       drawdown_limit: f.drawdown_limit || '', days_to_pass: f.days_to_pass || '',
       days_to_payout: f.days_to_payout || '', notes: f.notes || '',
       status_color: f.status_color || 'green',
-      buffer: f.buffer || false, eval: f.eval || '', pa: f.pa || '', 
-      reset_fee: f.reset_fee || '', copy_trade: f.copy_trade || false, vpn: f.vpn || false,
+      buffer: !!f.buffer, buffer_amount: (f.buffer_amount != null ? String(f.buffer_amount) : ''), eval: f.eval || '', pa: f.pa || '', 
+      reset_fee: (f.reset_fee != null ? String(f.reset_fee) : ''), copy_trade: !!f.copy_trade, vpn: !!f.vpn,
       max_accounts: f.max_accounts || '', dll: f.dll || '',
       fifty_k_all_in: f.fifty_k_all_in || '', fifty_k_initial_cost: f.fifty_k_initial_cost || '', 
       without_discount_usd: f.without_discount_usd || '', discount_usd: f.discount_usd || '', 
@@ -784,7 +784,6 @@ const PropFirmsTab = () => {
       overall_score: cleanNumeric(latest.overall_score),
       price: cleanNumeric(latest.price),
       activation_fee: cleanNumeric(latest.activation_fee),
-      reset_fee: cleanNumeric(latest.reset_fee),
       fifty_k_all_in: cleanNumeric(latest.fifty_k_all_in),
       fifty_k_initial_cost: cleanNumeric(latest.fifty_k_initial_cost),
       without_discount_usd: cleanNumeric(latest.without_discount_usd),
@@ -792,6 +791,7 @@ const PropFirmsTab = () => {
       discount_percent: cleanNumeric(latest.discount_percent),
       
       // Kept faithfully as text (will not treat as numbers)
+      reset_fee: latest.reset_fee,
       drawdown_limit: latest.drawdown_limit,
       profit_target: latest.profit_target,
       max_withdrawal: latest.max_withdrawal
@@ -1024,7 +1024,7 @@ const PropFirmsTab = () => {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
 
                   <Field label="Activation Fee (USD)" type="number" value={form.activation_fee} onChange={e => setForm({ ...form, activation_fee: e.target.value })} placeholder="e.g. 140" />
-                  <Field label="Reset Fee (USD)" type="number" value={form.reset_fee} onChange={e => setForm({ ...form, reset_fee: e.target.value })} placeholder="e.g. 50" />
+                  <Field label="Reset Fee (USD)" type="text" value={form.reset_fee} onChange={e => setForm({ ...form, reset_fee: e.target.value })} placeholder="e.g. 50" />
                   <Field label="50k All In (USD)" type="number" value={form.fifty_k_all_in} onChange={e => setForm({ ...form, fifty_k_all_in: e.target.value })} placeholder="e.g. 200" />
                   <Field label="50k Initial Cost (USD)" type="number" value={form.fifty_k_initial_cost} onChange={e => setForm({ ...form, fifty_k_initial_cost: e.target.value })} placeholder="e.g. 99" />
                   <Field label="Without Discount (USD)" type="number" value={form.without_discount_usd} onChange={e => setForm({ ...form, without_discount_usd: e.target.value })} placeholder="e.g. 199" />
@@ -1064,7 +1064,19 @@ const PropFirmsTab = () => {
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
                   <Toggle label="Feature in Banner" checked={form.featured} onChange={val => setForm({ ...form, featured: val })} />
                   <Toggle label="Is Affiliate Link" checked={form.is_affiliate} onChange={val => setForm({ ...form, is_affiliate: val })} />
-                  <Toggle label="Buffer Support" checked={form.buffer} onChange={val => setForm({ ...form, buffer: val })} />
+                  <Toggle label="Buffer Support" checked={form.buffer} onChange={val => { setForm({ ...form, buffer: val, buffer_amount: val ? form.buffer_amount : '' }); }} />
+                  {form.buffer && (
+                    <div style={{ width: '100%', marginTop: '0.25rem', marginBottom: '0.5rem' }}>
+                      <Field 
+                        label="Buffer Amount" 
+                        type="text" 
+                        value={form.buffer_amount} 
+                        onChange={e => setForm({ ...form, buffer_amount: e.target.value })} 
+                        placeholder="Enter buffer amount (e.g. $1000 or 10%)" 
+                        required 
+                      />
+                    </div>
+                  )}
                   <Toggle label="Copy Trade Allowed" checked={form.copy_trade} onChange={val => setForm({ ...form, copy_trade: val })} />
                   <Toggle label="VPN Allowed" checked={form.vpn} onChange={val => setForm({ ...form, vpn: val })} />
                   <Toggle label="DCA Allowed" checked={form.dca} onChange={val => setForm({ ...form, dca: val })} />
@@ -1206,7 +1218,7 @@ const PropFirmsTab = () => {
                    </h4>
                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
                      <StatBox label="Activation Fee" value={viewingFirm.activation_fee != null && viewingFirm.activation_fee !== '' ? `$${viewingFirm.activation_fee}` : '-'} />
-                     <StatBox label="Reset Fee" value={viewingFirm.reset_fee != null && viewingFirm.reset_fee !== '' ? `$${viewingFirm.reset_fee}` : '-'} />
+                     <StatBox label="Reset Fee" value={viewingFirm.reset_fee != null && viewingFirm.reset_fee !== '' ? (isNaN(viewingFirm.reset_fee) ? viewingFirm.reset_fee : `$${viewingFirm.reset_fee}`) : '-'} />
                      <StatBox label="50K All In" value={viewingFirm.fifty_k_all_in != null && viewingFirm.fifty_k_all_in !== '' ? `$${viewingFirm.fifty_k_all_in}` : '-'} />
                      <StatBox label="50K Initial Cost" value={viewingFirm.fifty_k_initial_cost != null && viewingFirm.fifty_k_initial_cost !== '' ? `$${viewingFirm.fifty_k_initial_cost}` : '-'} />
                      <StatBox label="Without Discount" value={viewingFirm.without_discount_usd != null && viewingFirm.without_discount_usd !== '' ? `$${viewingFirm.without_discount_usd}` : '-'} />
@@ -1240,19 +1252,25 @@ const PropFirmsTab = () => {
                      <Wrench size={20} /> Feature Support
                    </h4>
                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-                      {['buffer', 'copy_trade', 'vpn', 'dca', 'news', 'bots', 'micro_scalping'].map(feat => (
-                         <span key={feat} style={{ 
-                           padding: '0.5rem 1rem', 
-                           background: viewingFirm[feat] ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.03)', 
-                           color: viewingFirm[feat] ? '#10b981' : 'var(--text-secondary)', 
-                           borderRadius: '10px', 
-                           fontSize: '13px', 
-                           fontWeight: 600, 
-                           border: viewingFirm[feat] ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid var(--border)'
-                         }}>
-                           {viewingFirm[feat] ? <Check size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> : <X size={14} style={{ display: 'inline', verticalAlign: 'middle' }} />} {feat.replace('_', ' ').toUpperCase()}
-                         </span>
-                      ))}
+                      {['buffer', 'copy_trade', 'vpn', 'dca', 'news', 'bots', 'micro_scalping'].map(feat => {
+                        const isEnabled = viewingFirm[feat];
+                        const label = feat === 'buffer' && isEnabled
+                          ? `BUFFER (${viewingFirm.buffer_amount || 'N/A'})`
+                          : feat.replace(/_/g, ' ').toUpperCase();
+                        return (
+                          <span key={feat} style={{ 
+                            padding: '0.5rem 1rem', 
+                            background: isEnabled ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.03)', 
+                            color: isEnabled ? '#10b981' : 'var(--text-secondary)', 
+                            borderRadius: '10px', 
+                            fontSize: '13px', 
+                            fontWeight: 600, 
+                            border: isEnabled ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid var(--border)'
+                          }}>
+                            {isEnabled ? <Check size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> : <X size={14} style={{ display: 'inline', verticalAlign: 'middle' }} />} {label}
+                          </span>
+                        );
+                      })}
                    </div>
                    
                    {viewingFirm.notes && (

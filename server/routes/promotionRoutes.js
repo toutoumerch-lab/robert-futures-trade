@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {
-  getActivePromotion,
+  getActivePromotions,
   getAllPromotions,
   createPromotion,
   updatePromotion,
@@ -10,7 +10,7 @@ const {
 const { authenticateToken, isAdmin } = require('../middleware/auth');
 
 // Public – used by the banner
-router.get('/active', getActivePromotion);
+router.get('/active', getActivePromotions);
 
 // Admin-only
 router.get('/', authenticateToken, isAdmin, getAllPromotions);

@@ -36,7 +36,7 @@ const getPropFirms = async (req, res) => {
         last_checked, is_affiliate, discount_code, overall_score, 
         account_category, price, activation_fee, profit_split, 
         max_withdrawal, profit_target, drawdown_limit, days_to_pass, days_to_payout, notes,
-        buffer, eval, pa, reset_fee, copy_trade, vpn, max_accounts, dll,
+        buffer, buffer_amount, eval, pa, reset_fee, copy_trade, vpn, max_accounts, dll,
         fifty_k_all_in, fifty_k_initial_cost, without_discount_usd, discount_usd, discount_percent,
         dca, news, bots, micro_scalping,
         logo_url, created_at,
@@ -83,7 +83,7 @@ const createPropFirm = async (req, res) => {
     last_checked, is_affiliate, discount_code, overall_score, 
     account_category, price, activation_fee, profit_split, 
     max_withdrawal, profit_target, drawdown_limit, days_to_pass, days_to_payout, notes,
-    buffer, eval: eval_type, pa, reset_fee, copy_trade, vpn, max_accounts, dll,
+    buffer, buffer_amount, eval: eval_type, pa, reset_fee, copy_trade, vpn, max_accounts, dll,
     fifty_k_all_in, fifty_k_initial_cost, without_discount_usd, discount_usd, discount_percent,
     dca, news, bots, micro_scalping,
     status_color, platforms
@@ -102,21 +102,21 @@ const createPropFirm = async (req, res) => {
         last_checked, is_affiliate, discount_code, overall_score, 
         account_category, price, activation_fee, profit_split, 
         max_withdrawal, profit_target, drawdown_limit, days_to_pass, days_to_payout, notes, 
-        buffer, eval, pa, reset_fee, copy_trade, vpn, max_accounts, dll, 
+        buffer, buffer_amount, eval, pa, reset_fee, copy_trade, vpn, max_accounts, dll, 
         fifty_k_all_in, fifty_k_initial_cost, without_discount_usd, discount_usd, discount_percent,
         dca, news, bots, micro_scalping,
         status_color, logo_url
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, 
         $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, 
-        $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41
+        $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42
       ) RETURNING *`,
       [
         name, num(importance), parseBool(featured), num(rating), num(website), num(affiliate_link), num(twitter), num(discord), 
         num(last_checked), parseBool(is_affiliate), num(discount_code), num(overall_score), 
         num(account_category), num(price), num(activation_fee), num(profit_split), 
         num(max_withdrawal), num(profit_target), num(drawdown_limit), num(days_to_pass), num(days_to_payout), num(notes),
-        parseBool(buffer), num(eval_type), num(pa), num(reset_fee), parseBool(copy_trade), parseBool(vpn),
+        parseBool(buffer), parseBool(buffer) ? num(buffer_amount) : null, num(eval_type), num(pa), num(reset_fee), parseBool(copy_trade), parseBool(vpn),
         num(max_accounts), num(dll), 
         num(fifty_k_all_in), num(fifty_k_initial_cost), num(without_discount_usd), num(discount_usd), num(discount_percent),
         parseBool(dca), parseBool(news), parseBool(bots), parseBool(micro_scalping), 
@@ -207,7 +207,7 @@ const updatePropFirm = async (req, res) => {
     last_checked, is_affiliate, discount_code, overall_score, 
     account_category, price, activation_fee, profit_split, 
     max_withdrawal, profit_target, drawdown_limit, days_to_pass, days_to_payout, notes,
-    buffer, eval: eval_type, pa, reset_fee, copy_trade, vpn, max_accounts, dll,
+    buffer, buffer_amount, eval: eval_type, pa, reset_fee, copy_trade, vpn, max_accounts, dll,
     fifty_k_all_in, fifty_k_initial_cost, without_discount_usd, discount_usd, discount_percent,
     dca, news, bots, micro_scalping,
     status_color, platforms
@@ -227,18 +227,18 @@ const updatePropFirm = async (req, res) => {
         discount_code=$11, overall_score=$12, account_category=$13, 
         price=$14, activation_fee=$15, profit_split=$16, 
         max_withdrawal=$17, profit_target=$18, drawdown_limit=$19, days_to_pass=$20, 
-        days_to_payout=$21, notes=$22, buffer=$23, eval=$24, pa=$25, reset_fee=$26, 
-        copy_trade=$27, vpn=$28, max_accounts=$29, dll=$30, 
-        fifty_k_all_in=$31, fifty_k_initial_cost=$32, without_discount_usd=$33, 
-        discount_usd=$34, discount_percent=$35, dca=$36, news=$37, bots=$38, 
-        micro_scalping=$39, status_color=$40, logo_url=$41
-      WHERE id=$42 RETURNING *`,
+        days_to_payout=$21, notes=$22, buffer=$23, buffer_amount=$24, eval=$25, pa=$26, reset_fee=$27, 
+        copy_trade=$28, vpn=$29, max_accounts=$30, dll=$31, 
+        fifty_k_all_in=$32, fifty_k_initial_cost=$33, without_discount_usd=$34, 
+        discount_usd=$35, discount_percent=$36, dca=$37, news=$38, bots=$39, 
+        micro_scalping=$40, status_color=$41, logo_url=$42
+      WHERE id=$43 RETURNING *`,
       [
         name, num(importance), parseBool(featured), num(rating), num(website), num(affiliate_link), num(twitter), num(discord), 
         num(last_checked), parseBool(is_affiliate), num(discount_code), num(overall_score), 
         num(account_category), num(price), num(activation_fee), num(profit_split), 
         num(max_withdrawal), num(profit_target), num(drawdown_limit), num(days_to_pass), num(days_to_payout), num(notes), 
-        parseBool(buffer), num(eval_type), num(pa), num(reset_fee), parseBool(copy_trade), parseBool(vpn),
+        parseBool(buffer), parseBool(buffer) ? num(buffer_amount) : null, num(eval_type), num(pa), num(reset_fee), parseBool(copy_trade), parseBool(vpn),
         num(max_accounts), num(dll), 
         num(fifty_k_all_in), num(fifty_k_initial_cost), num(without_discount_usd), num(discount_usd), num(discount_percent),
         parseBool(dca), parseBool(news), parseBool(bots), parseBool(micro_scalping),
