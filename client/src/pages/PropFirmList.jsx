@@ -178,69 +178,413 @@ const SmartSearch = ({ firms, searchQuery, setSearchQuery, onSelectFirm }) => {
 };
 
 /* ════════════════════════════════════════════════
-   Comparison Modal
+   Comparison Modal (Conversion-Optimized)
    ════════════════════════════════════════════════ */
 const CompareModal = ({ firms, onClose }) => {
   if (!firms || firms.length < 2) return null;
-  const rows = [
-    { key: 'rating', label: '⭐ Rating', render: f => f.rating || 'N/A' },
-    { key: 'activation_fee', label: '💰 Activation Fee', render: f => f.activation_fee ? `$${f.activation_fee}` : 'Free' },
-    { key: 'price', label: '💲 Price', render: f => f.discount_usd ? `$${f.discount_usd}` : f.fifty_k_initial_cost ? `$${f.fifty_k_initial_cost}` : 'N/A' },
-    { key: 'discount_percent', label: '🏷️ Discount', render: f => f.discount_percent ? `-${f.discount_percent}%` : '—' },
-    { key: 'discount_code', label: '🎟️ Promo Code', render: f => f.discount_code || '—' },
-    { key: 'profit_split', label: '📊 Profit Split', render: f => f.profit_split || 'N/A' },
-    { key: 'profit_target', label: '🎯 Profit Target', render: f => f.profit_target || 'N/A' },
-    { key: 'dll', label: '📉 Daily Loss Limit', render: f => f.dll || 'N/A' },
-    { key: 'drawdown_limit', label: '📉 Drawdown', render: f => f.drawdown_limit || 'N/A' },
-    { key: 'days_to_payout', label: '⏰ Days to Payout', render: f => f.days_to_payout || 'N/A' },
-    { key: 'max_accounts', label: '👤 Max Accounts', render: f => f.max_accounts || 'N/A' },
-  ];
+
+  // ── Helper: extract numeric price for a firm ──
+  const getEffectivePrice = (f) => {
+    if (f.discount_usd && Number(f.discount_usd) > 0) return Number(f.discount_usd);
+    if (f.fifty_k_initial_cost && Number(f.fifty_k_initial_cost) > 0) return Number(f.fifty_k_initial_cost);
+    if (f.activation_fee && Number(f.activation_fee) > 0) return Number(f.activation_fee);
+    return Infinity;
+  };
+
+  const getSavings = (f) => {
+    if (f.without_discount_usd && f.discount_usd) {
+      const save = Number(f.without_discount_usd) - Number(f.discount_usd);
+      return save > 0 ? save : 0;
+    }
+    return 0;
+  };
+
+  const getNumericRating = (f) => Number(f.rating || 0);
+  const getNumericPayout = (f) => { const n = parseInt(f.days_to_payout); return isNaN(n) ? Infinity : n; };
+  const isFreeActivation = (f) => !f.activation_fee || Number(f.activation_fee) === 0;
+
+  // ── Determine winners per category ──
+  const bestPriceId = [...firms].sort((a, b) => getEffectivePrice(a) - getEffectivePrice(b))[0]?.id;
+  const bestRatingId = [...firms].sort((a, b) => getNumericRating(b) - getNumericRating(a))[0]?.id;
+  const bestPayoutId = [...firms].sort((a, b) => getNumericPayout(a) - getNumericPayout(b))[0]?.id;
+
+  // ── Smart badges per firm ──
+  const getBadges = (f) => {
+    const badges = [];
+    if (f.id === bestPriceId && getEffectivePrice(f) < Infinity) badges.push({ text: '💎 Best Value', color: '#10b981' });
+    if (isFreeActivation(f)) badges.push({ text: '🆓 Free Start', color: '#3b82f6' });
+    if (getNumericRating(f) >= 4.5 && f.id === bestRatingId) badges.push({ text: '⭐ Top Rated', color: '#f59e0b' });
+    if (f.id === bestPayoutId && getNumericPayout(f) < Infinity) badges.push({ text: '⚡ Fastest Payout', color: '#8b5cf6' });
+    return badges;
+  };
+
+  // ── Winner check for a row ──
+  const isWinner = (firmId, winnerId) => firms.length > 1 && firmId === winnerId;
+
+  // ── Cell style with winner highlight ──
+  const cellStyle = (firmId, winnerId, extra = {}) => ({
+    textAlign: 'center', fontWeight: 700, fontSize: '0.88rem',
+    position: 'relative',
+    ...(isWinner(firmId, winnerId) ? {
+      color: '#10b981',
+      background: 'rgba(16,185,129,0.06)',
+    } : {}),
+    ...extra,
+  });
+
+  // ── Winner trophy indicator ──
+  const WinnerBadge = () => (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', background: 'rgba(16,185,129,0.15)', color: '#10b981', fontSize: '0.65rem', fontWeight: 800, padding: '2px 7px', borderRadius: '6px', marginLeft: '6px', verticalAlign: 'middle', letterSpacing: '0.03em' }}>
+      🏆 BEST
+    </span>
+  );
+
+  // ── Section Header ──
+  const SectionRow = ({ icon, title }) => (
+    <tr>
+      <td colSpan={firms.length + 1} style={{ padding: '1.25rem 1rem 0.5rem', border: 'none', background: 'transparent' }}>
+        <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--accent-purple)', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          {icon} {title}
+        </span>
+      </td>
+    </tr>
+  );
 
   return createPortal(
     <div className="pf-compare-overlay" onClick={onClose}>
-      <style>{`@keyframes compareSlideUp { from { opacity:0; transform:translateY(30px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }`}</style>
-      <div className="pf-compare-modal" onClick={e => e.stopPropagation()} style={{ animation: 'compareSlideUp 0.35s cubic-bezier(0.16,1,0.3,1)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+      <style>{`
+        @keyframes compareSlideUp { from { opacity:0; transform:translateY(30px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+        .cmp-row:hover { background: var(--bg-secondary) !important; }
+        .cmp-check-on { color: #10b981; }
+        .cmp-check-off { color: var(--text-secondary); opacity: 0.4; }
+        @keyframes cmpGradientSpin {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes cmpPulseGlow {
+          0%, 100% { box-shadow: 0 0 12px rgba(168,85,247,0.15); }
+          50% { box-shadow: 0 0 22px rgba(236,72,153,0.3); }
+        }
+        .cmp-logo-ring {
+          position: relative;
+          border-radius: 20px;
+          padding: 3px;
+          background-size: 400% 400%;
+          animation: cmpGradientSpin 4s ease infinite, cmpPulseGlow 4s ease-in-out infinite;
+          transition: transform 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s;
+        }
+        .cmp-logo-ring:hover {
+          transform: scale(1.08);
+          animation-duration: 1.5s, 2s;
+        }
+        .cmp-logo-inner {
+          background: #fff;
+          border-radius: 17px;
+          width: 56px;
+          height: 56px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+        }
+        .cmp-logo-inner img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          padding: 6px;
+        }
+      `}</style>
+      <div className="pf-compare-modal" onClick={e => e.stopPropagation()} style={{ animation: 'compareSlideUp 0.35s cubic-bezier(0.16,1,0.3,1)', maxWidth: '1000px', display: 'flex', flexDirection: 'column' }}>
+
+        {/* ── Header ── */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexShrink: 0 }}>
           <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <GitCompareArrows size={22} /> Compare Firms
           </h2>
           <button onClick={onClose} style={{ background: 'var(--bg-secondary)', border: 'none', width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', fontSize: '1.1rem' }}>✕</button>
         </div>
-        <div style={{ overflowX: 'auto' }}>
-          <table className="pf-compare-table">
+        <p style={{ margin: '0 0 1.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Side-by-side breakdown to help you pick the best prop firm for your trading style.</p>
+
+        {/* ── Scrollable Table ── */}
+        <div style={{ overflowX: 'auto', flex: 1 }}>
+          <table className="pf-compare-table" style={{ minWidth: '600px' }}>
             <thead>
               <tr>
-                <th style={{ width: '160px' }}></th>
+                <th style={{ width: '170px' }}></th>
                 {firms.map(f => (
-                  <th key={f.id}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-                      {f.logo_url && <img src={`${API}${f.logo_url}`} alt="" style={{ width: 44, height: 44, borderRadius: 12, objectFit: 'contain', background: '#fff', padding: 4, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }} />}
-                      <span style={{ fontWeight: 800, fontSize: '1rem' }}>{f.name}</span>
+                  <th key={f.id} style={{ verticalAlign: 'bottom', paddingBottom: '1rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem' }}>
+                      {f.logo_url && (() => {
+                        const gradients = [
+                          'linear-gradient(270deg, #00f5a0, #00d9f5, #a855f7, #ec4899, #00f5a0)',
+                          'linear-gradient(270deg, #f97316, #ec4899, #8b5cf6, #3b82f6, #f97316)',
+                          'linear-gradient(270deg, #06b6d4, #10b981, #f59e0b, #ef4444, #06b6d4)',
+                        ];
+                        const idx = firms.indexOf(f) % gradients.length;
+                        return (
+                          <div className="cmp-logo-ring" style={{ background: gradients[idx] }}>
+                            <div className="cmp-logo-inner">
+                              <img src={`${API}${f.logo_url}`} alt="" />
+                            </div>
+                          </div>
+                        );
+                      })()}
+                      <span style={{ fontWeight: 800, fontSize: '1.05rem', textAlign: 'center', lineHeight: 1.2 }}>{f.name}</span>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', justifyContent: 'center' }}>
+                        {getBadges(f).map(b => (
+                          <span key={b.text} style={{ fontSize: '0.62rem', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', background: `${b.color}15`, color: b.color, border: `1px solid ${b.color}30`, whiteSpace: 'nowrap' }}>{b.text}</span>
+                        ))}
+                      </div>
                     </div>
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {rows.map(row => (
-                <tr key={row.key}>
-                  <td className="pf-compare-label">{row.label}</td>
-                  {firms.map(f => (
-                    <td key={f.id} style={{ textAlign: 'center', fontWeight: 700 }}>{row.render(f)}</td>
-                  ))}
-                </tr>
-              ))}
-              <tr>
-                <td className="pf-compare-label">🔗 Website</td>
+
+              {/* ═══ PRICING SECTION ═══ */}
+              <SectionRow icon="💰" title="Pricing & Savings" />
+
+              {/* Rating */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label">⭐ Rating</td>
                 {firms.map(f => (
-                  <td key={f.id} style={{ textAlign: 'center' }}>
-                    {f.website ? <a href={f.website} target="_blank" rel="noreferrer" className="btn-visit-firm-sm" style={{ display: 'inline-flex' }}>Visit <ExternalLink size={11} /></a> : '—'}
+                  <td key={f.id} style={cellStyle(f.id, bestRatingId)}>
+                    {f.rating ? <><span style={{ fontSize: '1.1rem' }}>{f.rating}</span><span style={{ fontSize: '0.78rem', opacity: 0.6 }}>/5</span></> : <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
+                    {isWinner(f.id, bestRatingId) && getNumericRating(f) > 0 && <WinnerBadge />}
                   </td>
                 ))}
               </tr>
+
+              {/* Activation Fee */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label">🔓 Activation Fee</td>
+                {firms.map(f => (
+                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700 }}>
+                    {isFreeActivation(f)
+                      ? <span style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981', padding: '4px 14px', borderRadius: '8px', fontWeight: 800, fontSize: '0.88rem' }}>FREE ✓</span>
+                      : <span>${f.activation_fee}</span>
+                    }
+                  </td>
+                ))}
+              </tr>
+
+              {/* Final Price */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label">💲 Final Price</td>
+                {firms.map(f => {
+                  const price = getEffectivePrice(f);
+                  const savings = getSavings(f);
+                  return (
+                    <td key={f.id} style={cellStyle(f.id, bestPriceId)}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
+                        <span style={{ fontSize: '1.15rem', fontWeight: 900 }}>{price < Infinity ? `$${price}` : 'N/A'}</span>
+                        {f.without_discount_usd && f.discount_usd && (
+                          <span style={{ textDecoration: 'line-through', color: 'var(--text-secondary)', fontSize: '0.78rem' }}>${f.without_discount_usd}</span>
+                        )}
+                        {savings > 0 && (
+                          <span style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981', fontSize: '0.72rem', fontWeight: 800, padding: '2px 8px', borderRadius: '6px' }}>Save ${savings}</span>
+                        )}
+                        {isWinner(f.id, bestPriceId) && price < Infinity && <WinnerBadge />}
+                      </div>
+                    </td>
+                  );
+                })}
+              </tr>
+
+              {/* Discount */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label">🏷️ Discount</td>
+                {firms.map(f => (
+                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700 }}>
+                    {f.discount_percent
+                      ? <span style={{ color: '#ec4899', fontWeight: 800 }}>-{f.discount_percent}%</span>
+                      : <span style={{ color: 'var(--text-secondary)' }}>—</span>
+                    }
+                  </td>
+                ))}
+              </tr>
+
+              {/* Promo Code */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label">🎟️ Promo Code</td>
+                {firms.map(f => (
+                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700 }}>
+                    {f.discount_code
+                      ? <span style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', padding: '4px 12px', borderRadius: '6px', fontWeight: 800, fontFamily: 'monospace', letterSpacing: '0.05em' }}>{f.discount_code}</span>
+                      : <span style={{ color: 'var(--text-secondary)' }}>—</span>
+                    }
+                  </td>
+                ))}
+              </tr>
+
+              {/* ═══ TRADING RULES SECTION ═══ */}
+              <SectionRow icon="⚙️" title="Trading Rules & Metrics" />
+
+              {/* Profit Split */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label">📊 Profit Split</td>
+                {firms.map(f => (
+                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 800, fontSize: '0.95rem', color: f.profit_split ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
+                    {f.profit_split || 'N/A'}
+                  </td>
+                ))}
+              </tr>
+
+              {/* Profit Target */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label">🎯 Profit Target</td>
+                {firms.map(f => (
+                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
+                    {f.profit_target || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
+                  </td>
+                ))}
+              </tr>
+
+              {/* Daily Loss Limit */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label">📉 Daily Loss Limit</td>
+                {firms.map(f => (
+                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
+                    {f.dll || <span style={{ color: 'var(--text-secondary)' }}>None</span>}
+                  </td>
+                ))}
+              </tr>
+
+              {/* Drawdown */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label">📉 Drawdown Rules</td>
+                {firms.map(f => (
+                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
+                    {f.drawdown_limit || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
+                  </td>
+                ))}
+              </tr>
+
+              {/* Buffer Support */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label">🛡️ Buffer</td>
+                {firms.map(f => (
+                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700 }}>
+                    {f.buffer ? (
+                      <span style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', padding: '4px 12px', borderRadius: '8px', fontWeight: 800 }}>
+                        ✓ {f.buffer_amount || 'Yes'}
+                      </span>
+                    ) : (
+                      <span className="cmp-check-off">✗ No</span>
+                    )}
+                  </td>
+                ))}
+              </tr>
+
+              {/* ═══ PAYOUT SECTION ═══ */}
+              <SectionRow icon="⏱️" title="Payout & Accounts" />
+
+              {/* Days to Payout */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label">⚡ Payout Speed</td>
+                {firms.map(f => (
+                  <td key={f.id} style={cellStyle(f.id, bestPayoutId)}>
+                    <span>{f.days_to_payout || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}</span>
+                    {isWinner(f.id, bestPayoutId) && getNumericPayout(f) < Infinity && <WinnerBadge />}
+                  </td>
+                ))}
+              </tr>
+
+              {/* Max Withdrawal */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label">💸 Max Withdrawal</td>
+                {firms.map(f => (
+                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
+                    {f.max_withdrawal || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
+                  </td>
+                ))}
+              </tr>
+
+              {/* Days to Pass */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label">📅 Days to Pass</td>
+                {firms.map(f => (
+                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700 }}>
+                    {f.days_to_pass || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
+                  </td>
+                ))}
+              </tr>
+
+              {/* Max Accounts */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label">👤 Max Accounts</td>
+                {firms.map(f => (
+                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
+                    {f.max_accounts || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
+                  </td>
+                ))}
+              </tr>
+
+              {/* Eval */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label">📋 Eval</td>
+                {firms.map(f => (
+                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700 }}>
+                    {f.eval || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
+                  </td>
+                ))}
+              </tr>
+
+              {/* ═══ TRADING FEATURES SECTION ═══ */}
+              <SectionRow icon="🔧" title="Trading Features" />
+
+              {/* Feature toggles as visual check/cross */}
+              {[
+                { key: 'copy_trade', label: '📋 Copy Trading' },
+                { key: 'news', label: '📰 News Trading' },
+                { key: 'bots', label: '🤖 Bots Allowed' },
+                { key: 'vpn', label: '🌐 VPN Allowed' },
+                { key: 'dca', label: '📈 DCA Allowed' },
+                { key: 'micro_scalping', label: '⚡ Micro Scalping' },
+              ].map(feat => (
+                <tr key={feat.key} className="cmp-row">
+                  <td className="pf-compare-label">{feat.label}</td>
+                  {firms.map(f => (
+                    <td key={f.id} style={{ textAlign: 'center', fontWeight: 700 }}>
+                      {f[feat.key] ? (
+                        <span style={{ color: '#10b981', fontSize: '1rem' }}>✓ Yes</span>
+                      ) : (
+                        <span className="cmp-check-off">✗ No</span>
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+
             </tbody>
           </table>
         </div>
+
+        {/* ── Sticky CTA Footer ── */}
+        <div style={{
+          display: 'flex', gap: '1rem', justifyContent: 'center', alignItems: 'center',
+          paddingTop: '1.5rem', marginTop: '1rem',
+          borderTop: '1px solid var(--border-color)', flexShrink: 0, flexWrap: 'wrap'
+        }}>
+          {firms.map(f => (
+            f.website ? (
+              <a key={f.id} href={f.website} target="_blank" rel="noreferrer" style={{
+                background: 'linear-gradient(135deg, var(--accent-pink), var(--accent-purple))',
+                color: '#fff', padding: '0.7rem 1.5rem', borderRadius: '12px',
+                fontWeight: 700, textDecoration: 'none', fontSize: '0.88rem',
+                display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                boxShadow: '0 6px 20px rgba(236,72,153,0.3)',
+                transition: 'all 0.25s cubic-bezier(0.16,1,0.3,1)',
+                flex: '1 1 0', minWidth: '160px', maxWidth: '280px', justifyContent: 'center'
+              }} className="btn-visit-firm">
+                Visit {f.name.split(' ')[0]} <ExternalLink size={14} />
+              </a>
+            ) : null
+          ))}
+        </div>
+
       </div>
     </div>,
     document.body
@@ -496,12 +840,15 @@ const PropFirmList = () => {
   const compareFirms = useMemo(() => firms.filter(f => compareIds.includes(f.id)), [firms, compareIds]);
 
   const sortOptions = [
-    ['name', 'Name', null],
-    ['cost', 'Price 💰', null],
-    ['rating', 'Rating ⭐', null],
-    ['deal', 'Best Deal 💸', null],
-    ['free', 'Free 🆓', null],
-    ['popular', 'Popular 🔥', null],
+    ['name', 'Name'],
+    ['cost', 'Price'],
+    ['rating', 'Rating'],
+  ];
+
+  const advancedSortOptions = [
+    ['deal', 'Best Deal'],
+    ['free', 'Free Activation First'],
+    ['popular', 'Most Popular'],
   ];
 
   return (
@@ -605,6 +952,37 @@ const PropFirmList = () => {
                     <span className="pf-checkbox-custom" />
                     Free Activation
                   </label>
+                </div>
+
+                {/* Sort Options */}
+                <div className="pf-filter-group" style={{ paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
+                  <label className="pf-filter-label"><TrendingUp size={14} /> Sort By</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    {[...sortOptions, ...advancedSortOptions].map(([val, label]) => (
+                      <button
+                        key={val}
+                        onClick={() => setSort(val)}
+                        style={{
+                          padding: '0.5rem 0.75rem',
+                          borderRadius: '8px',
+                          border: sort === val ? '1px solid var(--accent-purple)' : '1px solid transparent',
+                          background: sort === val ? 'rgba(139,92,246,0.08)' : 'transparent',
+                          color: sort === val ? 'var(--accent-purple)' : 'var(--text-primary)',
+                          fontWeight: sort === val ? 700 : 500,
+                          fontSize: '0.82rem',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          transition: 'all 0.15s',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.4rem'
+                        }}
+                      >
+                        {sort === val && <Check size={13} />}
+                        {label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="pf-filter-results">
