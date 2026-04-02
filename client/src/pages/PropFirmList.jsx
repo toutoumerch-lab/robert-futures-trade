@@ -180,8 +180,23 @@ const SmartSearch = ({ firms, searchQuery, setSearchQuery, onSelectFirm }) => {
 /* ════════════════════════════════════════════════
    Comparison Modal (Conversion-Optimized)
    ════════════════════════════════════════════════ */
-const CompareModal = ({ firms, onClose }) => {
+const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
+  const [firms, setFirms] = useState(initialFirms);
+
+  // Sync if parent changes the list
+  useEffect(() => { setFirms(initialFirms); }, [initialFirms]);
+
+  const handleRemove = (id) => {
+    const next = firms.filter(f => f.id !== id);
+    if (next.length < 2) { onClose(); return; }
+    setFirms(next);
+    onRemoveFirm?.(id);
+  };
+
   if (!firms || firms.length < 2) return null;
+
+  // ── Dynamic modal width based on firm count ──
+  const modalMaxWidth = firms.length <= 2 ? '800px' : firms.length === 3 ? '1000px' : '1150px';
 
   // ── Helper: extract numeric price for a firm ──
   const getEffectivePrice = (f) => {
@@ -211,10 +226,14 @@ const CompareModal = ({ firms, onClose }) => {
   // ── Smart badges per firm ──
   const getBadges = (f) => {
     const badges = [];
-    if (f.id === bestPriceId && getEffectivePrice(f) < Infinity) badges.push({ text: '💎 Best Value', color: '#10b981' });
+    if (f.id === bestPriceId && getEffectivePrice(f) < Infinity) badges.push({ text: '💰 Cheapest', color: '#10b981' });
     if (isFreeActivation(f)) badges.push({ text: '🆓 Free Start', color: '#3b82f6' });
     if (getNumericRating(f) >= 4.5 && f.id === bestRatingId) badges.push({ text: '⭐ Top Rated', color: '#f59e0b' });
     if (f.id === bestPayoutId && getNumericPayout(f) < Infinity) badges.push({ text: '⚡ Fastest Payout', color: '#8b5cf6' });
+    // Best overall value (cheapest + good rating)
+    if (f.id === bestPriceId && f.id !== bestRatingId && getNumericRating(f) >= 4.0 && getEffectivePrice(f) < Infinity) {
+      badges.push({ text: '💎 Best Value', color: '#06b6d4' });
+    }
     return badges;
   };
 
@@ -249,6 +268,13 @@ const CompareModal = ({ firms, onClose }) => {
       </td>
     </tr>
   );
+
+  const gradients = [
+    'linear-gradient(270deg, #00f5a0, #00d9f5, #a855f7, #ec4899, #00f5a0)',
+    'linear-gradient(270deg, #f97316, #ec4899, #8b5cf6, #3b82f6, #f97316)',
+    'linear-gradient(270deg, #06b6d4, #10b981, #f59e0b, #ef4444, #06b6d4)',
+    'linear-gradient(270deg, #a855f7, #ec4899, #f97316, #10b981, #a855f7)',
+  ];
 
   return createPortal(
     <div className="pf-compare-overlay" onClick={onClose}>
@@ -294,43 +320,48 @@ const CompareModal = ({ firms, onClose }) => {
           object-fit: contain;
           padding: 6px;
         }
+        .cmp-remove-btn {
+          position: absolute; top: 4px; right: 4px;
+          width: 22px; height: 22px; border-radius: 50%;
+          background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.2);
+          color: #ef4444; cursor: pointer; font-size: 11px; font-weight: 800;
+          display: flex; align-items: center; justify-content: center;
+          opacity: 0; transition: opacity 0.15s, background 0.15s;
+        }
+        .cmp-header-cell:hover .cmp-remove-btn { opacity: 1; }
+        .cmp-remove-btn:hover { background: rgba(239,68,68,0.25); }
       `}</style>
-      <div className="pf-compare-modal" onClick={e => e.stopPropagation()} style={{ animation: 'compareSlideUp 0.35s cubic-bezier(0.16,1,0.3,1)', maxWidth: '1000px', display: 'flex', flexDirection: 'column' }}>
+      <div className="pf-compare-modal" onClick={e => e.stopPropagation()} style={{ animation: 'compareSlideUp 0.35s cubic-bezier(0.16,1,0.3,1)', maxWidth: modalMaxWidth, display: 'flex', flexDirection: 'column', transition: 'max-width 0.3s ease' }}>
 
         {/* ── Header ── */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexShrink: 0 }}>
           <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <GitCompareArrows size={22} /> Compare Firms
+            <GitCompareArrows size={22} /> Compare {firms.length} Firms
           </h2>
           <button onClick={onClose} style={{ background: 'var(--bg-secondary)', border: 'none', width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', fontSize: '1.1rem' }}>✕</button>
         </div>
-        <p style={{ margin: '0 0 1.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Side-by-side breakdown to help you pick the best prop firm for your trading style.</p>
+        <p style={{ margin: '0 0 1.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Side-by-side breakdown to help you pick the best prop firm for your trading style. {firms.length > 2 && <span style={{ color: 'var(--text-secondary)', opacity: 0.7 }}>Hover a firm header to remove it.</span>}</p>
 
         {/* ── Scrollable Table ── */}
         <div style={{ overflowX: 'auto', flex: 1 }}>
-          <table className="pf-compare-table" style={{ minWidth: '600px' }}>
+          <table className="pf-compare-table" style={{ minWidth: firms.length <= 2 ? '500px' : firms.length === 3 ? '650px' : '800px' }}>
             <thead>
               <tr>
-                <th style={{ width: '170px' }}></th>
-                {firms.map(f => (
-                  <th key={f.id} style={{ verticalAlign: 'bottom', paddingBottom: '1rem' }}>
+                <th style={{ width: '155px' }}></th>
+                {firms.map((f, idx) => (
+                  <th key={f.id} style={{ verticalAlign: 'bottom', paddingBottom: '1rem', position: 'relative' }} className="cmp-header-cell">
+                    {firms.length > 2 && (
+                      <button className="cmp-remove-btn" onClick={() => handleRemove(f.id)} title={`Remove ${f.name}`}>✕</button>
+                    )}
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem' }}>
-                      {f.logo_url && (() => {
-                        const gradients = [
-                          'linear-gradient(270deg, #00f5a0, #00d9f5, #a855f7, #ec4899, #00f5a0)',
-                          'linear-gradient(270deg, #f97316, #ec4899, #8b5cf6, #3b82f6, #f97316)',
-                          'linear-gradient(270deg, #06b6d4, #10b981, #f59e0b, #ef4444, #06b6d4)',
-                        ];
-                        const idx = firms.indexOf(f) % gradients.length;
-                        return (
-                          <div className="cmp-logo-ring" style={{ background: gradients[idx] }}>
-                            <div className="cmp-logo-inner">
-                              <img src={`${API}${f.logo_url}`} alt="" />
-                            </div>
+                      {f.logo_url && (
+                        <div className="cmp-logo-ring" style={{ background: gradients[idx % gradients.length] }}>
+                          <div className="cmp-logo-inner">
+                            <img src={`${API}${f.logo_url}`} alt="" />
                           </div>
-                        );
-                      })()}
-                      <span style={{ fontWeight: 800, fontSize: '1.05rem', textAlign: 'center', lineHeight: 1.2 }}>{f.name}</span>
+                        </div>
+                      )}
+                      <span style={{ fontWeight: 800, fontSize: firms.length >= 4 ? '0.92rem' : '1.05rem', textAlign: 'center', lineHeight: 1.2 }}>{f.name}</span>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', justifyContent: 'center' }}>
                         {getBadges(f).map(b => (
                           <span key={b.text} style={{ fontSize: '0.62rem', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', background: `${b.color}15`, color: b.color, border: `1px solid ${b.color}30`, whiteSpace: 'nowrap' }}>{b.text}</span>
@@ -564,7 +595,7 @@ const CompareModal = ({ firms, onClose }) => {
 
         {/* ── Sticky CTA Footer ── */}
         <div style={{
-          display: 'flex', gap: '1rem', justifyContent: 'center', alignItems: 'center',
+          display: 'flex', gap: '0.75rem', justifyContent: 'center', alignItems: 'center',
           paddingTop: '1.5rem', marginTop: '1rem',
           borderTop: '1px solid var(--border-color)', flexShrink: 0, flexWrap: 'wrap'
         }}>
@@ -572,14 +603,14 @@ const CompareModal = ({ firms, onClose }) => {
             f.website ? (
               <a key={f.id} href={f.website} target="_blank" rel="noreferrer" style={{
                 background: 'linear-gradient(135deg, var(--accent-pink), var(--accent-purple))',
-                color: '#fff', padding: '0.7rem 1.5rem', borderRadius: '12px',
-                fontWeight: 700, textDecoration: 'none', fontSize: '0.88rem',
-                display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                color: '#fff', padding: '0.6rem 1.25rem', borderRadius: '12px',
+                fontWeight: 700, textDecoration: 'none', fontSize: firms.length >= 4 ? '0.78rem' : '0.88rem',
+                display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
                 boxShadow: '0 6px 20px rgba(236,72,153,0.3)',
                 transition: 'all 0.25s cubic-bezier(0.16,1,0.3,1)',
-                flex: '1 1 0', minWidth: '160px', maxWidth: '280px', justifyContent: 'center'
+                flex: '1 1 0', minWidth: firms.length >= 4 ? '130px' : '160px', maxWidth: '260px', justifyContent: 'center'
               }} className="btn-visit-firm">
-                Visit {f.name.split(' ')[0]} <ExternalLink size={14} />
+                Visit {f.name.split(' ')[0]} <ExternalLink size={13} />
               </a>
             ) : null
           ))}
@@ -613,7 +644,7 @@ const FirmGridCard = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTo
         className={`pf-compare-btn ${isComparing ? 'active' : ''}`}
         onClick={() => onToggleCompare(firm.id)}
         disabled={compareDisabled && !isComparing}
-        title={isComparing ? 'Remove from comparison' : compareDisabled ? 'Max 3 firms' : 'Add to compare'}
+        title={isComparing ? 'Remove from comparison' : compareDisabled ? 'Max 4 firms' : 'Add to compare'}
       >
         <GitCompareArrows size={13} />
         {isComparing ? '✓' : '+'}
@@ -692,7 +723,7 @@ const FirmListRow = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTog
       <button className={`pf-fav-btn ${isFav ? 'active' : ''}`} onClick={() => onToggleFav(firm.id)}>
         <Heart size={14} fill={isFav ? '#ec4899' : 'none'} stroke={isFav ? '#ec4899' : 'currentColor'} />
       </button>
-      <button className={`pf-compare-btn ${isComparing ? 'active' : ''}`} onClick={() => onToggleCompare(firm.id)} disabled={compareDisabled && !isComparing}>
+      <button className={`pf-compare-btn ${isComparing ? 'active' : ''}`} onClick={() => onToggleCompare(firm.id)} disabled={compareDisabled && !isComparing} title={isComparing ? 'Remove from comparison' : compareDisabled ? 'Max 4 firms' : 'Add to compare'}>
         <GitCompareArrows size={12} />
       </button>
     </div>
@@ -796,7 +827,7 @@ const PropFirmList = () => {
   const toggleCompare = useCallback((id) => {
     setCompareIds(prev => {
       if (prev.includes(id)) return prev.filter(x => x !== id);
-      if (prev.length >= 3) return prev;
+      if (prev.length >= 4) return prev;
       return [...prev, id];
     });
   }, []);
@@ -1098,7 +1129,7 @@ const PropFirmList = () => {
                           firm={firm} onClick={() => setViewingFirm(firm)}
                           isComparing={compareIds.includes(firm.id)} onToggleCompare={toggleCompare}
                           isFav={favorites.includes(firm.id)} onToggleFav={toggleFav}
-                          compareDisabled={compareIds.length >= 3}
+                          compareDisabled={compareIds.length >= 4}
                         />
                       </div>
                     ))}
@@ -1111,7 +1142,7 @@ const PropFirmList = () => {
                           firm={firm} onClick={() => setViewingFirm(firm)}
                           isComparing={compareIds.includes(firm.id)} onToggleCompare={toggleCompare}
                           isFav={favorites.includes(firm.id)} onToggleFav={toggleFav}
-                          compareDisabled={compareIds.length >= 3}
+                          compareDisabled={compareIds.length >= 4}
                         />
                       </div>
                     ))}
@@ -1145,7 +1176,7 @@ const PropFirmList = () => {
       </div>
 
       {/* ── Compare Modal ── */}
-      {showCompare && <CompareModal firms={compareFirms} onClose={() => setShowCompare(false)} />}
+      {showCompare && <CompareModal firms={compareFirms} onClose={() => setShowCompare(false)} onRemoveFirm={(id) => setCompareIds(prev => prev.filter(x => x !== id))} />}
 
       {/* ── Detail Modal ── */}
       {viewingFirm && createPortal(
