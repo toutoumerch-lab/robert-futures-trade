@@ -218,43 +218,58 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
   const getNumericPayout = (f) => { const n = parseInt(f.days_to_payout); return isNaN(n) ? Infinity : n; };
   const isFreeActivation = (f) => !f.activation_fee || Number(f.activation_fee) === 0;
 
-  // ── Determine winners per category ──
-  const bestPriceId = [...firms].sort((a, b) => getEffectivePrice(a) - getEffectivePrice(b))[0]?.id;
-  const bestRatingId = [...firms].sort((a, b) => getNumericRating(b) - getNumericRating(a))[0]?.id;
-  const bestPayoutId = [...firms].sort((a, b) => getNumericPayout(a) - getNumericPayout(b))[0]?.id;
+  // ── Determine winners per category (tie-aware) ──
+  const bestPrice = Math.min(...firms.map(f => getEffectivePrice(f)));
+  const bestPriceIds = bestPrice < Infinity ? firms.filter(f => getEffectivePrice(f) === bestPrice).map(f => f.id) : [];
+
+  const maxRating = Math.max(...firms.map(f => getNumericRating(f)));
+  const bestRatingIds = maxRating > 0 ? firms.filter(f => getNumericRating(f) === maxRating).map(f => f.id) : [];
+
+  const fastestPayout = Math.min(...firms.map(f => getNumericPayout(f)));
+  const bestPayoutIds = fastestPayout < Infinity ? firms.filter(f => getNumericPayout(f) === fastestPayout).map(f => f.id) : [];
 
   // ── Smart badges per firm ──
   const getBadges = (f) => {
     const badges = [];
-    if (f.id === bestPriceId && getEffectivePrice(f) < Infinity) badges.push({ text: '💰 Cheapest', color: '#10b981' });
+    // Price badge
+    if (bestPriceIds.includes(f.id)) {
+      badges.push({ text: bestPriceIds.length > 1 ? '💰 Low Price (Tied)' : '💰 Cheapest', color: '#10b981' });
+    }
     if (isFreeActivation(f)) badges.push({ text: '🆓 Free Start', color: '#3b82f6' });
-    if (getNumericRating(f) >= 4.5 && f.id === bestRatingId) badges.push({ text: '⭐ Top Rated', color: '#f59e0b' });
-    if (f.id === bestPayoutId && getNumericPayout(f) < Infinity) badges.push({ text: '⚡ Fastest Payout', color: '#8b5cf6' });
-    // Best overall value (cheapest + good rating)
-    if (f.id === bestPriceId && f.id !== bestRatingId && getNumericRating(f) >= 4.0 && getEffectivePrice(f) < Infinity) {
+    // Rating badge
+    if (bestRatingIds.includes(f.id) && maxRating >= 4.0) {
+      badges.push({ text: bestRatingIds.length > 1 ? '⭐ Top Rated' : '🏆 Best Rated', color: '#f59e0b' });
+    }
+    // Payout badge
+    if (bestPayoutIds.includes(f.id)) {
+      badges.push({ text: bestPayoutIds.length > 1 ? '⚡ Fast Payout (Tied)' : '⚡ Fastest Payout', color: '#8b5cf6' });
+    }
+    // Best overall value (cheapest + good rating, but not already the top rated)
+    if (bestPriceIds.includes(f.id) && !bestRatingIds.includes(f.id) && getNumericRating(f) >= 4.0 && getEffectivePrice(f) < Infinity) {
       badges.push({ text: '💎 Best Value', color: '#06b6d4' });
     }
     return badges;
   };
 
-  // ── Winner check for a row ──
-  const isWinner = (firmId, winnerId) => firms.length > 1 && firmId === winnerId;
+  // ── Winner check for a row (tie-aware) ──
+  const isWinner = (firmId, winnerIds) => firms.length > 1 && winnerIds.includes(firmId);
+  const isSoleWinner = (firmId, winnerIds) => winnerIds.length === 1 && winnerIds[0] === firmId;
 
   // ── Cell style with winner highlight ──
-  const cellStyle = (firmId, winnerId, extra = {}) => ({
+  const cellStyle = (firmId, winnerIds, extra = {}) => ({
     textAlign: 'center', fontWeight: 700, fontSize: '0.88rem',
     position: 'relative',
-    ...(isWinner(firmId, winnerId) ? {
+    ...(isWinner(firmId, winnerIds) ? {
       color: '#10b981',
       background: 'rgba(16,185,129,0.06)',
     } : {}),
     ...extra,
   });
 
-  // ── Winner trophy indicator ──
-  const WinnerBadge = () => (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', background: 'rgba(16,185,129,0.15)', color: '#10b981', fontSize: '0.65rem', fontWeight: 800, padding: '2px 7px', borderRadius: '6px', marginLeft: '6px', verticalAlign: 'middle', letterSpacing: '0.03em' }}>
-      🏆 BEST
+  // ── Winner badge (shows BEST for sole winner, label for tied) ──
+  const WinnerBadge = ({ tied }) => (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', background: tied ? 'rgba(245,158,11,0.15)' : 'rgba(16,185,129,0.15)', color: tied ? '#f59e0b' : '#10b981', fontSize: '0.65rem', fontWeight: 800, padding: '2px 7px', borderRadius: '6px', marginLeft: '6px', verticalAlign: 'middle', letterSpacing: '0.03em' }}>
+      {tied ? '⭐ TOP' : '🏆 BEST'}
     </span>
   );
 
@@ -381,9 +396,9 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
               <tr className="cmp-row">
                 <td className="pf-compare-label">⭐ Rating</td>
                 {firms.map(f => (
-                  <td key={f.id} style={cellStyle(f.id, bestRatingId)}>
+                  <td key={f.id} style={cellStyle(f.id, bestRatingIds)}>
                     {f.rating ? <><span style={{ fontSize: '1.1rem' }}>{f.rating}</span><span style={{ fontSize: '0.78rem', opacity: 0.6 }}>/5</span></> : <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
-                    {isWinner(f.id, bestRatingId) && getNumericRating(f) > 0 && <WinnerBadge />}
+                    {isWinner(f.id, bestRatingIds) && getNumericRating(f) > 0 && <WinnerBadge tied={bestRatingIds.length > 1} />}
                   </td>
                 ))}
               </tr>
@@ -408,7 +423,7 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
                   const price = getEffectivePrice(f);
                   const savings = getSavings(f);
                   return (
-                    <td key={f.id} style={cellStyle(f.id, bestPriceId)}>
+                    <td key={f.id} style={cellStyle(f.id, bestPriceIds)}>
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
                         <span style={{ fontSize: '1.15rem', fontWeight: 900 }}>{price < Infinity ? `$${price}` : 'N/A'}</span>
                         {f.without_discount_usd && f.discount_usd && (
@@ -417,7 +432,7 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
                         {savings > 0 && (
                           <span style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981', fontSize: '0.72rem', fontWeight: 800, padding: '2px 8px', borderRadius: '6px' }}>Save ${savings}</span>
                         )}
-                        {isWinner(f.id, bestPriceId) && price < Infinity && <WinnerBadge />}
+                        {isWinner(f.id, bestPriceIds) && price < Infinity && <WinnerBadge tied={bestPriceIds.length > 1} />}
                       </div>
                     </td>
                   );
@@ -516,9 +531,9 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
               <tr className="cmp-row">
                 <td className="pf-compare-label">⚡ Payout Speed</td>
                 {firms.map(f => (
-                  <td key={f.id} style={cellStyle(f.id, bestPayoutId)}>
+                  <td key={f.id} style={cellStyle(f.id, bestPayoutIds)}>
                     <span>{f.days_to_payout || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}</span>
-                    {isWinner(f.id, bestPayoutId) && getNumericPayout(f) < Infinity && <WinnerBadge />}
+                    {isWinner(f.id, bestPayoutIds) && getNumericPayout(f) < Infinity && <WinnerBadge tied={bestPayoutIds.length > 1} />}
                   </td>
                 ))}
               </tr>
