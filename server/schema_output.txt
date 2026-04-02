@@ -1,0 +1,46 @@
+id | integer | NO
+name | text | YES
+importance | text | YES
+featured | boolean | YES
+rating | double precision | YES
+website | text | YES
+affiliate_link | text | YES
+twitter | text | YES
+discord | text | YES
+last_checked | date | YES
+is_affiliate | boolean | YES
+discount_code | text | YES
+overall_score | double precision | YES
+account_category | text | YES
+price | integer | YES
+activation_fee | integer | YES
+profit_split | text | YES
+max_withdrawal | text | YES
+profit_target | text | YES
+drawdown_limit | text | YES
+days_to_pass | text | YES
+days_to_payout | text | YES
+notes | text | YES
+created_at | timestamp without time zone | YES
+status_color | character varying | YES
+buffer | boolean | YES
+eval | text | YES
+pa | text | YES
+reset_fee | text | YES
+copy_trade | boolean | YES
+vpn | boolean | YES
+max_accounts | text | YES
+dll | text | YES
+fifty_k_all_in | integer | YES
+fifty_k_initial_cost | integer | YES
+without_discount_usd | integer | YES
+discount_usd | integer | YES
+discount_percent | integer | YES
+dca | boolean | YES
+news | boolean | YES
+bots | boolean | YES
+micro_scalping | boolean | YES
+evaluation_fee | text | YES
+promo_frequency | text | YES
+logo_url | text | YES
+buffer_amount | text | YES

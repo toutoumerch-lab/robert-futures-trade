@@ -766,53 +766,27 @@ const PropFirmsTab = () => {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    
-    // Sanitize numeric fields to prevent 500 API errors from string mismatches
-    const cleanNumeric = (val) => {
-      if (val === null || val === undefined || val === '') return null;
-      const numText = String(val).replace(/[^0-9.-]/g, '');
-      return numText === '' ? null : Number(numText);
-    };
 
     const latest = formRef.current;
     
-    // Construct sanitized payload matching backend expectations perfectly
-    const sanitizePayload = {
-      ...latest,
-      importance: cleanNumeric(latest.importance),
-      rating: cleanNumeric(latest.rating),
-      overall_score: cleanNumeric(latest.overall_score),
-      price: cleanNumeric(latest.price),
-      activation_fee: cleanNumeric(latest.activation_fee),
-      fifty_k_all_in: cleanNumeric(latest.fifty_k_all_in),
-      fifty_k_initial_cost: cleanNumeric(latest.fifty_k_initial_cost),
-      without_discount_usd: cleanNumeric(latest.without_discount_usd),
-      discount_usd: cleanNumeric(latest.discount_usd),
-      discount_percent: cleanNumeric(latest.discount_percent),
-      
-      // Kept faithfully as text (will not treat as numbers)
-      reset_fee: latest.reset_fee,
-      drawdown_limit: latest.drawdown_limit,
-      profit_target: latest.profit_target,
-      max_withdrawal: latest.max_withdrawal
-    };
-
+    // Build FormData — let the backend handle all type coercion
     const formData = new FormData();
-    Object.keys(sanitizePayload).forEach(key => {
-      // 1. Convert platforms array to JSON so it transits as a unified string
+    
+    Object.keys(latest).forEach(key => {
+      // 1. Convert platforms array to JSON string
       if (key === 'platforms') {
-        formData.append(key, JSON.stringify(sanitizePayload[key]));
+        formData.append(key, JSON.stringify(latest[key]));
       } 
-      // 2. Attach physical file binary to "logo" property
+      // 2. Attach physical file binary as "logo"
       else if (key === 'imageFile') {
-        if (sanitizePayload[key] instanceof File) {
-          formData.append('logo', sanitizePayload[key]);
+        if (latest[key] instanceof File) {
+          formData.append('logo', latest[key]);
         }
       } 
-      // 3. Stringify standard empty strings nicely or append valid data
+      // 3. Append all other values (empty strings are fine — backend converts them to null)
       else {
-        let val = sanitizePayload[key];
-        if (val === null || val === undefined) val = ''; 
+        let val = latest[key];
+        if (val === null || val === undefined) val = '';
         formData.append(key, val);
       }
     });
@@ -832,9 +806,11 @@ const PropFirmsTab = () => {
       fetchFirms();
     } catch (err) {
       console.error("API Save Error:", err);
-      alert('Failed to save. Check the browser console for exact error details.');
+      const serverMsg = err.response?.data?.message || err.message || 'Unknown error';
+      alert('Failed to save: ' + serverMsg);
     }
   };
+
 
   const deleteFirm = async (id) => {
     if (!window.confirm('Delete this prop firm?')) return;
@@ -903,16 +879,6 @@ const PropFirmsTab = () => {
     <div>
       <div className="tab-toolbar" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
         <Button onClick={openCreate}>+ Add Prop Firm</Button>
-        <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
-          Import Excel/CSV
-        </Button>
-        <input 
-          type="file" 
-          ref={fileInputRef} 
-          onChange={handleFileUpload} 
-          accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" 
-          style={{ display: 'none' }} 
-        />
       </div>
       <div className="admin-table-wrap">
         <table className="admin-table">

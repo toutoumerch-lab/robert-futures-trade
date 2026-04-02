@@ -1072,33 +1072,8 @@ const PropFirmList = () => {
                   </div>
                 )}
 
-                {/* ═══ SECTION: Sort ═══ */}
-                <button className="pf-section-toggle" onClick={() => toggleSection('sort')}>
-                  <span><TrendingUp size={14} style={{ color: 'var(--accent-purple)' }} /> Sort By</span>
-                  {openSections.sort ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
-                </button>
-                {openSections.sort && (
-                  <div className="pf-section-content">
-                    {sortOptions.map(([val, label]) => (
-                      <button
-                        key={val}
-                        onClick={() => setSort(val)}
-                        style={{
-                          padding: '0.45rem 0.75rem', borderRadius: '8px', width: '100%',
-                          border: sort === val ? '1px solid var(--accent-purple)' : '1px solid transparent',
-                          background: sort === val ? 'rgba(139,92,246,0.08)' : 'transparent',
-                          color: sort === val ? 'var(--accent-purple)' : 'var(--text-primary)',
-                          fontWeight: sort === val ? 700 : 500, fontSize: '0.82rem',
-                          cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s',
-                          display: 'flex', alignItems: 'center', gap: '0.4rem'
-                        }}
-                      >
-                        {sort === val && <Check size={13} />}
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                )}
+
+
 
                 {/* Results count */}
                 <div className="pf-filter-results">

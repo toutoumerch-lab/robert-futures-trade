@@ -24,9 +24,45 @@ const linkPlatforms = async (client, firmId, platforms) => {
   }
 };
 
-const num = (v) => (v === '' || v === undefined || v === 'undefined' || v === null) ? null : v;
+// ── Type-safe helpers ──────────────────────────────────────────────────────────
+// Returns null for empty/undefined, otherwise the raw string value (for text columns)
+const text = (v) => {
+  if (v === '' || v === undefined || v === 'undefined' || v === null || v === 'null') return null;
+  return String(v);
+};
+
+// Returns null for empty/undefined, otherwise a proper integer (for integer columns)
+const int = (v) => {
+  if (v === '' || v === undefined || v === 'undefined' || v === null || v === 'null') return null;
+  const n = Number(v);
+  if (isNaN(n)) return null;
+  return Math.round(n); // PostgreSQL integer columns reject decimals
+};
+
+// Returns null for empty/undefined, otherwise a proper float (for double precision columns)
+const float = (v) => {
+  if (v === '' || v === undefined || v === 'undefined' || v === null || v === 'null') return null;
+  const n = Number(v);
+  if (isNaN(n)) return null;
+  return n;
+};
+
+// Parses booleans from string "true"/"false" or actual boolean
 const parseBool = (v) => v === 'true' || v === true;
-const parseArray = (v) => { if (Array.isArray(v)) return v; if (!v) return []; try { return JSON.parse(v); } catch(e) { return [v]; } };
+
+// Parses JSON array or returns array
+const parseArray = (v) => {
+  if (Array.isArray(v)) return v;
+  if (!v) return [];
+  try { return JSON.parse(v); } catch(e) { return [v]; }
+};
+
+// Parses date value, returns null if invalid
+const parseDate = (v) => {
+  if (!v || v === '' || v === 'undefined' || v === 'null') return null;
+  const d = new Date(v);
+  return isNaN(d.getTime()) ? null : v;
+};
 
 const getPropFirms = async (req, res) => {
   try {
@@ -78,19 +114,12 @@ const getPropFirmsAdmin = async (req, res) => {
 };
 
 const createPropFirm = async (req, res) => {
-  const { 
-    name, importance, featured, rating, website, affiliate_link, twitter, discord, 
-    last_checked, is_affiliate, discount_code, overall_score, 
-    account_category, price, activation_fee, profit_split, 
-    max_withdrawal, profit_target, drawdown_limit, days_to_pass, days_to_payout, notes,
-    buffer, buffer_amount, eval: eval_type, pa, reset_fee, copy_trade, vpn, max_accounts, dll,
-    fifty_k_all_in, fifty_k_initial_cost, without_discount_usd, discount_usd, discount_percent,
-    dca, news, bots, micro_scalping,
-    status_color, platforms
-  } = req.body;
+  console.log('[CREATE PROP FIRM] Incoming body keys:', Object.keys(req.body));
+  console.log('[CREATE PROP FIRM] Has file:', !!req.file);
 
+  const body = req.body;
   const logo_url = req.file ? `/uploads/prop-firms/${req.file.filename}` : null;
-  const parsedPlatforms = parseArray(req.body.platforms);
+  const parsedPlatforms = parseArray(body.platforms);
 
   const client = await pool.connect();
   try {
@@ -112,15 +141,48 @@ const createPropFirm = async (req, res) => {
         $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42
       ) RETURNING *`,
       [
-        name, num(importance), parseBool(featured), num(rating), num(website), num(affiliate_link), num(twitter), num(discord), 
-        num(last_checked), parseBool(is_affiliate), num(discount_code), num(overall_score), 
-        num(account_category), num(price), num(activation_fee), num(profit_split), 
-        num(max_withdrawal), num(profit_target), num(drawdown_limit), num(days_to_pass), num(days_to_payout), num(notes),
-        parseBool(buffer), parseBool(buffer) ? num(buffer_amount) : null, num(eval_type), num(pa), num(reset_fee), parseBool(copy_trade), parseBool(vpn),
-        num(max_accounts), num(dll), 
-        num(fifty_k_all_in), num(fifty_k_initial_cost), num(without_discount_usd), num(discount_usd), num(discount_percent),
-        parseBool(dca), parseBool(news), parseBool(bots), parseBool(micro_scalping), 
-        status_color || 'green', logo_url
+        /* $1  name             */ text(body.name),
+        /* $2  importance       */ text(body.importance),       // DB: text
+        /* $3  featured         */ parseBool(body.featured),     // DB: boolean
+        /* $4  rating           */ float(body.rating),           // DB: double precision
+        /* $5  website          */ text(body.website),           // DB: text
+        /* $6  affiliate_link   */ text(body.affiliate_link),    // DB: text
+        /* $7  twitter          */ text(body.twitter),           // DB: text
+        /* $8  discord          */ text(body.discord),           // DB: text
+        /* $9  last_checked     */ parseDate(body.last_checked), // DB: date
+        /* $10 is_affiliate     */ parseBool(body.is_affiliate), // DB: boolean
+        /* $11 discount_code    */ text(body.discount_code),     // DB: text
+        /* $12 overall_score    */ float(body.overall_score),    // DB: double precision
+        /* $13 account_category */ text(body.account_category),  // DB: text
+        /* $14 price            */ int(body.price),              // DB: integer
+        /* $15 activation_fee   */ int(body.activation_fee),     // DB: integer
+        /* $16 profit_split     */ text(body.profit_split),      // DB: text
+        /* $17 max_withdrawal   */ text(body.max_withdrawal),    // DB: text
+        /* $18 profit_target    */ text(body.profit_target),     // DB: text
+        /* $19 drawdown_limit   */ text(body.drawdown_limit),    // DB: text
+        /* $20 days_to_pass     */ text(body.days_to_pass),      // DB: text
+        /* $21 days_to_payout   */ text(body.days_to_payout),    // DB: text
+        /* $22 notes            */ text(body.notes),             // DB: text
+        /* $23 buffer           */ parseBool(body.buffer),       // DB: boolean
+        /* $24 buffer_amount    */ parseBool(body.buffer) ? text(body.buffer_amount) : null, // DB: text
+        /* $25 eval             */ text(body.eval),              // DB: text
+        /* $26 pa               */ text(body.pa),                // DB: text
+        /* $27 reset_fee        */ text(body.reset_fee),         // DB: text
+        /* $28 copy_trade       */ parseBool(body.copy_trade),   // DB: boolean
+        /* $29 vpn              */ parseBool(body.vpn),          // DB: boolean
+        /* $30 max_accounts     */ text(body.max_accounts),      // DB: text
+        /* $31 dll              */ text(body.dll),               // DB: text
+        /* $32 fifty_k_all_in       */ int(body.fifty_k_all_in),       // DB: integer
+        /* $33 fifty_k_initial_cost */ int(body.fifty_k_initial_cost), // DB: integer
+        /* $34 without_discount_usd */ int(body.without_discount_usd), // DB: integer
+        /* $35 discount_usd         */ int(body.discount_usd),         // DB: integer
+        /* $36 discount_percent     */ int(body.discount_percent),     // DB: integer
+        /* $37 dca              */ parseBool(body.dca),           // DB: boolean
+        /* $38 news             */ parseBool(body.news),          // DB: boolean
+        /* $39 bots             */ parseBool(body.bots),          // DB: boolean
+        /* $40 micro_scalping   */ parseBool(body.micro_scalping),// DB: boolean
+        /* $41 status_color     */ body.status_color || 'green',  // DB: varchar
+        /* $42 logo_url         */ logo_url                       // DB: text
       ]
     );
 
@@ -130,11 +192,14 @@ const createPropFirm = async (req, res) => {
     await client.query('COMMIT');
     
     const newFirm = { ...result.rows[0], platforms: parsedPlatforms };
+    console.log('[CREATE PROP FIRM] Success:', newFirm.name, '(id:', firmId, ')');
     res.status(201).json(newFirm);
   } catch (error) {
     await client.query('ROLLBACK');
-    console.error('Error creating prop firm:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('[CREATE PROP FIRM] ERROR:', error.message);
+    console.error('[CREATE PROP FIRM] Detail:', error.detail || 'none');
+    console.error('[CREATE PROP FIRM] Stack:', error.stack);
+    res.status(500).json({ error: 'Server error', message: error.message });
   } finally {
     client.release();
   }
@@ -171,13 +236,14 @@ const bulkCreatePropFirms = async (req, res) => {
           $31, $32, $33, $34, $35, $36, $37, $38, $39, $40
         ) RETURNING *`,
         [
-          firm.name, num(firm.importance), firm.featured || false, num(firm.rating), num(firm.website), num(firm.affiliate_link), num(firm.twitter), num(firm.discord), 
-          num(firm.last_checked), firm.is_affiliate || false, num(firm.discount_code), num(firm.overall_score), 
-          num(firm.account_category), num(firm.price), num(firm.activation_fee), num(firm.profit_split), 
-          num(firm.max_withdrawal), num(firm.profit_target), num(firm.drawdown_limit), num(firm.days_to_pass), num(firm.days_to_payout), num(firm.notes),
-          firm.buffer || false, num(firm.eval), num(firm.pa), num(firm.reset_fee), firm.copy_trade || false, firm.vpn || false,
-          num(firm.max_accounts), num(firm.dll), 
-          num(firm.fifty_k_all_in), num(firm.fifty_k_initial_cost), num(firm.without_discount_usd), num(firm.discount_usd), num(firm.discount_percent),
+          text(firm.name), text(firm.importance), firm.featured || false, float(firm.rating),
+          text(firm.website), text(firm.affiliate_link), text(firm.twitter), text(firm.discord), 
+          parseDate(firm.last_checked), firm.is_affiliate || false, text(firm.discount_code), float(firm.overall_score), 
+          text(firm.account_category), int(firm.price), int(firm.activation_fee), text(firm.profit_split), 
+          text(firm.max_withdrawal), text(firm.profit_target), text(firm.drawdown_limit), text(firm.days_to_pass), text(firm.days_to_payout), text(firm.notes),
+          firm.buffer || false, text(firm.eval), text(firm.pa), text(firm.reset_fee), firm.copy_trade || false, firm.vpn || false,
+          text(firm.max_accounts), text(firm.dll), 
+          int(firm.fifty_k_all_in), int(firm.fifty_k_initial_cost), int(firm.without_discount_usd), int(firm.discount_usd), int(firm.discount_percent),
           firm.dca || false, firm.news || false, firm.bots || false, firm.micro_scalping || false,
           firm.status_color || 'green'
         ]
@@ -202,19 +268,11 @@ const bulkCreatePropFirms = async (req, res) => {
 
 const updatePropFirm = async (req, res) => {
   const { id } = req.params;
-  const { 
-    name, importance, featured, rating, website, affiliate_link, twitter, discord, 
-    last_checked, is_affiliate, discount_code, overall_score, 
-    account_category, price, activation_fee, profit_split, 
-    max_withdrawal, profit_target, drawdown_limit, days_to_pass, days_to_payout, notes,
-    buffer, buffer_amount, eval: eval_type, pa, reset_fee, copy_trade, vpn, max_accounts, dll,
-    fifty_k_all_in, fifty_k_initial_cost, without_discount_usd, discount_usd, discount_percent,
-    dca, news, bots, micro_scalping,
-    status_color, platforms
-  } = req.body;
+  console.log('[UPDATE PROP FIRM] id:', id, 'body keys:', Object.keys(req.body));
 
-  const logo_url = req.file ? `/uploads/prop-firms/${req.file.filename}` : req.body.logo_url;
-  const parsedPlatforms = parseArray(req.body.platforms);
+  const body = req.body;
+  const logo_url = req.file ? `/uploads/prop-firms/${req.file.filename}` : text(body.logo_url);
+  const parsedPlatforms = parseArray(body.platforms);
 
   const client = await pool.connect();
   try {
@@ -234,15 +292,49 @@ const updatePropFirm = async (req, res) => {
         micro_scalping=$40, status_color=$41, logo_url=$42
       WHERE id=$43 RETURNING *`,
       [
-        name, num(importance), parseBool(featured), num(rating), num(website), num(affiliate_link), num(twitter), num(discord), 
-        num(last_checked), parseBool(is_affiliate), num(discount_code), num(overall_score), 
-        num(account_category), num(price), num(activation_fee), num(profit_split), 
-        num(max_withdrawal), num(profit_target), num(drawdown_limit), num(days_to_pass), num(days_to_payout), num(notes), 
-        parseBool(buffer), parseBool(buffer) ? num(buffer_amount) : null, num(eval_type), num(pa), num(reset_fee), parseBool(copy_trade), parseBool(vpn),
-        num(max_accounts), num(dll), 
-        num(fifty_k_all_in), num(fifty_k_initial_cost), num(without_discount_usd), num(discount_usd), num(discount_percent),
-        parseBool(dca), parseBool(news), parseBool(bots), parseBool(micro_scalping),
-        status_color || 'green', logo_url, id
+        /* $1  name             */ text(body.name),
+        /* $2  importance       */ text(body.importance),       // DB: text
+        /* $3  featured         */ parseBool(body.featured),     // DB: boolean
+        /* $4  rating           */ float(body.rating),           // DB: double precision
+        /* $5  website          */ text(body.website),           // DB: text
+        /* $6  affiliate_link   */ text(body.affiliate_link),    // DB: text
+        /* $7  twitter          */ text(body.twitter),           // DB: text
+        /* $8  discord          */ text(body.discord),           // DB: text
+        /* $9  last_checked     */ parseDate(body.last_checked), // DB: date
+        /* $10 is_affiliate     */ parseBool(body.is_affiliate), // DB: boolean
+        /* $11 discount_code    */ text(body.discount_code),     // DB: text
+        /* $12 overall_score    */ float(body.overall_score),    // DB: double precision
+        /* $13 account_category */ text(body.account_category),  // DB: text
+        /* $14 price            */ int(body.price),              // DB: integer
+        /* $15 activation_fee   */ int(body.activation_fee),     // DB: integer
+        /* $16 profit_split     */ text(body.profit_split),      // DB: text
+        /* $17 max_withdrawal   */ text(body.max_withdrawal),    // DB: text
+        /* $18 profit_target    */ text(body.profit_target),     // DB: text
+        /* $19 drawdown_limit   */ text(body.drawdown_limit),    // DB: text
+        /* $20 days_to_pass     */ text(body.days_to_pass),      // DB: text
+        /* $21 days_to_payout   */ text(body.days_to_payout),    // DB: text
+        /* $22 notes            */ text(body.notes),             // DB: text
+        /* $23 buffer           */ parseBool(body.buffer),       // DB: boolean
+        /* $24 buffer_amount    */ parseBool(body.buffer) ? text(body.buffer_amount) : null, // DB: text
+        /* $25 eval             */ text(body.eval),              // DB: text
+        /* $26 pa               */ text(body.pa),                // DB: text
+        /* $27 reset_fee        */ text(body.reset_fee),         // DB: text
+        /* $28 copy_trade       */ parseBool(body.copy_trade),   // DB: boolean
+        /* $29 vpn              */ parseBool(body.vpn),          // DB: boolean
+        /* $30 max_accounts     */ text(body.max_accounts),      // DB: text
+        /* $31 dll              */ text(body.dll),               // DB: text
+        /* $32 fifty_k_all_in       */ int(body.fifty_k_all_in),       // DB: integer
+        /* $33 fifty_k_initial_cost */ int(body.fifty_k_initial_cost), // DB: integer
+        /* $34 without_discount_usd */ int(body.without_discount_usd), // DB: integer
+        /* $35 discount_usd         */ int(body.discount_usd),         // DB: integer
+        /* $36 discount_percent     */ int(body.discount_percent),     // DB: integer
+        /* $37 dca              */ parseBool(body.dca),           // DB: boolean
+        /* $38 news             */ parseBool(body.news),          // DB: boolean
+        /* $39 bots             */ parseBool(body.bots),          // DB: boolean
+        /* $40 micro_scalping   */ parseBool(body.micro_scalping),// DB: boolean
+        /* $41 status_color     */ body.status_color || 'green',  // DB: varchar
+        /* $42 logo_url         */ logo_url,                      // DB: text
+        /* $43 id               */ id
       ]
     );
 
@@ -258,11 +350,13 @@ const updatePropFirm = async (req, res) => {
     await linkPlatforms(client, id, parsedPlatforms);
 
     await client.query('COMMIT');
+    console.log('[UPDATE PROP FIRM] Success:', result.rows[0].name);
     res.json({ ...result.rows[0], platforms: parsedPlatforms });
   } catch (error) {
     await client.query('ROLLBACK');
-    console.error('Error updating prop firm:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('[UPDATE PROP FIRM] ERROR:', error.message);
+    console.error('[UPDATE PROP FIRM] Detail:', error.detail || 'none');
+    res.status(500).json({ error: 'Server error', message: error.message });
   } finally {
     client.release();
   }
