@@ -39,6 +39,7 @@ const Navbar = () => {
           </span>
         </Link>
         <div className="nav-links">
+          <Link to="/" className={`nav-item ${isActive('/')}`}>Home</Link>
           <Link to="/courses" className={`nav-item ${isActive('/courses')}`}>Courses</Link>
           <Link to="/prop-firms" className={`nav-item ${isActive('/prop-firms')}`}>Prop Firms</Link>
           <Link to="/blog" className={`nav-item ${isActive('/blog')}`}>Blog</Link>
