@@ -2018,6 +2018,377 @@ textarea.input { resize: vertical; }
 .pf-compare-table tbody tr:hover { background: var(--bg-secondary); }
 .pf-compare-table tbody tr:last-child td { border-bottom: none; }
 
+/* ══════════════════════════════════════════════
+   Grouped Firm Card
+   ══════════════════════════════════════════════ */
+.firm-group-card {
+  background: var(--bg-secondary);
+  border-radius: 24px;
+  padding: 1.75rem;
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+.firm-group-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -10px rgba(0,0,0,0.12);
+  border-color: rgba(168,85,247,0.3);
+}
+.firm-group-top-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--gradient-lotus);
+  opacity: 0.6;
+}
+.firm-group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.firm-group-logo {
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.firm-group-logo img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  padding: 4px;
+}
+.firm-group-name {
+  font-size: 1.25rem;
+  margin: 0;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+.firm-group-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+.firm-featured-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #f97316;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Plan comparison labels */
+.firm-plan-labels {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 0.8fr 0.8fr;
+  gap: 0.5rem;
+  padding: 0 0.75rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Plans container */
+.firm-group-plans {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Individual plan row */
+.firm-plan-col {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 0.8fr 0.8fr;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 0.75rem;
+  background: var(--bg-tertiary);
+  border-radius: 14px;
+  border: 1.5px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16,1,0.3,1);
+  position: relative;
+}
+.firm-plan-col:hover {
+  border-color: rgba(168,85,247,0.35);
+  background: linear-gradient(135deg, rgba(168,85,247,0.03), rgba(236,72,153,0.03));
+  transform: translateX(4px);
+}
+.firm-plan-col.best-value {
+  background: linear-gradient(135deg, rgba(16,185,129,0.05), rgba(59,130,246,0.05));
+  border-color: rgba(16,185,129,0.25);
+}
+.firm-plan-col.best-value:hover {
+  border-color: rgba(16,185,129,0.5);
+}
+.firm-plan-col.comparing {
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 0 1px var(--accent-purple);
+}
+
+/* Best value badge */
+.plan-best-badge {
+  position: absolute;
+  top: -1px; right: 12px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 3px 10px 4px;
+  border-radius: 0 0 8px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  letter-spacing: 0.03em;
+  box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+}
+
+/* Plan cells */
+.plan-col-name {
+  font-weight: 800;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+}
+.plan-col-price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.plan-price-main {
+  font-weight: 900;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  line-height: 1;
+}
+.plan-price-orig-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+.plan-price-original {
+  text-decoration: line-through;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+}
+.plan-discount-tag {
+  background: var(--accent-pink);
+  color: #fff;
+  font-size: 0.58rem;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-weight: 800;
+}
+.plan-col-split {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+.plan-col-activation {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+/* Expand hint */
+.plan-expand-hint {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  justify-content: center;
+  margin-top: -0.25rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.firm-plan-col:hover .plan-expand-hint { opacity: 1; }
+.firm-plan-col.expanded .plan-expand-hint { opacity: 1; color: var(--accent-purple); }
+
+/* Expanded plan details */
+.firm-plan-details {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-color);
+  margin-top: 0.25rem;
+  animation: pf-section-in 0.2s ease-out;
+}
+.plan-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+.plan-detail-item {
+  background: var(--bg-secondary);
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.pdl {
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.pdv {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.plan-detail-feats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.pf-on {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: rgba(16,185,129,0.1);
+  color: #10b981;
+  border: 1px solid rgba(16,185,129,0.15);
+}
+.plan-full-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--accent-purple);
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.plan-full-btn:hover {
+  background: var(--accent-purple);
+  color: #fff;
+  border-color: var(--accent-purple);
+}
+
+/* Plan action buttons (mini inline) */
+.plan-col-actions {
+  position: absolute;
+  top: 8px; right: 8px;
+  display: flex;
+  gap: 3px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.firm-plan-col:hover .plan-col-actions { opacity: 1; }
+.pf-fav-btn.mini,
+.pf-compare-btn.mini {
+  width: 24px; height: 24px;
+  min-width: 24px;
+  border-radius: 6px;
+  padding: 0;
+}
+
+/* ── Grouped List Row ── */
+.firm-group-list-row {
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.25s cubic-bezier(0.16,1,0.3,1);
+  cursor: pointer;
+}
+.firm-group-list-row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -6px rgba(0,0,0,0.1);
+  border-color: rgba(168,85,247,0.3);
+}
+.firm-group-list-logo {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.firm-group-list-logo img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  padding: 4px;
+}
+
+/* Plan pills (list view) */
+.firm-list-plan-pills {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  flex: 1 1 auto;
+}
+.firm-plan-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 0.45rem 0.85rem;
+  border-radius: 10px;
+  background: var(--bg-tertiary);
+  border: 1.5px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.firm-plan-pill:hover {
+  border-color: var(--accent-purple);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(168,85,247,0.15);
+}
+.firm-plan-pill.best {
+  border-color: rgba(16,185,129,0.35);
+  background: rgba(16,185,129,0.05);
+}
+.plan-pill-name {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.plan-pill-price {
+  font-size: 0.92rem;
+  font-weight: 900;
+  color: var(--text-primary);
+}
+.plan-pill-crown {
+  position: absolute;
+  top: -4px; right: -4px;
+  color: #10b981;
+}
+
 /* ── Mobile responsive ── */
 @media (max-width: 768px) {
   .pf-toolbar { flex-direction: column; align-items: stretch; }
@@ -2042,6 +2413,14 @@ textarea.input { resize: vertical; }
 
   .pf-grid { grid-template-columns: 1fr; }
   .firm-list-row { flex-wrap: wrap; gap: 0.75rem; }
+  .firm-group-list-row { flex-wrap: wrap; gap: 0.75rem; }
+  .firm-list-plan-pills { width: 100%; }
+  .firm-plan-labels { display: none; }
+  .firm-plan-col {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+  }
+  .plan-col-actions { opacity: 1; }
 
   .pf-compare-bar {
     min-width: unset;

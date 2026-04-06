@@ -1136,33 +1136,87 @@ const PropFirmList = () => {
                     <p style={{ color: 'var(--text-secondary)', margin: 0, fontSize: '0.9rem' }}>Try adjusting or clearing your filters.</p>
                     <button className="btn btn-outline mt-4" onClick={clearFilters}>Clear Filters</button>
                   </div>
-                ) : viewLayout === 'grid' ? (
-                  <div className="pf-grid">
-                    {sorted.map((firm, i) => (
-                      <div key={firm.id} style={{ animationDelay: `${i * 0.05}s` }}>
-                        <FirmGridCard
-                          firm={firm} onClick={() => setViewingFirm(firm)}
-                          isComparing={compareIds.includes(firm.id)} onToggleCompare={toggleCompare}
-                          isFav={favorites.includes(firm.id)} onToggleFav={toggleFav}
-                          compareDisabled={compareIds.length >= 4}
-                        />
+                ) : (() => {
+                  // Group sorted firms by group_name
+                  const groupMap = {};
+                  const groupOrder = [];
+                  sorted.forEach(f => {
+                    const key = f.group_name || '__ungrouped__';
+                    if (!groupMap[key]) { groupMap[key] = []; groupOrder.push(key); }
+                    groupMap[key].push(f);
+                  });
+
+                  const renderCards = (firmsList, startIdx = 0) => viewLayout === 'grid' ? (
+                    <div className="pf-grid">
+                      {firmsList.map((firm, i) => (
+                        <div key={firm.id} style={{ animationDelay: `${(startIdx + i) * 0.05}s` }}>
+                          <FirmGridCard
+                            firm={firm} onClick={() => setViewingFirm(firm)}
+                            isComparing={compareIds.includes(firm.id)} onToggleCompare={toggleCompare}
+                            isFav={favorites.includes(firm.id)} onToggleFav={toggleFav}
+                            compareDisabled={compareIds.length >= 4}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="pf-list">
+                      {firmsList.map((firm, i) => (
+                        <div key={firm.id} style={{ animationDelay: `${(startIdx + i) * 0.04}s` }}>
+                          <FirmListRow
+                            firm={firm} onClick={() => setViewingFirm(firm)}
+                            isComparing={compareIds.includes(firm.id)} onToggleCompare={toggleCompare}
+                            isFav={favorites.includes(firm.id)} onToggleFav={toggleFav}
+                            compareDisabled={compareIds.length >= 4}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  );
+
+                  // If no grouping exists at all, render flat like before
+                  const hasAnyGroup = groupOrder.some(k => k !== '__ungrouped__');
+                  if (!hasAnyGroup) return renderCards(sorted);
+
+                  let runningIdx = 0;
+                  return groupOrder.map(key => {
+                    const isUngrouped = key === '__ungrouped__';
+                    const groupFirms = groupMap[key];
+                    const startIdx = runningIdx;
+                    runningIdx += groupFirms.length;
+
+                    return (
+                      <div key={key} style={{ marginBottom: isUngrouped ? 0 : '1.5rem' }}>
+                        {!isUngrouped && (
+                          <div style={{
+                            display: 'flex', alignItems: 'center', gap: '12px',
+                            padding: '1rem 1.25rem', marginBottom: '1rem',
+                            background: 'linear-gradient(135deg, rgba(168,85,247,0.06), rgba(236,72,153,0.06))',
+                            borderRadius: '16px', border: '1px solid rgba(168,85,247,0.15)'
+                          }}>
+                            <div style={{
+                              width: '36px', height: '36px', borderRadius: '10px',
+                              background: 'linear-gradient(135deg, #a855f7, #ec4899)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              color: '#fff', fontWeight: 900, fontSize: '1rem', flexShrink: 0
+                            }}>
+                              {key.charAt(0).toUpperCase()}
+                            </div>
+                            <span style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--text-primary)', letterSpacing: '-0.3px' }}>{key}</span>
+                            <span style={{
+                              background: 'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(236,72,153,0.15))',
+                              color: '#a855f7', padding: '3px 12px', borderRadius: '99px',
+                              fontSize: '0.75rem', fontWeight: 800
+                            }}>
+                              {groupFirms.length} plan{groupFirms.length !== 1 ? 's' : ''}
+                            </span>
+                          </div>
+                        )}
+                        {renderCards(groupFirms, startIdx)}
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="pf-list">
-                    {sorted.map((firm, i) => (
-                      <div key={firm.id} style={{ animationDelay: `${i * 0.04}s` }}>
-                        <FirmListRow
-                          firm={firm} onClick={() => setViewingFirm(firm)}
-                          isComparing={compareIds.includes(firm.id)} onToggleCompare={toggleCompare}
-                          isFav={favorites.includes(firm.id)} onToggleFav={toggleFav}
-                          compareDisabled={compareIds.length >= 4}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
+                    );
+                  });
+                })()}
               </div>
             </div>
 

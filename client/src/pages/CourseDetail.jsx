@@ -11,10 +11,18 @@ const CourseDetail = () => {
   
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeLesson, setActiveLesson] = useState(null);
+  const [expandedModules, setExpandedModules] = useState({});
 
   useEffect(() => {
     axios.get(`http://localhost:5000/api/courses/${id}`)
-      .then(res => setCourse(res.data))
+      .then(res => {
+        setCourse(res.data);
+        // Auto-expand all modules
+        const expanded = {};
+        (res.data.modules || []).forEach(m => { expanded[m.id] = true; });
+        setExpandedModules(expanded);
+      })
       .catch(err => {
         console.error(err);
         navigate('/courses');
@@ -25,24 +33,30 @@ const CourseDetail = () => {
   if (loading) return <div style={{ padding: '6rem', textAlign: 'center', color: 'var(--text-secondary)' }}>Loading Course Environment...</div>;
   if (!course) return null;
 
-  // Render video logic optimally
+  const hasModules = course.modules && course.modules.length > 0;
+  const totalLessons = hasModules ? course.modules.reduce((sum, m) => sum + (m.lessons?.length || 0), 0) : 0;
+
+  // Get video to display: either active lesson video or course intro video
   const renderVideoEngine = () => {
-    if (course.video_file) {
+    const videoUrl = activeLesson ? activeLesson.video_url : course.video_url;
+    const videoFile = activeLesson ? activeLesson.video_file : course.video_file;
+
+    if (videoFile) {
       return (
         <video 
+          key={videoFile}
           controls 
           controlsList="nodownload"
           style={{ width: '100%', height: '100%', objectFit: 'cover', background: '#000' }}
-          src={`http://localhost:5000${course.video_file}`}
+          src={`http://localhost:5000${videoFile}`}
         >
           Your browser does not support the video tag.
         </video>
       );
     } 
     
-    if (course.video_url) {
-      // Basic youtube/vimeo assumption formatting
-      let embedUrl = course.video_url;
+    if (videoUrl) {
+      let embedUrl = videoUrl;
       if (embedUrl.includes('youtube.com/watch?v=')) {
         embedUrl = embedUrl.replace('watch?v=', 'embed/');
       } else if (embedUrl.includes('youtu.be/')) {
@@ -50,7 +64,8 @@ const CourseDetail = () => {
       }
       return (
         <iframe 
-          title={course.title}
+          key={embedUrl}
+          title={activeLesson ? activeLesson.title : course.title}
           src={embedUrl}
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -60,11 +75,10 @@ const CourseDetail = () => {
       );
     }
 
-    // Fallback if no video format is loaded
     return (
       <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary))', color: 'var(--text-secondary)' }}>
         <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎬</div>
-        <p style={{ fontWeight: 800 }}>Video Content Not Attached</p>
+        <p style={{ fontWeight: 800 }}>{activeLesson ? 'No Video for This Lesson' : 'Video Content Not Attached'}</p>
       </div>
     );
   };
@@ -73,42 +87,104 @@ const CourseDetail = () => {
     <div style={{ padding: '0 0 6rem 0' }}>
        {/* Breadcrumbs Header */}
        <div style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', padding: '1.5rem 0' }}>
-         <div className="container">
+         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
            <Button variant="outline" onClick={() => navigate('/courses')} style={{ padding: '0.4rem 1rem', borderRadius: '99px', fontSize: '0.85rem' }}>← Library</Button>
+           {activeLesson && (
+             <button 
+               onClick={() => setActiveLesson(null)} 
+               style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', padding: '0.4rem 1rem', borderRadius: '99px', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 600 }}
+             >
+               ← Back to Intro
+             </button>
+           )}
          </div>
        </div>
 
        <div className="container" style={{ paddingTop: '3rem' }}>
          
-         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)', gap: '4rem', alignItems: 'start' }} className="md:grid-cols-1 md:gap-2">
+         <div style={{ display: 'grid', gridTemplateColumns: hasModules ? 'minmax(0, 2fr) minmax(0, 1fr)' : 'minmax(0, 2fr) minmax(0, 1fr)', gap: '2.5rem', alignItems: 'start' }} className="md:grid-cols-1 md:gap-2">
            
-           {/* Navigation Left Content */}
+           {/* Main Content Area */}
            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
               
-              {/* Massive 16:9 Video Canvas */}
+              {/* Video Canvas */}
               <div style={{ width: '100%', aspectRatio: '16/9', background: 'var(--bg-secondary)', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.3)', border: '1px solid var(--border)' }}>
                  {renderVideoEngine()}
               </div>
 
-              {/* Title & Description Flow */}
-              <div style={{ background: 'var(--bg-secondary)', borderRadius: '24px', border: '1px solid var(--border)', padding: '3rem' }}>
-                 <div style={{ display: 'flex', gap: '8px', marginBottom: '1.5rem' }}>
-                    <span style={{ fontSize: '0.8rem', background: 'var(--bg-primary)', padding: '6px 14px', borderRadius: '99px', color: 'var(--accent-purple)', fontWeight: 800, border: '1px solid var(--border)', textTransform: 'uppercase' }}>{course.category}</span>
-                    {course.is_free && <span style={{ fontSize: '0.8rem', background: '#10b981', padding: '6px 14px', borderRadius: '99px', color: '#fff', fontWeight: 800 }}>FREE</span>}
-                 </div>
-                 
-                 <h1 style={{ fontSize: '3rem', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '1.5rem', lineHeight: 1.2, letterSpacing: '-1px' }}>{course.title}</h1>
-                 
-                 <div style={{ height: '1px', width: '100%', background: 'var(--border)', marginBottom: '2rem' }} />
+              {/* Now Playing Info */}
+              {activeLesson ? (
+                <div style={{ background: 'var(--bg-secondary)', borderRadius: '24px', border: '1px solid var(--border)', padding: '2.5rem' }}>
+                   <div style={{ display: 'flex', gap: '8px', marginBottom: '1rem' }}>
+                     <span style={{ fontSize: '0.75rem', background: 'rgba(59, 130, 246, 0.1)', padding: '4px 12px', borderRadius: '99px', color: '#3b82f6', fontWeight: 800, textTransform: 'uppercase' }}>Now Playing</span>
+                     {activeLesson.duration && <span style={{ fontSize: '0.75rem', background: 'var(--bg-primary)', padding: '4px 12px', borderRadius: '99px', color: 'var(--text-secondary)', fontWeight: 700, border: '1px solid var(--border)' }}>⏱ {activeLesson.duration}</span>}
+                   </div>
+                   <h2 style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '1rem', lineHeight: 1.2, letterSpacing: '-0.5px' }}>{activeLesson.title}</h2>
+                   {activeLesson.description && (
+                     <>
+                       <div style={{ height: '1px', width: '100%', background: 'var(--border)', marginBottom: '1.5rem' }} />
+                       <div style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
+                          {activeLesson.description}
+                       </div>
+                     </>
+                   )}
 
-                 <div style={{ color: 'var(--text-secondary)', fontSize: '1.15rem', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
-                    {course.description}
-                 </div>
-              </div>
+                   {/* Lesson Resources */}
+                   {((activeLesson.pdf_url) || (activeLesson.zip_url) || (activeLesson.resources && activeLesson.resources.length > 0)) && (
+                     <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
+                       <h4 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)' }}>📎 Lesson Resources</h4>
+                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                         {activeLesson.pdf_url && (
+                           <a href={`http://localhost:5000${activeLesson.pdf_url}`} target="_blank" rel="noreferrer" style={{
+                             display: 'flex', alignItems: 'center', gap: '10px', padding: '0.85rem 1.25rem',
+                             background: 'var(--bg-primary)', borderRadius: '14px', border: '1px solid var(--border)',
+                             textDecoration: 'none', color: '#8b5cf6', fontWeight: 700, fontSize: '0.9rem', transition: 'all 0.15s'
+                           }}>
+                             📄 Download PDF
+                           </a>
+                         )}
+                         {activeLesson.zip_url && (
+                           <a href={`http://localhost:5000${activeLesson.zip_url}`} target="_blank" rel="noreferrer" style={{
+                             display: 'flex', alignItems: 'center', gap: '10px', padding: '0.85rem 1.25rem',
+                             background: 'var(--bg-primary)', borderRadius: '14px', border: '1px solid var(--border)',
+                             textDecoration: 'none', color: '#f59e0b', fontWeight: 700, fontSize: '0.9rem', transition: 'all 0.15s'
+                           }}>
+                             📦 Download ZIP Bundle
+                           </a>
+                         )}
+                         {(activeLesson.resources || []).map((r, i) => (
+                           <a key={i} href={r.url} target="_blank" rel="noreferrer" style={{
+                             display: 'flex', alignItems: 'center', gap: '10px', padding: '0.85rem 1.25rem',
+                             background: 'var(--bg-primary)', borderRadius: '14px', border: '1px solid var(--border)',
+                             textDecoration: 'none', color: '#10b981', fontWeight: 700, fontSize: '0.9rem', transition: 'all 0.15s'
+                           }}>
+                             🔗 {r.label}
+                           </a>
+                         ))}
+                       </div>
+                     </div>
+                   )}
+                </div>
+              ) : (
+                <div style={{ background: 'var(--bg-secondary)', borderRadius: '24px', border: '1px solid var(--border)', padding: '3rem' }}>
+                   <div style={{ display: 'flex', gap: '8px', marginBottom: '1.5rem' }}>
+                      <span style={{ fontSize: '0.8rem', background: 'var(--bg-primary)', padding: '6px 14px', borderRadius: '99px', color: 'var(--accent-purple)', fontWeight: 800, border: '1px solid var(--border)', textTransform: 'uppercase' }}>{course.category}</span>
+                      {course.is_free && <span style={{ fontSize: '0.8rem', background: '#10b981', padding: '6px 14px', borderRadius: '99px', color: '#fff', fontWeight: 800 }}>FREE</span>}
+                   </div>
+                   
+                   <h1 style={{ fontSize: '3rem', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '1.5rem', lineHeight: 1.2, letterSpacing: '-1px' }}>{course.title}</h1>
+                   
+                   <div style={{ height: '1px', width: '100%', background: 'var(--border)', marginBottom: '2rem' }} />
+
+                   <div style={{ color: 'var(--text-secondary)', fontSize: '1.15rem', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
+                      {course.description}
+                   </div>
+                </div>
+              )}
 
            </div>
 
-           {/* Sidebar Right Info Module */}
+           {/* Sidebar */}
            <div style={{ position: 'sticky', top: '100px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
              
              {/* Payment & Enroll Logic */}
@@ -125,7 +201,7 @@ const CourseDetail = () => {
                 )}
              </div>
 
-             {/* Meta Details List */}
+             {/* Course Blueprint */}
              <div style={{ background: 'var(--bg-secondary)', borderRadius: '24px', border: '1px solid var(--border)', padding: '2rem' }}>
                 <h4 style={{ margin: '0 0 1.5rem 0', color: 'var(--text-primary)', fontSize: '1.25rem', fontWeight: 800 }}>Course Blueprint</h4>
                 
@@ -138,6 +214,18 @@ const CourseDetail = () => {
                     <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>Duration</span>
                     <span style={{ color: 'var(--text-primary)', fontWeight: 800 }}>{course.duration || 'N/A'}</span>
                   </div>
+                  {hasModules && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed var(--border)', paddingBottom: '1.25rem' }}>
+                      <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>Modules</span>
+                      <span style={{ color: 'var(--text-primary)', fontWeight: 800 }}>{course.modules.length}</span>
+                    </div>
+                  )}
+                  {totalLessons > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed var(--border)', paddingBottom: '1.25rem' }}>
+                      <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>Lessons</span>
+                      <span style={{ color: 'var(--text-primary)', fontWeight: 800 }}>{totalLessons}</span>
+                    </div>
+                  )}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>Category</span>
                     <span style={{ color: 'var(--text-primary)', fontWeight: 800 }}>{course.category || 'General'}</span>
@@ -145,8 +233,57 @@ const CourseDetail = () => {
                 </div>
              </div>
 
-             {/* PDF Downloads Module */}
-             {course.pdf_url && (
+             {/* Course Content Sidebar - Module/Lesson Navigator */}
+             {hasModules && (
+               <div style={{ background: 'var(--bg-secondary)', borderRadius: '24px', border: '1px solid var(--border)', padding: '1.5rem', maxHeight: '500px', overflowY: 'auto' }}>
+                 <h4 style={{ margin: '0 0 1rem 0', color: 'var(--text-primary)', fontSize: '1.1rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>📚 Course Content</h4>
+                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                   {course.modules.map((mod, modIdx) => {
+                     const isExpanded = expandedModules[mod.id];
+                     return (
+                       <div key={mod.id}>
+                         <div 
+                           onClick={() => setExpandedModules(prev => ({ ...prev, [mod.id]: !prev[mod.id] }))}
+                           style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0.75rem', cursor: 'pointer', borderRadius: '12px', background: 'var(--bg-primary)', border: '1px solid var(--border)', userSelect: 'none' }}
+                         >
+                           <span style={{ width: '26px', height: '26px', borderRadius: '8px', background: 'linear-gradient(135deg, #3b82f6, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: '0.7rem', flexShrink: 0 }}>{modIdx + 1}</span>
+                           <span style={{ flex: 1, fontWeight: 700, fontSize: '0.85rem', color: 'var(--text-primary)' }}>{mod.title}</span>
+                           <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{mod.lessons?.length || 0}</span>
+                           <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>{isExpanded ? '▲' : '▼'}</span>
+                         </div>
+                         {isExpanded && mod.lessons && mod.lessons.length > 0 && (
+                           <div style={{ marginLeft: '1rem', marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                             {mod.lessons.map((lesson, lIdx) => {
+                               const isActive = activeLesson?.id === lesson.id;
+                               return (
+                                 <button 
+                                   key={lesson.id}
+                                   onClick={() => setActiveLesson(lesson)}
+                                   style={{
+                                     display: 'flex', alignItems: 'center', gap: '8px',
+                                     padding: '0.6rem 0.75rem', borderRadius: '10px', border: 'none',
+                                     background: isActive ? 'linear-gradient(135deg, rgba(59,130,246,0.15), rgba(99,102,241,0.15))' : 'transparent',
+                                     cursor: 'pointer', width: '100%', textAlign: 'left',
+                                     transition: 'all 0.15s'
+                                   }}
+                                 >
+                                   <span style={{ width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 800, flexShrink: 0, background: isActive ? '#3b82f6' : 'var(--border)', color: isActive ? '#fff' : 'var(--text-secondary)' }}>{lIdx + 1}</span>
+                                   <span style={{ flex: 1, fontSize: '0.8rem', fontWeight: isActive ? 700 : 500, color: isActive ? '#3b82f6' : 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{lesson.title}</span>
+                                   {(lesson.video_url || lesson.video_file) && <span style={{ fontSize: '0.65rem', color: '#3b82f6' }}>▶</span>}
+                                 </button>
+                               );
+                             })}
+                           </div>
+                         )}
+                       </div>
+                     );
+                   })}
+                 </div>
+               </div>
+             )}
+
+             {/* PDF Downloads Module (course-level) */}
+             {course.pdf_url && !activeLesson && (
                <div style={{ background: 'var(--bg-secondary)', borderRadius: '24px', border: '1px solid var(--border)', padding: '2rem' }}>
                   <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>📄</div>
                   <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--text-primary)', fontSize: '1.25rem', fontWeight: 800 }}>Course Resources</h4>

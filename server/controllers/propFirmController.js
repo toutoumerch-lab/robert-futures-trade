@@ -75,7 +75,7 @@ const getPropFirms = async (req, res) => {
         buffer, buffer_amount, eval, pa, reset_fee, copy_trade, vpn, max_accounts, dll,
         fifty_k_all_in, fifty_k_initial_cost, without_discount_usd, discount_usd, discount_percent,
         dca, news, bots, micro_scalping,
-        logo_url, created_at,
+        logo_url, created_at, group_name, status_color,
         COALESCE(
           (SELECT json_agg(p.name) 
            FROM prop_firm_platforms pfp 
@@ -134,11 +134,11 @@ const createPropFirm = async (req, res) => {
         buffer, buffer_amount, eval, pa, reset_fee, copy_trade, vpn, max_accounts, dll, 
         fifty_k_all_in, fifty_k_initial_cost, without_discount_usd, discount_usd, discount_percent,
         dca, news, bots, micro_scalping,
-        status_color, logo_url
+        status_color, logo_url, group_name
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, 
         $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, 
-        $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42
+        $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43
       ) RETURNING *`,
       [
         /* $1  name             */ text(body.name),
@@ -182,7 +182,8 @@ const createPropFirm = async (req, res) => {
         /* $39 bots             */ parseBool(body.bots),          // DB: boolean
         /* $40 micro_scalping   */ parseBool(body.micro_scalping),// DB: boolean
         /* $41 status_color     */ body.status_color || 'green',  // DB: varchar
-        /* $42 logo_url         */ logo_url                       // DB: text
+        /* $42 logo_url         */ logo_url,                      // DB: text
+        /* $43 group_name       */ text(body.group_name)           // DB: text
       ]
     );
 
@@ -289,8 +290,8 @@ const updatePropFirm = async (req, res) => {
         copy_trade=$28, vpn=$29, max_accounts=$30, dll=$31, 
         fifty_k_all_in=$32, fifty_k_initial_cost=$33, without_discount_usd=$34, 
         discount_usd=$35, discount_percent=$36, dca=$37, news=$38, bots=$39, 
-        micro_scalping=$40, status_color=$41, logo_url=$42
-      WHERE id=$43 RETURNING *`,
+        micro_scalping=$40, status_color=$41, logo_url=$42, group_name=$43
+      WHERE id=$44 RETURNING *`,
       [
         /* $1  name             */ text(body.name),
         /* $2  importance       */ text(body.importance),       // DB: text
@@ -334,7 +335,8 @@ const updatePropFirm = async (req, res) => {
         /* $40 micro_scalping   */ parseBool(body.micro_scalping),// DB: boolean
         /* $41 status_color     */ body.status_color || 'green',  // DB: varchar
         /* $42 logo_url         */ logo_url,                      // DB: text
-        /* $43 id               */ id
+        /* $43 group_name       */ text(body.group_name),          // DB: text
+        /* $44 id               */ id
       ]
     );
 
@@ -384,4 +386,33 @@ const getPlatforms = async (req, res) => {
   }
 };
 
-module.exports = { getPropFirms, getPropFirmsAdmin, createPropFirm, bulkCreatePropFirms, updatePropFirm, deletePropFirm, getPlatforms };
+const getGroups = async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT DISTINCT group_name FROM prop_firms WHERE group_name IS NOT NULL AND group_name != '' ORDER BY group_name"
+    );
+    res.json(result.rows.map(r => r.group_name));
+  } catch (error) {
+    console.error('Error fetching groups:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+// ── PATCH /api/prop-firms/:id/group — quick group assignment ──────────────────
+const patchGroupName = async (req, res) => {
+  const { id } = req.params;
+  const { group_name } = req.body;
+  try {
+    const result = await pool.query(
+      'UPDATE prop_firms SET group_name = $1 WHERE id = $2 RETURNING id, name, group_name',
+      [group_name || null, id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Prop firm not found' });
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error patching group:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+module.exports = { getPropFirms, getPropFirmsAdmin, createPropFirm, bulkCreatePropFirms, updatePropFirm, deletePropFirm, getPlatforms, getGroups, patchGroupName };

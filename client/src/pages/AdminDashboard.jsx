@@ -13,7 +13,7 @@ import {
   Image, Building2, DollarSign, Settings, Link2, Wrench,
   Star, Check, X, Zap, Flame, Turtle,
   Users, FileText, GraduationCap, Briefcase, PartyPopper, Palette,
-  Monitor, Smartphone
+  Monitor, Smartphone, ChevronDown, ChevronRight, Layers
 } from 'lucide-react';
 
 // â”€â”€ Generic Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -656,6 +656,13 @@ const PropFirmsTab = () => {
   const fileInputRef = useRef(null);
   const [importPreview, setImportPreview] = useState(null);
   const [availablePlatforms, setAvailablePlatforms] = useState([]);
+  const [availableGroups, setAvailableGroups] = useState([]);
+  const [collapsedGroups, setCollapsedGroups] = useState({});
+
+  // Group assignment modal
+  const [groupingFirm, setGroupingFirm] = useState(null);
+  const [groupModalValue, setGroupModalValue] = useState('');
+  const [groupModalMode, setGroupModalMode] = useState('existing'); // 'existing' | 'new'
 
   const initialFormState = {
     name: '', importance: 'Medium', featured: false, rating: '', website: '', affiliate_link: '',
@@ -667,7 +674,8 @@ const PropFirmsTab = () => {
     copy_trade: false, vpn: false, max_accounts: '', dll: '',
     fifty_k_all_in: '', fifty_k_initial_cost: '', without_discount_usd: '', 
     discount_usd: '', discount_percent: '', dca: false, news: false, 
-    bots: false, micro_scalping: false, logo_url: '', imageFile: null
+    bots: false, micro_scalping: false, logo_url: '', imageFile: null,
+    group_name: ''
   };
   const [form, setForm] = useState(initialFormState);
 
@@ -683,6 +691,9 @@ const PropFirmsTab = () => {
     fetchFirms();
     axios.get('http://localhost:5000/api/prop-firms/platforms')
       .then(res => setAvailablePlatforms(res.data))
+      .catch(console.error);
+    axios.get('http://localhost:5000/api/prop-firms/groups')
+      .then(res => setAvailableGroups(res.data))
       .catch(console.error);
   }, [fetchFirms]);
 
@@ -711,7 +722,8 @@ const PropFirmsTab = () => {
       without_discount_usd: f.without_discount_usd || '', discount_usd: f.discount_usd || '', 
       discount_percent: f.discount_percent || '', dca: f.dca || false, news: f.news || false, 
       bots: f.bots || false, micro_scalping: f.micro_scalping || false,
-      logo_url: f.logo_url || '', imageFile: null
+      logo_url: f.logo_url || '', imageFile: null,
+      group_name: f.group_name || ''
     }); 
     setShowModal(true); 
   };
@@ -804,6 +816,10 @@ const PropFirmsTab = () => {
       }
       setShowModal(false);
       fetchFirms();
+      // Refresh available groups in case a new group name was entered
+      axios.get('http://localhost:5000/api/prop-firms/groups')
+        .then(res => setAvailableGroups(res.data))
+        .catch(console.error);
     } catch (err) {
       console.error("API Save Error:", err);
       const serverMsg = err.response?.data?.message || err.message || 'Unknown error';
@@ -881,37 +897,152 @@ const PropFirmsTab = () => {
         <Button onClick={openCreate}>+ Add Prop Firm</Button>
       </div>
       <div className="admin-table-wrap">
-        <table className="admin-table">
-          <thead>
-            <tr><th>Name</th><th>Rating</th><th>Status</th><th>Actions</th></tr>
-          </thead>
-          <tbody>
-            {firms.map(f => (
-              <tr key={f.id}>
-                <td style={{ fontWeight: 600 }}>{f.name} {f.featured && <Star size={14} style={{ display: 'inline', color: '#f59e0b', fill: '#f59e0b', verticalAlign: 'middle', marginLeft: '4px' }} />}</td>
-                <td>{f.rating ? `${f.rating} / 5` : '-'}</td>
-                <td>
-                  <span 
-                    style={{ 
-                      display: 'inline-block',
-                      width: '12px', height: '12px',
-                      borderRadius: '50%',
-                      backgroundColor: f.status_color === 'green' ? '#10b981' : f.status_color === 'blue' ? '#3b82f6' : f.status_color === 'yellow' ? '#f59e0b' : '#ef4444',
-                      boxShadow: '0 0 5px rgba(0,0,0,0.2)'
-                    }} 
-                    title={f.status_color === 'green' ? 'Top Ranked' : f.status_color === 'blue' ? 'Community Trusted' : f.status_color === 'yellow' ? 'New / Building Trust' : 'Avoid / Possible Scam'}
-                  />
-                </td>
-                <td className="table-actions">
-                  <button className="action-btn" style={{backgroundColor: 'var(--bg-tertiary)'}} onClick={() => setViewingFirm(f)}>View</button>
-                  <button className="action-btn" onClick={() => openEdit(f)}>Edit</button>
-                  <button className="action-btn danger" onClick={() => deleteFirm(f.id)}>Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {(() => {
+          // Group firms by group_name
+          const grouped = {};
+          const order = [];
+          firms.forEach(f => {
+            const key = f.group_name || '__ungrouped__';
+            if (!grouped[key]) { grouped[key] = []; order.push(key); }
+            grouped[key].push(f);
+          });
+          // Sort: named groups first, ungrouped last
+          order.sort((a, b) => {
+            if (a === '__ungrouped__') return 1;
+            if (b === '__ungrouped__') return -1;
+            return a.localeCompare(b);
+          });
+
+          const toggleGroup = (key) => setCollapsedGroups(prev => ({ ...prev, [key]: !prev[key] }));
+
+          return order.map(key => {
+            const isUngrouped = key === '__ungrouped__';
+            const groupFirms = grouped[key];
+            const isCollapsed = collapsedGroups[key];
+            const label = isUngrouped ? 'Ungrouped' : key;
+
+            return (
+              <div key={key} style={{ marginBottom: '1rem' }}>
+                {/* Group Header */}
+                <div
+                  onClick={() => toggleGroup(key)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '10px',
+                    padding: '0.75rem 1rem', cursor: 'pointer', userSelect: 'none',
+                    background: isUngrouped ? 'var(--bg-secondary)' : 'linear-gradient(135deg, rgba(168,85,247,0.08), rgba(236,72,153,0.08))',
+                    borderRadius: '12px', border: '1px solid var(--border)',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  {isCollapsed ? <ChevronRight size={18} style={{ color: 'var(--text-secondary)' }} /> : <ChevronDown size={18} style={{ color: 'var(--text-secondary)' }} />}
+                  <span style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-primary)' }}>{label}</span>
+                  <span style={{
+                    background: isUngrouped ? 'rgba(255,255,255,0.08)' : 'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(236,72,153,0.15))',
+                    color: isUngrouped ? 'var(--text-secondary)' : '#a855f7',
+                    padding: '2px 10px', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 800
+                  }}>
+                    {groupFirms.length} firm{groupFirms.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+
+                {/* Group Items */}
+                {!isCollapsed && (
+                  <table className="admin-table" style={{ marginTop: '0.25rem' }}>
+                    <thead>
+                      <tr><th>Name</th><th>Rating</th><th>Status</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                      {groupFirms.map(f => (
+                        <tr key={f.id}>
+                          <td style={{ fontWeight: 600 }}>
+                            {f.name}
+                            {f.featured && <Star size={14} style={{ display: 'inline', color: '#f59e0b', fill: '#f59e0b', verticalAlign: 'middle', marginLeft: '4px' }} />}
+                            {f.group_name && <span style={{ marginLeft: '8px', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '99px', background: 'rgba(168,85,247,0.1)', color: '#a855f7', fontWeight: 700 }}>{f.group_name}</span>}
+                          </td>
+                          <td>{f.rating ? `${f.rating} / 5` : '-'}</td>
+                          <td>
+                            <span style={{ display: 'inline-block', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: f.status_color === 'green' ? '#10b981' : f.status_color === 'blue' ? '#3b82f6' : f.status_color === 'yellow' ? '#f59e0b' : '#ef4444', boxShadow: '0 0 5px rgba(0,0,0,0.2)' }}
+                              title={f.status_color === 'green' ? 'Top Ranked' : f.status_color === 'blue' ? 'Community Trusted' : f.status_color === 'yellow' ? 'New / Building Trust' : 'Avoid / Possible Scam'} />
+                          </td>
+                          <td className="table-actions">
+                            <button className="action-btn" style={{backgroundColor: 'var(--bg-tertiary)'}} onClick={() => setViewingFirm(f)}>View</button>
+                            <button className="action-btn" onClick={() => openEdit(f)}>Edit</button>
+                            <button className="action-btn" style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.12), rgba(236,72,153,0.12))', color: '#a855f7', border: '1px solid rgba(168,85,247,0.2)' }} onClick={() => { setGroupingFirm(f); setGroupModalValue(f.group_name || ''); setGroupModalMode(f.group_name ? 'existing' : 'existing'); }}><Layers size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '3px' }} />Group</button>
+                            <button className="action-btn danger" onClick={() => deleteFirm(f.id)}>Delete</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            );
+          });
+        })()}
         {firms.length === 0 && <p className="empty-state">No prop firms listed yet.</p>}
+
+        {/* ── Group Assignment Modal ── */}
+        {groupingFirm && (
+          <Modal title={`Assign Group — ${groupingFirm.name}`} onClose={() => setGroupingFirm(null)}>
+            <div style={{ padding: '0.5rem 0', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              {/* Current Group */}
+              {groupingFirm.group_name && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0.75rem 1rem', background: 'linear-gradient(135deg, rgba(168,85,247,0.08), rgba(236,72,153,0.08))', borderRadius: '12px', border: '1px solid rgba(168,85,247,0.15)' }}>
+                  <Layers size={16} style={{ color: '#a855f7' }} />
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Current group:</span>
+                  <span style={{ fontWeight: 800, color: '#a855f7' }}>{groupingFirm.group_name}</span>
+                </div>
+              )}
+
+              {/* Mode tabs */}
+              <div style={{ display: 'flex', gap: '4px', background: 'var(--bg-secondary)', borderRadius: '10px', padding: '4px' }}>
+                <button type="button" onClick={() => setGroupModalMode('existing')} style={{ flex: 1, padding: '0.5rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem', transition: 'all 0.2s', background: groupModalMode === 'existing' ? 'var(--bg-primary)' : 'transparent', color: groupModalMode === 'existing' ? 'var(--text-primary)' : 'var(--text-secondary)', boxShadow: groupModalMode === 'existing' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none' }}>Select Existing</button>
+                <button type="button" onClick={() => { setGroupModalMode('new'); setGroupModalValue(''); }} style={{ flex: 1, padding: '0.5rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem', transition: 'all 0.2s', background: groupModalMode === 'new' ? 'var(--bg-primary)' : 'transparent', color: groupModalMode === 'new' ? 'var(--text-primary)' : 'var(--text-secondary)', boxShadow: groupModalMode === 'new' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none' }}>Create New</button>
+              </div>
+
+              {/* Existing Group Dropdown */}
+              {groupModalMode === 'existing' && (
+                <div>
+                  <label className="form-label" style={{ marginBottom: '6px', display: 'block' }}>Select a group</label>
+                  <select className="input" value={groupModalValue} onChange={e => setGroupModalValue(e.target.value)} style={{ width: '100%' }}>
+                    <option value="">-- No Group (Remove) --</option>
+                    {availableGroups.map(g => <option key={g} value={g}>{g}</option>)}
+                  </select>
+                </div>
+              )}
+
+              {/* New Group Name Input */}
+              {groupModalMode === 'new' && (
+                <div>
+                  <label className="form-label" style={{ marginBottom: '6px', display: 'block' }}>New group name</label>
+                  <input className="input" value={groupModalValue} onChange={e => setGroupModalValue(e.target.value)} placeholder="e.g. Lucid Trading" style={{ width: '100%' }} autoFocus />
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="modal-footer" style={{ marginTop: '0.5rem' }}>
+                <Button type="button" variant="outline" onClick={() => setGroupingFirm(null)}>Cancel</Button>
+                <Button
+                  onClick={async () => {
+                    try {
+                      const newGroup = groupModalMode === 'new' ? groupModalValue.trim() : groupModalValue;
+                      await axios.patch(`http://localhost:5000/api/prop-firms/${groupingFirm.id}/group`, { group_name: newGroup || null });
+                      setGroupingFirm(null);
+                      fetchFirms();
+                      // Refresh groups list
+                      axios.get('http://localhost:5000/api/prop-firms/groups').then(res => setAvailableGroups(res.data)).catch(console.error);
+                    } catch (err) {
+                      alert('Failed to update group: ' + (err.response?.data?.message || err.message));
+                    }
+                  }}
+                  disabled={groupModalMode === 'new' && !groupModalValue.trim()}
+                >
+                  {groupModalValue ? 'Save Group' : 'Remove from Group'}
+                </Button>
+              </div>
+            </div>
+          </Modal>
+        )}
       </div>
       {showModal && (
         <Modal title={editing ? 'Edit Prop Firm' : 'New Prop Firm'} onClose={() => setShowModal(false)}>
@@ -976,6 +1107,22 @@ const PropFirmsTab = () => {
                       <option value="yellow">🟡 Yellow (New / Building Trust)</option>
                       <option value="red">🔴 Red (Avoid / Possible Scam)</option>
                     </select>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Group Name (optional)</label>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        className="input"
+                        list="group-name-list"
+                        value={form.group_name}
+                        onChange={e => setForm({ ...form, group_name: e.target.value })}
+                        placeholder="Select or type a new group..."
+                      />
+                      <datalist id="group-name-list">
+                        {availableGroups.map(g => <option key={g} value={g} />)}
+                      </datalist>
+                    </div>
+                    <small style={{ display: 'block', marginTop: '4px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Firms with the same group name will be grouped together in the admin table and public page.</small>
                   </div>
                   <Field label="Account Category" value={form.account_category} onChange={e => setForm({ ...form, account_category: e.target.value })} placeholder="e.g. Futures, Forex" />
                   <div className="form-group" style={{ gridColumn: '1 / -1' }}>

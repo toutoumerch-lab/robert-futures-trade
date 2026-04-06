@@ -17,6 +17,7 @@ app.use('/api/prop-firms', require('./routes/propFirmRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/promotions', require('./routes/promotionRoutes'));
 app.use('/api/settings', require('./routes/settingsRoutes'));
+app.use('/api', require('./routes/moduleRoutes'));
 
 // Serve static files
 const path = require('path');

@@ -14,8 +14,34 @@ const getCourse = async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM courses WHERE id = $1', [id]);
     if (result.rows.length === 0) return res.status(404).json({ error: 'Course not found' });
-    res.json(result.rows[0]);
+    
+    const course = result.rows[0];
+
+    // Fetch modules with nested lessons
+    const modulesResult = await pool.query(
+      'SELECT * FROM course_modules WHERE course_id = $1 ORDER BY sort_order ASC, id ASC',
+      [id]
+    );
+
+    const modules = [];
+    for (const mod of modulesResult.rows) {
+      const lessonsResult = await pool.query(
+        'SELECT * FROM course_lessons WHERE module_id = $1 ORDER BY sort_order ASC, id ASC',
+        [mod.id]
+      );
+      modules.push({
+        ...mod,
+        lessons: lessonsResult.rows.map(l => ({
+          ...l,
+          resources: typeof l.resources === 'string' ? JSON.parse(l.resources) : (l.resources || [])
+        }))
+      });
+    }
+
+    course.modules = modules;
+    res.json(course);
   } catch (error) {
+    console.error('Error fetching course:', error);
     res.status(500).json({ error: 'Server error' });
   }
 };
