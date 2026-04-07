@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 
 const Toggle = ({ label, checked, onChange, tooltip }) => {
   return (
@@ -32,7 +32,7 @@ const Toggle = ({ label, checked, onChange, tooltip }) => {
           width: '40px',
           height: '24px',
           borderRadius: '12px',
-          background: checked ? 'var(--accent-purple)' : 'rgba(255,255,255,0.1)',
+          background: checked ? 'var(--accent-primary)' : 'rgba(255,255,255,0.1)',
           transition: 'background 0.3s ease',
           flexShrink: 0
         }}

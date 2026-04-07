@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Clock, Copy, Check, X } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 
-/* ─────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    CopyCode Button
-───────────────────────────────────────────── */
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const CopyCode = ({ code }) => {
   const [copied, setCopied] = useState(false);
   const { theme } = useTheme();
@@ -32,12 +32,12 @@ const CopyCode = ({ code }) => {
         border: copied
           ? '1px solid rgba(52,211,153,0.5)'
           : theme === 'dark'
-            ? '1px dashed rgba(168,85,247,0.5)'
+            ? '1px dashed rgba(37,99,235,0.5)'
             : '1px dashed rgba(99,60,180,0.45)',
         background: copied
           ? 'rgba(52,211,153,0.12)'
           : theme === 'dark'
-            ? 'rgba(168,85,247,0.10)'
+            ? 'rgba(37,99,235,0.10)'
             : 'rgba(99,60,180,0.08)',
         color: copied
           ? '#34d399'
@@ -68,9 +68,9 @@ const CopyCode = ({ code }) => {
   );
 };
 
-/* ─────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Single promo item (rendered in the ticker)
-───────────────────────────────────────────── */
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const PromoItem = ({ promo, theme }) => {
   const discountMatch = promo.title.match(/(\d+%\s*OFF)/i);
   const discountText = discountMatch ? discountMatch[1] : null;
@@ -91,7 +91,7 @@ const PromoItem = ({ promo, theme }) => {
       <span style={{
         width: 5, height: 5,
         borderRadius: '50%',
-        background: 'linear-gradient(135deg, #3b82f6, #a855f7)',
+        background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
         flexShrink: 0,
         opacity: 0.6,
       }} />
@@ -108,10 +108,10 @@ const PromoItem = ({ promo, theme }) => {
         letterSpacing: '0.12em',
         textTransform: 'uppercase',
         border: theme === 'dark'
-          ? '1px solid rgba(168,85,247,0.3)'
+          ? '1px solid rgba(37,99,235,0.3)'
           : '1px solid rgba(99,60,180,0.25)',
         background: theme === 'dark'
-          ? 'rgba(168,85,247,0.12)'
+          ? 'rgba(37,99,235,0.12)'
           : 'rgba(99,60,180,0.09)',
         color: theme === 'dark' ? '#c084fc' : '#7c3aed',
         flexShrink: 0,
@@ -126,7 +126,7 @@ const PromoItem = ({ promo, theme }) => {
           fontSize: '15px',
           fontWeight: 900,
           letterSpacing: '-0.02em',
-          background: 'linear-gradient(90deg, #3b82f6 0%, #a855f7 50%, #ec4899 100%)',
+          background: 'linear-gradient(90deg, #3b82f6 0%, #2563eb 50%, #3b82f6 100%)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           backgroundClip: 'text',
@@ -173,9 +173,9 @@ const PromoItem = ({ promo, theme }) => {
   );
 };
 
-/* ─────────────────────────────────────────────
-   Main Banner — shows ALL active promotions
-───────────────────────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   Main Banner â€” shows ALL active promotions
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const PromotionBanner = () => {
   const [promos, setPromos] = useState([]);
   const [dismissed, setDismissed] = useState(false);
@@ -215,7 +215,7 @@ const PromotionBanner = () => {
     ? 'rgba(10, 8, 20, 0.72)'
     : 'rgba(255, 255, 255, 0.82)';
 
-  const topLineGradient = 'linear-gradient(90deg, transparent 0%, #3b82f6 25%, #a855f7 50%, #ec4899 75%, transparent 100%)';
+  const topLineGradient = 'linear-gradient(90deg, transparent 0%, #3b82f6 25%, #2563eb 50%, #3b82f6 75%, transparent 100%)';
 
   // Build the ticker content: all promos repeated 4x for seamless loop
   const tickerItems = [];
@@ -247,11 +247,11 @@ const PromotionBanner = () => {
           backdropFilter: 'blur(20px) saturate(180%)',
           WebkitBackdropFilter: 'blur(20px) saturate(180%)',
           borderBottom: isDark
-            ? '1px solid rgba(168,85,247,0.15)'
+            ? '1px solid rgba(37,99,235,0.15)'
             : '1px solid rgba(99,60,180,0.12)',
         }}
       >
-        {/* ── Top gradient beam ── */}
+        {/* â”€â”€ Top gradient beam â”€â”€ */}
         <div style={{
           position: 'absolute',
           top: 0, left: 0, right: 0,
@@ -261,7 +261,7 @@ const PromotionBanner = () => {
           zIndex: 2,
         }} />
 
-        {/* ── Subtle glow orbs ── */}
+        {/* â”€â”€ Subtle glow orbs â”€â”€ */}
         <div style={{
           position: 'absolute',
           left: '20%', top: '50%',
@@ -277,13 +277,13 @@ const PromotionBanner = () => {
           right: '25%', top: '50%',
           transform: 'translateY(-50%)',
           width: 100, height: 25,
-          background: 'rgba(168,85,247,0.15)',
+          background: 'rgba(37,99,235,0.15)',
           filter: 'blur(18px)',
           borderRadius: '50%',
           pointerEvents: 'none',
         }} />
 
-        {/* ── Ticker row ── */}
+        {/* â”€â”€ Ticker row â”€â”€ */}
         <div style={{
           position: 'relative',
           display: 'flex',
@@ -363,7 +363,7 @@ const PromotionBanner = () => {
           </div>
         </div>
 
-        {/* ── Bottom gradient beam ── */}
+        {/* â”€â”€ Bottom gradient beam â”€â”€ */}
         <div style={{
           position: 'absolute',
           bottom: 0, left: 0, right: 0,

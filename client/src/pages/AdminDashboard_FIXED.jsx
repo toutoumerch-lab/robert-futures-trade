@@ -1,4 +1,4 @@
-�import React, { useState, useEffect, useCallback, useRef } from 'react';
+ï¿½import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
@@ -10,7 +10,7 @@ import BrandingManager from '../components/admin/BrandingManager';
 import MultiSelect from '../components/common/MultiSelect';
 import Toggle from '../components/common/Toggle';
 
-// ���� Generic Modal ����������������������������������������������������������������������������������������������������������������������������
+// ï¿½ï¿½ï¿½ï¿½ Generic Modal ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 const Modal = ({ title, onClose, hideHeader, style, children }) => {
   useEffect(() => {
     // Lock body scroll and prevent layout shift from scrollbar disappearing
@@ -33,11 +33,11 @@ const Modal = ({ title, onClose, hideHeader, style, children }) => {
         {!hideHeader && (
           <div className="modal-header">
             <h3>{title}</h3>
-            <button className="modal-close" onClick={onClose}>�S"</button>
+            <button className="modal-close" onClick={onClose}>ï¿½S"</button>
           </div>
         )}
         {hideHeader && (
-          <button className="modal-close" onClick={onClose} style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 100, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(4px)', width: '36px', height: '36px', borderRadius: '50%', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}>�S"</button>
+          <button className="modal-close" onClick={onClose} style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 100, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(4px)', width: '36px', height: '36px', borderRadius: '50%', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}>ï¿½S"</button>
         )}
         <div className="modal-body" style={{ padding: hideHeader ? '0' : '1.5rem' }}>{children}</div>
       </div>
@@ -46,7 +46,7 @@ const Modal = ({ title, onClose, hideHeader, style, children }) => {
   );
 };
 
-// ���� FormField helper ����������������������������������������������������������������������������������������������������������������������
+// ï¿½ï¿½ï¿½ï¿½ FormField helper ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 const Field = ({ label, type = 'text', value, onChange, placeholder, as, ...rest }) => (
   <div className="form-group">
     <label className="form-label">{label}</label>
@@ -58,7 +58,7 @@ const Field = ({ label, type = 'text', value, onChange, placeholder, as, ...rest
   </div>
 );
 
-// ���� Users Tab ������������������������������������������������������������������������������������������������������������������������������������
+// ï¿½ï¿½ï¿½ï¿½ Users Tab ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 const UsersTab = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -85,7 +85,7 @@ const UsersTab = () => {
     fetchUsers();
   };
 
-  if (loading) return <div className="tab-loading">Loading users⬦</div>;
+  if (loading) return <div className="tab-loading">Loading usersâ¬¦</div>;
 
   return (
     <div>
@@ -122,7 +122,7 @@ const UsersTab = () => {
   );
 };
 
-// ���� Posts Tab ������������������������������������������������������������������������������������������������������������������������������������
+// ï¿½ï¿½ï¿½ï¿½ Posts Tab ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 const PostsTab = ({ adminUser }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -160,7 +160,7 @@ const PostsTab = ({ adminUser }) => {
     fetchPosts();
   };
 
-  if (loading) return <div className="tab-loading">Loading posts⬦</div>;
+  if (loading) return <div className="tab-loading">Loading postsâ¬¦</div>;
 
   return (
     <div>
@@ -191,8 +191,8 @@ const PostsTab = ({ adminUser }) => {
       {showModal && (
         <Modal title={editing ? 'Edit Post' : 'New Post'} onClose={() => setShowModal(false)}>
           <form onSubmit={handleSave} className="modal-form">
-            <Field label="Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Post title⬦" />
-            <Field label="Content" as="textarea" value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} placeholder="Write your post⬦" />
+            <Field label="Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Post titleâ¬¦" />
+            <Field label="Content" as="textarea" value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} placeholder="Write your postâ¬¦" />
             <div className="modal-footer">
               <Button type="button" variant="outline" onClick={() => setShowModal(false)}>Cancel</Button>
               <Button type="submit">{editing ? 'Save Changes' : 'Publish Post'}</Button>
@@ -204,7 +204,7 @@ const PostsTab = ({ adminUser }) => {
   );
 };
 
-// ���� Courses Tab ��������������������������������������������������������������������������������������������������������������������������������
+// ï¿½ï¿½ï¿½ï¿½ Courses Tab ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 const CoursesTab = () => {
   const { user } = useAuth();
   const [courses, setCourses] = useState([]);
@@ -346,18 +346,18 @@ const CoursesTab = () => {
     fetchCourses();
   };
 
-  if (loading) return <div className="tab-loading">Loading courses⬦</div>;
+  if (loading) return <div className="tab-loading">Loading coursesâ¬¦</div>;
 
   return (
     <div>
       <div className="tab-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
         <h2 style={{ margin: 0, fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>Course Directory</h2>
-        <Button onClick={openCreate} style={{ padding: '0.8rem 1.75rem', borderRadius: '99px', fontWeight: 700, boxShadow: '0 8px 20px rgba(168, 85, 247, 0.3)', background: 'linear-gradient(135deg, var(--accent-pink), var(--accent-purple))' }}>+ Add Course Entry</Button>
+        <Button onClick={openCreate} style={{ padding: '0.8rem 1.75rem', borderRadius: '99px', fontWeight: 700, boxShadow: '0 8px 20px rgba(37, 99, 235, 0.3)', background: 'linear-gradient(135deg, var(--accent-secondary), var(--accent-primary))' }}>+ Add Course Entry</Button>
       </div>
       
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '2rem' }}>
         {courses.map(c => (
-          <div key={c.id} style={{ background: 'var(--bg-secondary)', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.15)' }} className="hover:-translate-y-2 hover:shadow-[0_20px_40px_-10px_rgba(236,72,153,0.15)] hover:border-[var(--accent-purple)]">
+          <div key={c.id} style={{ background: 'var(--bg-secondary)', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.15)' }} className="hover:-translate-y-2 hover:shadow-[0_20px_40px_-10px_rgba(59,130,246,0.15)] hover:border-[var(--accent-primary)]">
             <div style={{ height: '180px', width: '100%', background: c.image_url ? `url(http://localhost:5000${c.image_url}) center/cover` : 'linear-gradient(135deg, var(--bg-tertiary), rgba(255,255,255,0.02))', position: 'relative' }}>
               <div style={{ position: 'absolute', top: '16px', right: '16px', background: c.is_free ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, var(--bg-primary), var(--bg-secondary))', border: c.is_free ? 'none' : '1px solid var(--border)', padding: '6px 16px', borderRadius: '99px', color: c.is_free ? 'white' : 'var(--text-primary)', fontWeight: 800, fontSize: '0.85rem', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }}>
                 {c.is_free ? 'FREE' : `$${c.price}`}
@@ -365,14 +365,14 @@ const CoursesTab = () => {
             </div>
             <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
               <div style={{ display: 'flex', gap: '8px', marginBottom: '1rem', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '0.75rem', background: 'var(--bg-primary)', padding: '4px 12px', borderRadius: '99px', color: 'var(--accent-purple)', fontWeight: 800, border: '1px solid var(--border)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{c.level || 'Beginner'}</span>
-                <span style={{ fontSize: '0.75rem', background: 'var(--bg-primary)', padding: '4px 12px', borderRadius: '99px', color: 'var(--text-secondary)', fontWeight: 700, border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '4px' }}>⏱ {c.duration || 'N/A'}</span>
+                <span style={{ fontSize: '0.75rem', background: 'var(--bg-primary)', padding: '4px 12px', borderRadius: '99px', color: 'var(--accent-primary)', fontWeight: 800, border: '1px solid var(--border)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{c.level || 'Beginner'}</span>
+                <span style={{ fontSize: '0.75rem', background: 'var(--bg-primary)', padding: '4px 12px', borderRadius: '99px', color: 'var(--text-secondary)', fontWeight: 700, border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '4px' }}>â± {c.duration || 'N/A'}</span>
               </div>
               <h3 style={{ margin: '0 0 1.25rem 0', fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.3, letterSpacing: '-0.5px' }}>{c.title}</h3>
               
               <div style={{ marginTop: 'auto', display: 'flex', gap: '10px' }}>
-                <button onClick={() => openEdit(c)} style={{ flex: 1, background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border)', padding: '0.7rem', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }} className="hover:bg-[var(--accent-purple)] hover:text-white hover:border-transparent">Edit Course</button>
-                <button onClick={() => deleteCourse(c.id)} style={{ padding: '0.7rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s', width: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="hover:bg-red-500 hover:text-white" title="Delete Course">�S</button>
+                <button onClick={() => openEdit(c)} style={{ flex: 1, background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border)', padding: '0.7rem', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }} className="hover:bg-[var(--accent-primary)] hover:text-white hover:border-transparent">Edit Course</button>
+                <button onClick={() => deleteCourse(c.id)} style={{ padding: '0.7rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s', width: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="hover:bg-red-500 hover:text-white" title="Delete Course">ï¿½S</button>
               </div>
             </div>
           </div>
@@ -381,7 +381,7 @@ const CoursesTab = () => {
       
       {courses.length === 0 && (
         <div style={{ textAlign: 'center', padding: '6rem 2rem', background: 'var(--bg-secondary)', borderRadius: '32px', border: '1px dashed var(--border)' }}>
-          <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>�xa</div>
+          <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>ï¿½xa</div>
           <h3 style={{ fontSize: '1.5rem', color: 'var(--text-primary)', marginBottom: '0.5rem', fontWeight: 800 }}>No courses available</h3>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '1.1rem' }}>Get started by building your first premium trading course.</p>
           <Button onClick={openCreate} style={{ padding: '0.8rem 2rem', borderRadius: '99px', fontSize: '1.1rem', fontWeight: 700 }}>Deploy First Course</Button>
@@ -403,7 +403,7 @@ const CoursesTab = () => {
                    key={tab} 
                    onClick={(e) => { e.preventDefault(); setActiveTab(tab); }}
                    style={{ 
-                     background: activeTab === tab ? 'var(--accent-purple)' : 'transparent', 
+                     background: activeTab === tab ? 'var(--accent-primary)' : 'transparent', 
                      color: activeTab === tab ? '#fff' : 'var(--text-secondary)', 
                      padding: '0.75rem 1.5rem', 
                      borderRadius: '99px', 
@@ -414,7 +414,7 @@ const CoursesTab = () => {
                      letterSpacing: '1px',
                      fontSize: '0.85rem',
                      transition: 'all 0.2s',
-                     boxShadow: activeTab === tab ? '0 4px 15px rgba(168, 85, 247, 0.3)' : 'none'
+                     boxShadow: activeTab === tab ? '0 4px 15px rgba(37, 99, 235, 0.3)' : 'none'
                    }}
                  >
                    {tab} Info
@@ -448,7 +448,7 @@ const CoursesTab = () => {
                    <div className="form-group" style={{ marginTop: '2rem' }}>
                      <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
                         Primary Category
-                        {user?.role === 'admin' && <span style={{ fontSize: '0.75rem', color: 'var(--accent-purple)', fontWeight: 800 }}>ADMIN MODE ACTIVE</span>}
+                        {user?.role === 'admin' && <span style={{ fontSize: '0.75rem', color: 'var(--accent-primary)', fontWeight: 800 }}>ADMIN MODE ACTIVE</span>}
                      </label>
                      {user?.role === 'admin' ? (
                         <>
@@ -492,7 +492,7 @@ const CoursesTab = () => {
                                         style={{
                                           padding: '10px 16px', cursor: 'pointer', fontSize: '0.9rem',
                                           color: isSelected ? '#fff' : 'var(--text-secondary)',
-                                          background: isSelected ? 'var(--accent-purple)' : 'transparent',
+                                          background: isSelected ? 'var(--accent-primary)' : 'transparent',
                                           transition: 'all 0.15s ease',
                                           borderBottom: '1px solid rgba(255,255,255,0.05)',
                                           fontWeight: isSelected ? 600 : 400
@@ -538,8 +538,8 @@ const CoursesTab = () => {
                                fontSize: '0.85rem',
                                fontWeight: 600,
                                transition: 'all 0.2s ease',
-                               border: isActive ? '1px solid var(--accent-purple)' : '1px solid rgba(255,255,255,0.1)',
-                               background: isActive ? 'var(--accent-purple)' : 'rgba(255,255,255,0.03)',
+                               border: isActive ? '1px solid var(--accent-primary)' : '1px solid rgba(255,255,255,0.1)',
+                               background: isActive ? 'var(--accent-primary)' : 'rgba(255,255,255,0.03)',
                                color: isActive ? '#fff' : 'var(--text-secondary)',
                                boxShadow: isActive ? '0 0 10px rgba(124, 58, 237, 0.4)' : 'none'
                              }}
@@ -577,7 +577,7 @@ const CoursesTab = () => {
                    
                    {/* Thumbnail Upload */}
                    <div className="form-group" style={{ border: '2px dashed var(--border)', padding: '2.5rem 2rem', borderRadius: '24px', textAlign: 'center', background: 'var(--bg-secondary)' }}>
-                     <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>�x�</div>
+                     <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>ï¿½xï¿½</div>
                      <label className="form-label text-center" style={{ fontSize: '1.25rem', marginBottom: '0.5rem', fontWeight: 800 }}>Course Cover Art</label>
                      <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Upload a high-quality 16:9 thumbnail image (JPG/PNG)</p>
                      
@@ -585,14 +585,14 @@ const CoursesTab = () => {
                        <input type="file" accept="image/*" onChange={e => setForm({...form, image: e.target.files[0]})} style={{ width: '100%', padding: '0.75rem', background: 'var(--bg-primary)', borderRadius: '12px', color: 'var(--text-primary)', border: '1px solid var(--border)' }} />
                      </div>
                      {editing && editing.image_url && !form.image && (
-                       <div style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Current banner: <a href={`http://localhost:5000${editing.image_url}`} target="_blank" rel="noreferrer" style={{color: 'var(--accent-pink)', fontWeight: 700}}>View active image � </a></div>
+                       <div style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Current banner: <a href={`http://localhost:5000${editing.image_url}`} target="_blank" rel="noreferrer" style={{color: 'var(--accent-secondary)', fontWeight: 700}}>View active image ï¿½ </a></div>
                      )}
                    </div>
 
                    {/* Video Options */}
                    <div style={{ background: 'var(--bg-secondary)', padding: '2.5rem', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.1)' }}>
                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                       <div style={{ fontSize: '2rem' }}>�x}�</div>
+                       <div style={{ fontSize: '2rem' }}>ï¿½x}ï¿½</div>
                        <div>
                          <h4 style={{ margin: '0 0 0.25rem 0', color: 'var(--text-primary)', fontSize: '1.25rem', fontWeight: 800 }}>Video Engine</h4>
                          <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>We support either YouTube links or secure raw MP4 uploads. Do not use both simultaneously.</span>
@@ -605,23 +605,23 @@ const CoursesTab = () => {
                      </div>
 
                      <div className="form-group">
-                       <label className="form-label" style={{ fontWeight: 700, color: 'var(--accent-purple)' }}>B) Upload Raw MP4 Object</label>
+                       <label className="form-label" style={{ fontWeight: 700, color: 'var(--accent-primary)' }}>B) Upload Raw MP4 Object</label>
                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '-0.25rem 0 1rem 0' }}>Max Size: 500MB payload limit injected directly to Node relay.</p>
                        <input type="file" accept="video/mp4,video/webm" onChange={e => setForm({...form, video_file: e.target.files[0]})} style={{ width: '100%', padding: '0.75rem', background: 'var(--bg-primary)', borderRadius: '12px', border: '1px solid var(--border)', color: 'var(--text-primary)' }} />
                        {editing && editing.video_file && !form.video_file && (
-                         <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'rgba(16,185,129,0.1)', color: '#10b981', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600 }}>�S& Raw MP4 actively streaming from server.</div>
+                         <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'rgba(16,185,129,0.1)', color: '#10b981', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600 }}>ï¿½S& Raw MP4 actively streaming from server.</div>
                        )}
                      </div>
                    </div>
 
                    {/* PDF Upload */}
                    <div className="form-group" style={{ border: '2px dashed var(--border)', padding: '2.5rem', borderRadius: '24px', background: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                     <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>�x</div>
+                     <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>ï¿½x</div>
                      <label className="form-label" style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.5rem' }}>Supporting Documentation</label>
                      <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Attach any PDF cheatsheets or study guides associated with this course.</p>
                      <input type="file" accept="application/pdf" onChange={e => setForm({...form, pdf_file: e.target.files[0]})} style={{ width: '100%', maxWidth: '400px', padding: '0.75rem', background: 'var(--bg-primary)', borderRadius: '12px', border: '1px solid var(--border)', color: 'var(--text-primary)' }} />
                      {editing && editing.pdf_url && !form.pdf_file && (
-                       <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>PDF Payload Active: <a href={`http://localhost:5000${editing.pdf_url}`} target="_blank" rel="noreferrer" style={{color: 'var(--accent-purple)', fontWeight: 700}}>Verify PDF � </a></div>
+                       <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>PDF Payload Active: <a href={`http://localhost:5000${editing.pdf_url}`} target="_blank" rel="noreferrer" style={{color: 'var(--accent-primary)', fontWeight: 700}}>Verify PDF ï¿½ </a></div>
                      )}
                    </div>
 
@@ -630,7 +630,7 @@ const CoursesTab = () => {
 
                <div className="modal-footer" style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
                  <Button type="button" variant="outline" onClick={() => setShowModal(false)} style={{ padding: '0.9rem 2.5rem', borderRadius: '99px', fontWeight: 700 }}>Cancel Workflow</Button>
-                 <Button type="submit" style={{ padding: '0.9rem 2.5rem', borderRadius: '99px', fontWeight: 800, background: 'linear-gradient(135deg, var(--accent-pink), var(--accent-purple))', boxShadow: '0 8px 20px rgba(168, 85, 247, 0.3)' }}>{editing ? 'Commit Changes' : 'Publish Course Live'}</Button>
+                 <Button type="submit" style={{ padding: '0.9rem 2.5rem', borderRadius: '99px', fontWeight: 800, background: 'linear-gradient(135deg, var(--accent-secondary), var(--accent-primary))', boxShadow: '0 8px 20px rgba(37, 99, 235, 0.3)' }}>{editing ? 'Commit Changes' : 'Publish Course Live'}</Button>
                </div>
              </form>
           </div>
@@ -640,7 +640,7 @@ const CoursesTab = () => {
   );
 };
 
-// ���� Prop Firms Tab ��������������������������������������������������������������������������������������������������������������������������
+// ï¿½ï¿½ï¿½ï¿½ Prop Firms Tab ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 const PropFirmsTab = () => {
   const [firms, setFirms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -863,10 +863,10 @@ const PropFirmsTab = () => {
         shadow: '0 8px 20px rgba(239, 68, 68, 0.2)'
       };
       default: return {
-        bg: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%)',
+        bg: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%)',
         text: 'linear-gradient(to right, #818cf8, #f472b6)',
-        border: 'rgba(236, 72, 153, 0.2)',
-        shadow: '0 8px 20px rgba(168,85,247,0.3)'
+        border: 'rgba(59, 130, 246, 0.2)',
+        shadow: '0 8px 20px rgba(37,99,235,0.3)'
       };
     }
   };
@@ -891,7 +891,7 @@ const PropFirmsTab = () => {
     </div>
   );
 
-  if (loading) return <div className="tab-loading">Loading prop firms⬦</div>;
+  if (loading) return <div className="tab-loading">Loading prop firmsâ¬¦</div>;
 
   return (
     <div>
@@ -916,7 +916,7 @@ const PropFirmsTab = () => {
           <tbody>
             {firms.map(f => (
               <tr key={f.id}>
-                <td style={{ fontWeight: 600 }}>{f.name} {f.featured && <span style={{fontSize:'12px'}}>⭐️</span>}</td>
+                <td style={{ fontWeight: 600 }}>{f.name} {f.featured && <span style={{fontSize:'12px'}}>â­ï¸</span>}</td>
                 <td>{f.rating ? `${f.rating} / 5` : '-'}</td>
                 <td>
                   <span 
@@ -947,7 +947,7 @@ const PropFirmsTab = () => {
             <div style={{ paddingRight: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               
               <div className="form-section">
-                <h3 className="form-section-title">�x�️ Branding</h3>
+                <h3 className="form-section-title">ï¿½xï¿½ï¸ Branding</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 1fr)', gap: '1rem', marginBottom: '1rem' }}>
                   <div className="form-group" style={{ 
                     border: '2px dashed var(--border-color)', 
@@ -970,7 +970,7 @@ const PropFirmsTab = () => {
                           type="button"
                           onClick={(e) => { e.preventDefault(); setForm({ ...form, imageFile: null, logo_url: '' }) }}
                           style={{ position: 'absolute', top: '-8px', right: '-8px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}
-                        >�S"</button>
+                        >ï¿½S"</button>
                       </div>
                     ) : (
                       <div style={{ margin: '1rem 0', pointerEvents: 'none' }}>
@@ -993,16 +993,16 @@ const PropFirmsTab = () => {
                 </div>
               </div>
               <div className="form-section">
-                <h3 className="form-section-title">�x�� Basic Information</h3>
+                <h3 className="form-section-title">ï¿½xï¿½ï¿½ Basic Information</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                  <Field label="Name (required)" required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Firm name⬦" />
+                  <Field label="Name (required)" required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Firm nameâ¬¦" />
                   <div className="form-group">
                     <label className="form-label">Internal Status (Admin Only)</label>
                     <select className="input" required value={form.status_color} onChange={e => setForm({ ...form, status_color: e.target.value })}>
-                      <option value="green">�xx� Green (Top Ranked)</option>
-                      <option value="blue">�x� Blue (Community Trusted)</option>
-                      <option value="yellow">�xx� Yellow (New / Building Trust)</option>
-                      <option value="red">�x� Red (Avoid / Possible Scam)</option>
+                      <option value="green">ï¿½xxï¿½ Green (Top Ranked)</option>
+                      <option value="blue">ï¿½xï¿½ Blue (Community Trusted)</option>
+                      <option value="yellow">ï¿½xxï¿½ Yellow (New / Building Trust)</option>
+                      <option value="red">ï¿½xï¿½ Red (Avoid / Possible Scam)</option>
                     </select>
                   </div>
                   <Field label="Account Category" value={form.account_category} onChange={e => setForm({ ...form, account_category: e.target.value })} placeholder="e.g. Futures, Forex" />
@@ -1014,7 +1014,7 @@ const PropFirmsTab = () => {
               </div>
 
               <div className="form-section">
-                <h3 className="form-section-title">�x� Pricing Details</h3>
+                <h3 className="form-section-title">ï¿½xï¿½ Pricing Details</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
 
                   <Field label="Activation Fee (USD)" type="number" value={form.activation_fee} onChange={e => setForm({ ...form, activation_fee: e.target.value })} placeholder="e.g. 140" />
@@ -1029,7 +1029,7 @@ const PropFirmsTab = () => {
               </div>
 
               <div className="form-section">
-                <h3 className="form-section-title">�a"️ Trading Rules & Metrics</h3>
+                <h3 className="form-section-title">ï¿½a"ï¸ Trading Rules & Metrics</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                   <Field label="Profit Target" type="text" value={form.profit_target} onChange={e => setForm({ ...form, profit_target: e.target.value })} placeholder="e.g. $4,000 for max withdrawal, $1,000 for min" />
                   <Field label="Profit Split" type="text" value={form.profit_split} onChange={e => setForm({ ...form, profit_split: e.target.value })} placeholder="e.g. EOD, $2,000" />
@@ -1045,7 +1045,7 @@ const PropFirmsTab = () => {
               </div>
 
               <div className="form-section">
-                <h3 className="form-section-title">�x Socials, Links & Ratings</h3>
+                <h3 className="form-section-title">ï¿½x Socials, Links & Ratings</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                   <Field label="Overall Score" type="number" step="0.1" value={form.overall_score} onChange={e => setForm({ ...form, overall_score: e.target.value })} placeholder="e.g. 9.5" />
                   <Field label="Rating (Trustpilot)" type="number" step="0.1" value={form.rating} onChange={e => setForm({ ...form, rating: e.target.value })} placeholder="e.g. 4.8" />
@@ -1054,7 +1054,7 @@ const PropFirmsTab = () => {
               </div>
 
               <div className="form-section">
-                <h3 className="form-section-title">�x� Toggles & Settings</h3>
+                <h3 className="form-section-title">ï¿½xï¿½ Toggles & Settings</h3>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
                   <Toggle label="Feature in Banner" checked={form.featured} onChange={val => setForm({ ...form, featured: val })} />
                   <Toggle label="Is Affiliate Link" checked={form.is_affiliate} onChange={val => setForm({ ...form, is_affiliate: val })} />
@@ -1147,10 +1147,10 @@ const PropFirmsTab = () => {
                   </div>
                   <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
                     <span className={`badge`} style={{ padding: '0.4rem 0.8rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff'}}>
-                       {viewingFirm.status_color === 'green' ? '�xx� Top Ranked' : viewingFirm.status_color === 'blue' ? '�x� Trusted' : viewingFirm.status_color === 'yellow' ? '�xx� New / Warning' : '�x� Avoid'}
+                       {viewingFirm.status_color === 'green' ? 'ï¿½xxï¿½ Top Ranked' : viewingFirm.status_color === 'blue' ? 'ï¿½xï¿½ Trusted' : viewingFirm.status_color === 'yellow' ? 'ï¿½xxï¿½ New / Warning' : 'ï¿½xï¿½ Avoid'}
                     </span>
-                    {viewingFirm.featured && <span style={{fontSize: '13px', color: '#f59e0b', fontWeight: 600}}>⭐️ Featured Firm</span>}
-                    {viewingFirm.is_affiliate && <span style={{fontSize: '13px', color: 'var(--accent-blue)', fontWeight: 600}}>�x Affiliate Partner</span>}
+                    {viewingFirm.featured && <span style={{fontSize: '13px', color: '#f59e0b', fontWeight: 600}}>â­ï¸ Featured Firm</span>}
+                    {viewingFirm.is_affiliate && <span style={{fontSize: '13px', color: 'var(--accent-blue)', fontWeight: 600}}>ï¿½x Affiliate Partner</span>}
                   </div>
                </div>
             </div>
@@ -1159,7 +1159,7 @@ const PropFirmsTab = () => {
                 {/* General Info */}
                 <div>
                    <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
-                     �x�� Basic Information
+                     ï¿½xï¿½ï¿½ Basic Information
                    </h4>
                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
                      
@@ -1170,7 +1170,7 @@ const PropFirmsTab = () => {
                      
                      <div style={{ background: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '20px', display: 'flex', flexDirection: 'column' }}>
                         <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.5rem' }}>Trustpilot Rating</span>
-                        <span style={{ color: 'var(--text-primary)', fontSize: '1.25rem', fontWeight: 800 }}>⭐ {viewingFirm.rating ? `${viewingFirm.rating} / 5` : '-'}</span>
+                        <span style={{ color: 'var(--text-primary)', fontSize: '1.25rem', fontWeight: 800 }}>â­ {viewingFirm.rating ? `${viewingFirm.rating} / 5` : '-'}</span>
                      </div>
 
                      <div style={{ background: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '20px', display: 'flex', flexDirection: 'column', gridColumn: '1 / -1' }}>
@@ -1195,7 +1195,7 @@ const PropFirmsTab = () => {
                 {/* Pricing Details */}
                 <div>
                    <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
-                     �x� Pricing Details
+                     ï¿½xï¿½ Pricing Details
                    </h4>
                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
                      <StatBox label="Activation Fee" value={viewingFirm.activation_fee != null && viewingFirm.activation_fee !== '' ? `$${viewingFirm.activation_fee}` : '-'} />
@@ -1211,7 +1211,7 @@ const PropFirmsTab = () => {
                 {/* Trading Metrics */}
                 <div>
                    <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
-                     �a"️ Trading Rules & Metrics
+                     ï¿½a"ï¸ Trading Rules & Metrics
                    </h4>
                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                      <StatBox label="Profit Target" value={viewingFirm.profit_target} />
@@ -1230,7 +1230,7 @@ const PropFirmsTab = () => {
                 {/* Badges / Toggles Block */}
                 <div style={{ paddingBottom: '2rem' }}>
                    <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
-                     �x� Feature Support
+                     ï¿½xï¿½ Feature Support
                    </h4>
                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
                       {['buffer', 'copy_trade', 'vpn', 'dca', 'news', 'bots', 'micro_scalping'].map(feat => (
@@ -1243,7 +1243,7 @@ const PropFirmsTab = () => {
                            fontWeight: 600, 
                            border: viewingFirm[feat] ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid var(--border)'
                          }}>
-                           {viewingFirm[feat] ? '�S' : '�S'} {feat.replace('_', ' ').toUpperCase()}
+                           {viewingFirm[feat] ? 'ï¿½S' : 'ï¿½S'} {feat.replace('_', ' ').toUpperCase()}
                          </span>
                       ))}
                    </div>
@@ -1280,7 +1280,7 @@ const PropFirmsTab = () => {
   );
 };
 
-// ���� Promotions Tab ��������������������������������������������������������������������������������������������������������������������������
+// ï¿½ï¿½ï¿½ï¿½ Promotions Tab ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 const PromotionsTab = () => {
   const [promos, setPromos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -1350,7 +1350,7 @@ const PromotionsTab = () => {
     fetchPromos();
   };
 
-  if (loading) return <div className="tab-loading">Loading promotions⬦</div>;
+  if (loading) return <div className="tab-loading">Loading promotionsâ¬¦</div>;
 
   return (
     <div>
@@ -1376,9 +1376,9 @@ const PromotionsTab = () => {
                   <span style={{
                     fontSize: '12px',
                     fontWeight: 600,
-                    color: (p.ticker_speed ?? 40) <= 20 ? '#ec4899' : (p.ticker_speed ?? 40) <= 60 ? '#3b82f6' : '#10b981',
+                    color: (p.ticker_speed ?? 40) <= 20 ? '#3b82f6' : (p.ticker_speed ?? 40) <= 60 ? '#3b82f6' : '#10b981',
                   }}>
-                    {(p.ticker_speed ?? 40) <= 20 ? '�x�' : (p.ticker_speed ?? 40) <= 60 ? '�a�' : '�x��'} {p.ticker_speed ?? 40}s
+                    {(p.ticker_speed ?? 40) <= 20 ? 'ï¿½xï¿½' : (p.ticker_speed ?? 40) <= 60 ? 'ï¿½aï¿½' : 'ï¿½xï¿½ï¿½'} {p.ticker_speed ?? 40}s
                   </span>
                 </td>
                 <td style={{ color: 'var(--text-secondary)' }}>
@@ -1408,7 +1408,7 @@ const PromotionsTab = () => {
             </div>
             <Field label="Expiration Date" type="datetime-local" value={form.expires_at} onChange={e => setForm({ ...form, expires_at: e.target.value })} />
 
-            {/* ���� Ticker Speed ���� */}
+            {/* ï¿½ï¿½ï¿½ï¿½ Ticker Speed ï¿½ï¿½ï¿½ï¿½ */}
             <div className="form-group">
               <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>Banner Scroll Speed</span>
@@ -1418,18 +1418,18 @@ const PromotionsTab = () => {
                   padding: '1px 8px',
                   borderRadius: '100px',
                   background: form.ticker_speed <= 20
-                    ? 'rgba(236,72,153,0.12)'
+                    ? 'rgba(59,130,246,0.12)'
                     : form.ticker_speed <= 60
                     ? 'rgba(59,130,246,0.12)'
                     : 'rgba(16,185,129,0.12)',
                   color: form.ticker_speed <= 20
-                    ? '#ec4899'
+                    ? '#3b82f6'
                     : form.ticker_speed <= 60
                     ? '#3b82f6'
                     : '#10b981',
                   border: '1px solid currentColor',
                 }}>
-                  {form.ticker_speed <= 20 ? '�x� Fast' : form.ticker_speed <= 60 ? '�a� Medium' : '�x�� Slow'} &nbsp;·&nbsp; {form.ticker_speed}s
+                  {form.ticker_speed <= 20 ? 'ï¿½xï¿½ Fast' : form.ticker_speed <= 60 ? 'ï¿½aï¿½ Medium' : 'ï¿½xï¿½ï¿½ Slow'} &nbsp;Â·&nbsp; {form.ticker_speed}s
                 </span>
               </label>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingTop: '4px' }}>
@@ -1443,7 +1443,7 @@ const PromotionsTab = () => {
                    onChange={e => { const v = Number(e.target.value); setForm(prev => ({ ...prev, ticker_speed: v })); }}
                   style={{
                     flex: 1,
-                    accentColor: 'var(--accent-purple)',
+                    accentColor: 'var(--accent-primary)',
                     cursor: 'pointer',
                     height: '4px',
                   }}
@@ -1466,14 +1466,14 @@ const PromotionsTab = () => {
   );
 };
 
-// ���� Main Admin Dashboard ��������������������������������������������������������������������������������������������������������������
+// ï¿½ï¿½ï¿½ï¿½ Main Admin Dashboard ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 const TABS = [
-  { id: 'users',      label: '�x� Users' },
-  { id: 'posts',      label: '�x� Blog Posts' },
-  { id: 'courses',    label: '�x} Courses' },
-  { id: 'prop-firms', label: '�x�� Prop Firms' },
-  { id: 'promos',     label: '�x}� Promotions' },
-  { id: 'branding',   label: '�x}� Branding' },
+  { id: 'users',      label: 'ï¿½xï¿½ Users' },
+  { id: 'posts',      label: 'ï¿½xï¿½ Blog Posts' },
+  { id: 'courses',    label: 'ï¿½x} Courses' },
+  { id: 'prop-firms', label: 'ï¿½xï¿½ï¿½ Prop Firms' },
+  { id: 'promos',     label: 'ï¿½x}ï¿½ Promotions' },
+  { id: 'branding',   label: 'ï¿½x}ï¿½ Branding' },
 ];
 
 const AdminDashboard = () => {
@@ -1515,7 +1515,7 @@ const AdminDashboard = () => {
         </div>
         <div className="flex gap-4 items-center">
           <Button variant="outline" onClick={() => setLayout(prev => prev === 'horizontal' ? 'vertical' : 'horizontal')} style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
-            {layout === 'horizontal' ? '�x� Vertical Layout' : '�x� Horizontal Layout'}
+            {layout === 'horizontal' ? 'ï¿½xï¿½ Vertical Layout' : 'ï¿½xï¿½ Horizontal Layout'}
           </Button>
           <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{user.name}</span>
           <Button variant="outline" onClick={() => { logout(); navigate('/'); }}>Logout</Button>

@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
-import { BrandingProvider } from './context/BrandingContext';
+import { BrandingProvider, useBranding } from './context/BrandingContext';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import PromotionBanner from './components/layout/PromotionBanner';
@@ -18,34 +18,41 @@ import CourseList from './pages/CourseList';
 import CourseDetail from './pages/CourseDetail';
 import PropFirmList from './pages/PropFirmList';
 
+const AppContent = () => {
+  const { layout } = useBranding();
+  return (
+    <Router>
+      <div className="app-container" data-layout={layout || 'default'}>
+        <Navbar />
+        <PromotionBanner />
+        <main className="main-content">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/blog" element={<BlogList />} />
+            <Route path="/blog/:id" element={<BlogDetail />} />
+            <Route path="/courses" element={<CourseList />} />
+            <Route path="/courses/:id" element={<CourseDetail />} />
+            <Route path="/prop-firms" element={<PropFirmList />} />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
+    </Router>
+  );
+};
+
 function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
         <BrandingProvider>
-          <Router>
-          <div className="app-container">
-            <Navbar />
-            <PromotionBanner />
-            <main className="main-content">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/blog" element={<BlogList />} />
-                <Route path="/blog/:id" element={<BlogDetail />} />
-                <Route path="/courses" element={<CourseList />} />
-                <Route path="/courses/:id" element={<CourseDetail />} />
-                <Route path="/prop-firms" element={<PropFirmList />} />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
-        </Router>
-      </BrandingProvider>
-    </AuthProvider>
+          <AppContent />
+        </BrandingProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

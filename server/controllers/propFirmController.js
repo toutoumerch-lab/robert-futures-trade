@@ -389,9 +389,9 @@ const getPlatforms = async (req, res) => {
 const getGroups = async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT DISTINCT group_name FROM prop_firms WHERE group_name IS NOT NULL AND group_name != '' ORDER BY group_name"
+      'SELECT name, image_url FROM prop_firm_groups ORDER BY name'
     );
-    res.json(result.rows.map(r => r.group_name));
+    res.json(result.rows);
   } catch (error) {
     console.error('Error fetching groups:', error);
     res.status(500).json({ error: 'Server error' });
@@ -403,6 +403,13 @@ const patchGroupName = async (req, res) => {
   const { id } = req.params;
   const { group_name } = req.body;
   try {
+    // Auto-create group entry if it doesn't exist
+    if (group_name) {
+      await pool.query(
+        'INSERT INTO prop_firm_groups (name) VALUES ($1) ON CONFLICT (name) DO NOTHING',
+        [group_name]
+      );
+    }
     const result = await pool.query(
       'UPDATE prop_firms SET group_name = $1 WHERE id = $2 RETURNING id, name, group_name',
       [group_name || null, id]
@@ -415,4 +422,21 @@ const patchGroupName = async (req, res) => {
   }
 };
 
-module.exports = { getPropFirms, getPropFirmsAdmin, createPropFirm, bulkCreatePropFirms, updatePropFirm, deletePropFirm, getPlatforms, getGroups, patchGroupName };
+// ── POST /api/prop-firms/groups/:name/image — upload group logo ───────────────
+const upsertGroupImage = async (req, res) => {
+  const { name } = req.params;
+  const image_url = req.file ? `/uploads/group-logos/${req.file.filename}` : null;
+  if (!image_url) return res.status(400).json({ error: 'No image provided' });
+  try {
+    await pool.query(
+      'INSERT INTO prop_firm_groups (name, image_url) VALUES ($1, $2) ON CONFLICT (name) DO UPDATE SET image_url = $2',
+      [name, image_url]
+    );
+    res.json({ name, image_url });
+  } catch (error) {
+    console.error('Error uploading group image:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+module.exports = { getPropFirms, getPropFirmsAdmin, createPropFirm, bulkCreatePropFirms, updatePropFirm, deletePropFirm, getPlatforms, getGroups, patchGroupName, upsertGroupImage };

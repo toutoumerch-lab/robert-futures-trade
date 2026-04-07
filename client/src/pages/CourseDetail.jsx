@@ -77,7 +77,7 @@ const CourseDetail = () => {
 
     return (
       <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary))', color: 'var(--text-secondary)' }}>
-        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎬</div>
+        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>ðŸŽ¬</div>
         <p style={{ fontWeight: 800 }}>{activeLesson ? 'No Video for This Lesson' : 'Video Content Not Attached'}</p>
       </div>
     );
@@ -88,13 +88,13 @@ const CourseDetail = () => {
        {/* Breadcrumbs Header */}
        <div style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', padding: '1.5rem 0' }}>
          <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-           <Button variant="outline" onClick={() => navigate('/courses')} style={{ padding: '0.4rem 1rem', borderRadius: '99px', fontSize: '0.85rem' }}>← Library</Button>
+           <Button variant="outline" onClick={() => navigate('/courses')} style={{ padding: '0.4rem 1rem', borderRadius: '99px', fontSize: '0.85rem' }}>â† Library</Button>
            {activeLesson && (
              <button 
                onClick={() => setActiveLesson(null)} 
                style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', padding: '0.4rem 1rem', borderRadius: '99px', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 600 }}
              >
-               ← Back to Intro
+               â† Back to Intro
              </button>
            )}
          </div>
@@ -117,7 +117,7 @@ const CourseDetail = () => {
                 <div style={{ background: 'var(--bg-secondary)', borderRadius: '24px', border: '1px solid var(--border)', padding: '2.5rem' }}>
                    <div style={{ display: 'flex', gap: '8px', marginBottom: '1rem' }}>
                      <span style={{ fontSize: '0.75rem', background: 'rgba(59, 130, 246, 0.1)', padding: '4px 12px', borderRadius: '99px', color: '#3b82f6', fontWeight: 800, textTransform: 'uppercase' }}>Now Playing</span>
-                     {activeLesson.duration && <span style={{ fontSize: '0.75rem', background: 'var(--bg-primary)', padding: '4px 12px', borderRadius: '99px', color: 'var(--text-secondary)', fontWeight: 700, border: '1px solid var(--border)' }}>⏱ {activeLesson.duration}</span>}
+                     {activeLesson.duration && <span style={{ fontSize: '0.75rem', background: 'var(--bg-primary)', padding: '4px 12px', borderRadius: '99px', color: 'var(--text-secondary)', fontWeight: 700, border: '1px solid var(--border)' }}>â± {activeLesson.duration}</span>}
                    </div>
                    <h2 style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '1rem', lineHeight: 1.2, letterSpacing: '-0.5px' }}>{activeLesson.title}</h2>
                    {activeLesson.description && (
@@ -132,7 +132,7 @@ const CourseDetail = () => {
                    {/* Lesson Resources */}
                    {((activeLesson.pdf_url) || (activeLesson.zip_url) || (activeLesson.resources && activeLesson.resources.length > 0)) && (
                      <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
-                       <h4 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)' }}>📎 Lesson Resources</h4>
+                       <h4 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)' }}>ðŸ“Ž Lesson Resources</h4>
                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                          {activeLesson.pdf_url && (
                            <a href={`http://localhost:5000${activeLesson.pdf_url}`} target="_blank" rel="noreferrer" style={{
@@ -140,7 +140,7 @@ const CourseDetail = () => {
                              background: 'var(--bg-primary)', borderRadius: '14px', border: '1px solid var(--border)',
                              textDecoration: 'none', color: '#8b5cf6', fontWeight: 700, fontSize: '0.9rem', transition: 'all 0.15s'
                            }}>
-                             📄 Download PDF
+                             ðŸ“„ Download PDF
                            </a>
                          )}
                          {activeLesson.zip_url && (
@@ -149,7 +149,7 @@ const CourseDetail = () => {
                              background: 'var(--bg-primary)', borderRadius: '14px', border: '1px solid var(--border)',
                              textDecoration: 'none', color: '#f59e0b', fontWeight: 700, fontSize: '0.9rem', transition: 'all 0.15s'
                            }}>
-                             📦 Download ZIP Bundle
+                             ðŸ“¦ Download ZIP Bundle
                            </a>
                          )}
                          {(activeLesson.resources || []).map((r, i) => (
@@ -158,7 +158,7 @@ const CourseDetail = () => {
                              background: 'var(--bg-primary)', borderRadius: '14px', border: '1px solid var(--border)',
                              textDecoration: 'none', color: '#10b981', fontWeight: 700, fontSize: '0.9rem', transition: 'all 0.15s'
                            }}>
-                             🔗 {r.label}
+                             ðŸ”— {r.label}
                            </a>
                          ))}
                        </div>
@@ -168,7 +168,7 @@ const CourseDetail = () => {
               ) : (
                 <div style={{ background: 'var(--bg-secondary)', borderRadius: '24px', border: '1px solid var(--border)', padding: '3rem' }}>
                    <div style={{ display: 'flex', gap: '8px', marginBottom: '1.5rem' }}>
-                      <span style={{ fontSize: '0.8rem', background: 'var(--bg-primary)', padding: '6px 14px', borderRadius: '99px', color: 'var(--accent-purple)', fontWeight: 800, border: '1px solid var(--border)', textTransform: 'uppercase' }}>{course.category}</span>
+                      <span style={{ fontSize: '0.8rem', background: 'var(--bg-primary)', padding: '6px 14px', borderRadius: '99px', color: 'var(--accent-primary)', fontWeight: 800, border: '1px solid var(--border)', textTransform: 'uppercase' }}>{course.category}</span>
                       {course.is_free && <span style={{ fontSize: '0.8rem', background: '#10b981', padding: '6px 14px', borderRadius: '99px', color: '#fff', fontWeight: 800 }}>FREE</span>}
                    </div>
                    
@@ -197,7 +197,7 @@ const CourseDetail = () => {
                 {!user && !course.is_free ? (
                    <Button style={{ width: '100%', padding: '1rem', borderRadius: '16px', fontSize: '1.1rem', fontWeight: 800 }} onClick={() => navigate('/login')}>Login to Enroll</Button>
                 ) : (
-                   <Button style={{ width: '100%', padding: '1rem', borderRadius: '16px', fontSize: '1.1rem', fontWeight: 800, background: 'linear-gradient(135deg, var(--accent-pink), var(--accent-purple))', boxShadow: '0 8px 20px rgba(168, 85, 247, 0.3)' }} onClick={() => alert("Enrollment processing logic to tie to your Stripe or access tables.")}>Enroll Now</Button>
+                   <Button style={{ width: '100%', padding: '1rem', borderRadius: '16px', fontSize: '1.1rem', fontWeight: 800, background: 'linear-gradient(135deg, var(--accent-secondary), var(--accent-primary))', boxShadow: '0 8px 20px rgba(37, 99, 235, 0.3)' }} onClick={() => alert("Enrollment processing logic to tie to your Stripe or access tables.")}>Enroll Now</Button>
                 )}
              </div>
 
@@ -236,7 +236,7 @@ const CourseDetail = () => {
              {/* Course Content Sidebar - Module/Lesson Navigator */}
              {hasModules && (
                <div style={{ background: 'var(--bg-secondary)', borderRadius: '24px', border: '1px solid var(--border)', padding: '1.5rem', maxHeight: '500px', overflowY: 'auto' }}>
-                 <h4 style={{ margin: '0 0 1rem 0', color: 'var(--text-primary)', fontSize: '1.1rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>📚 Course Content</h4>
+                 <h4 style={{ margin: '0 0 1rem 0', color: 'var(--text-primary)', fontSize: '1.1rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>ðŸ“š Course Content</h4>
                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                    {course.modules.map((mod, modIdx) => {
                      const isExpanded = expandedModules[mod.id];
@@ -249,7 +249,7 @@ const CourseDetail = () => {
                            <span style={{ width: '26px', height: '26px', borderRadius: '8px', background: 'linear-gradient(135deg, #3b82f6, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: '0.7rem', flexShrink: 0 }}>{modIdx + 1}</span>
                            <span style={{ flex: 1, fontWeight: 700, fontSize: '0.85rem', color: 'var(--text-primary)' }}>{mod.title}</span>
                            <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{mod.lessons?.length || 0}</span>
-                           <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>{isExpanded ? '▲' : '▼'}</span>
+                           <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>{isExpanded ? 'â–²' : 'â–¼'}</span>
                          </div>
                          {isExpanded && mod.lessons && mod.lessons.length > 0 && (
                            <div style={{ marginLeft: '1rem', marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
@@ -269,7 +269,7 @@ const CourseDetail = () => {
                                  >
                                    <span style={{ width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 800, flexShrink: 0, background: isActive ? '#3b82f6' : 'var(--border)', color: isActive ? '#fff' : 'var(--text-secondary)' }}>{lIdx + 1}</span>
                                    <span style={{ flex: 1, fontSize: '0.8rem', fontWeight: isActive ? 700 : 500, color: isActive ? '#3b82f6' : 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{lesson.title}</span>
-                                   {(lesson.video_url || lesson.video_file) && <span style={{ fontSize: '0.65rem', color: '#3b82f6' }}>▶</span>}
+                                   {(lesson.video_url || lesson.video_file) && <span style={{ fontSize: '0.65rem', color: '#3b82f6' }}>â–¶</span>}
                                  </button>
                                );
                              })}
@@ -285,7 +285,7 @@ const CourseDetail = () => {
              {/* PDF Downloads Module (course-level) */}
              {course.pdf_url && !activeLesson && (
                <div style={{ background: 'var(--bg-secondary)', borderRadius: '24px', border: '1px solid var(--border)', padding: '2rem' }}>
-                  <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>📄</div>
+                  <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>ðŸ“„</div>
                   <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--text-primary)', fontSize: '1.25rem', fontWeight: 800 }}>Course Resources</h4>
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>Download the official study guide & cheat sheet.</p>
                   
@@ -295,7 +295,7 @@ const CourseDetail = () => {
                     </a>
                   ) : (
                     <div style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', padding: '1rem', borderRadius: '12px', textAlign: 'center', fontWeight: 700, fontSize: '0.9rem' }}>
-                      🔒 Login to download
+                      ðŸ”’ Login to download
                     </div>
                   )}
                </div>

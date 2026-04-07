@@ -18,31 +18,73 @@ const updateSettings = async (req, res) => {
   const { site_name, site_name_color } = req.body;
   const hexRegex = /^#[0-9A-Fa-f]{6}$/;
 
+  // Upsert helper
+  const upsert = async (key, value) => {
+    await pool.query(
+      'INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2',
+      [key, value]
+    );
+  };
+
+  // Delete helper
+  const remove = async (key) => {
+    await pool.query('DELETE FROM settings WHERE key = $1', [key]);
+  };
+
   try {
+    // — Site Name
     if (site_name) {
-      await pool.query(
-        'INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2',
-        ['site_name', site_name]
-      );
-    }
-    if (req.body.site_logo_size) {
-      await pool.query(
-        'INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2',
-        ['site_logo_size', req.body.site_logo_size.toString()]
-      );
+      await upsert('site_name', site_name);
     }
 
-    // Site Name Color
+    // — Logo Size
+    if (req.body.site_logo_size) {
+      await upsert('site_logo_size', req.body.site_logo_size.toString());
+    }
+
+    // — Site Name Color (clearable)
     if (site_name_color !== undefined) {
       if (site_name_color === '' || site_name_color === null) {
-        await pool.query('DELETE FROM settings WHERE key = $1', ['site_name_color']);
+        await remove('site_name_color');
       } else if (hexRegex.test(site_name_color)) {
-        await pool.query(
-          'INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2',
-          ['site_name_color', site_name_color]
-        );
+        await upsert('site_name_color', site_name_color);
       } else {
         return res.status(400).json({ error: 'Invalid color. Must be a valid HEX code (e.g. #6C5CE7).' });
+      }
+    }
+
+    // — Theme Color Keys (clearable HEX values)
+    const colorKeys = ['theme_primary_color', 'theme_secondary_color', 'theme_accent_color'];
+    for (const key of colorKeys) {
+      if (req.body[key] !== undefined) {
+        const val = req.body[key];
+        if (val === '' || val === null) {
+          await remove(key);
+        } else if (hexRegex.test(val)) {
+          await upsert(key, val);
+        } else {
+          return res.status(400).json({ error: `Invalid ${key}. Must be a valid HEX code (e.g. #6C5CE7).` });
+        }
+      }
+    }
+
+    // — Theme Layout (enum)
+    if (req.body.theme_layout !== undefined) {
+      const valid = ['default', 'compact', 'modern'];
+      if (valid.includes(req.body.theme_layout)) {
+        await upsert('theme_layout', req.body.theme_layout);
+      } else {
+        return res.status(400).json({ error: 'Invalid layout. Must be: default, compact, or modern.' });
+      }
+    }
+
+    // — Theme Mode (enum)
+    if (req.body.theme_mode !== undefined) {
+      const valid = ['light', 'dark', 'system'];
+      if (valid.includes(req.body.theme_mode)) {
+        await upsert('theme_mode', req.body.theme_mode);
+      } else {
+        return res.status(400).json({ error: 'Invalid theme mode. Must be: light, dark, or system.' });
       }
     }
 

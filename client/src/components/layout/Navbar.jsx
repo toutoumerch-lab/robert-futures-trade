@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LineChart, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -45,7 +45,7 @@ const Navbar = () => {
           <Link to="/blog" className={`nav-item ${isActive('/blog')}`}>Blog</Link>
 
           {user?.role === 'admin' && (
-            <Link to="/admin" className={`nav-item ${isActive('/admin')}`} style={{ color: 'var(--accent-purple)' }}>
+            <Link to="/admin" className={`nav-item ${isActive('/admin')}`} style={{ color: 'var(--accent-primary)' }}>
               Admin
             </Link>
           )}
