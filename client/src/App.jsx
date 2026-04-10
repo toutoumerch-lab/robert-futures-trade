@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
-import { BrandingProvider, useBranding } from './context/BrandingContext';
+import { BrandingProvider } from './context/BrandingContext';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import PromotionBanner from './components/layout/PromotionBanner';
@@ -19,10 +19,9 @@ import CourseDetail from './pages/CourseDetail';
 import PropFirmList from './pages/PropFirmList';
 
 const AppContent = () => {
-  const { layout } = useBranding();
   return (
     <Router>
-      <div className="app-container" data-layout={layout || 'default'}>
+      <div className="app-container">
         <Navbar />
         <PromotionBanner />
         <main className="main-content">

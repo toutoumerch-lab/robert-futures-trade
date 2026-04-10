@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Card from '../components/common/Card';
+import { Search, Sparkles, ArrowRight } from 'lucide-react';
 
 const BlogList = () => {
   const [posts, setPosts] = useState([]);
@@ -37,7 +38,7 @@ const BlogList = () => {
         <input
           className="input"
           type="text"
-          placeholder="🔍  Search posts…"
+          placeholder="Search posts…"
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
@@ -55,7 +56,7 @@ const BlogList = () => {
           {filtered.map((post, i) => (
             <Card key={post.id} className={i === 0 && !search ? 'featured-post' : ''}>
               {i === 0 && !search && (
-                <span className="badge badge-featured mb-4">✨ Latest</span>
+                <span className="badge badge-featured mb-4"><Sparkles size={14} /> Latest</span>
               )}
               <h3 className="mb-3" style={{ fontSize: '1.2rem', lineHeight: 1.4 }}>{post.title}</h3>
               <div className="flex gap-4 items-center mb-4" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
@@ -67,7 +68,7 @@ const BlogList = () => {
                 {post.content.substring(0, 180)}{post.content.length > 180 ? '…' : ''}
               </p>
               <Link to={`/blog/${post.id}`} className="read-more-link">
-                Read Full Article →
+                Read Full Article <ArrowRight size={14} />
               </Link>
             </Card>
           ))}

@@ -1,13 +1,13 @@
-﻿import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
-import { LayoutGrid, List, Search, SlidersHorizontal, X, Star, ExternalLink, Copy, Check, Filter, Heart, GitCompareArrows, Zap, TrendingUp, ChevronDown, ChevronRight, Shield, DollarSign, Activity, Clock, Bot, Newspaper, Globe, BarChart3 } from 'lucide-react';
+import { LayoutGrid, List, Search, SlidersHorizontal, X, Star, ExternalLink, Copy, Check, Filter, Heart, GitCompareArrows, Zap, TrendingUp, ChevronDown, ChevronRight, Shield, DollarSign, Activity, Clock, Bot, Newspaper, Globe, BarChart3, Trophy, Gem, Tag, Ticket, Target, TrendingDown, Calendar, User, ClipboardList, Wrench, Lock, Banknote, Building2, FileText, Pencil, Landmark, ChevronUp, Settings, Timer } from 'lucide-react';
 
 const API = 'http://localhost:5000';
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* â═══════════════════════════════════════════════•
    Reusable Components
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+   â═══════════════════════════════════════════════• */
 const StatBox = ({ label, value, highlight }) => {
   if (value == null || value === '' || value === false) return null;
   return (
@@ -54,7 +54,7 @@ const RatingStars = ({ rating }) => {
   );
 };
 
-/* â”€â”€ Highlight matched text â”€â”€ */
+/* ── Highlight matched text ── */
 const HighlightText = ({ text, query }) => {
   if (!query || !text) return <>{text}</>;
   const idx = text.toLowerCase().indexOf(query.toLowerCase());
@@ -68,7 +68,7 @@ const HighlightText = ({ text, query }) => {
   );
 };
 
-/* â”€â”€ Loading Skeleton â”€â”€ */
+/* ── Loading Skeleton ── */
 const SkeletonCard = () => (
   <div className="firm-grid-card pf-skeleton-card" style={{ background: 'var(--bg-secondary)', borderRadius: '24px', padding: '1.75rem', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '1rem', overflow: 'hidden', position: 'relative' }}>
     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'var(--border-color)' }} />
@@ -86,9 +86,9 @@ const SkeletonCard = () => (
   </div>
 );
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* â═══════════════════════════════════════════════•
    Smart Search Dropdown
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+   â═══════════════════════════════════════════════• */
 const SmartSearch = ({ firms, searchQuery, setSearchQuery, onSelectFirm }) => {
   const [focused, setFocused] = useState(false);
   const wrapRef = useRef(null);
@@ -103,7 +103,7 @@ const SmartSearch = ({ firms, searchQuery, setSearchQuery, onSelectFirm }) => {
     // Keyword matches
     if (['free', 'no fee', 'zero'].some(k => lower.includes(k)) && (!firm.activation_fee || Number(firm.activation_fee) === 0)) return { type: 'keyword', label: 'Free Activation' };
     if (['cheap', 'low', 'budget', 'affordable'].some(k => lower.includes(k)) && Number(firm.discount_usd || firm.fifty_k_initial_cost || 999) < 100) return { type: 'keyword', label: 'Low Price' };
-    if (['high rating', 'top rated', 'best', 'good'].some(k => lower.includes(k)) && Number(firm.rating || 0) >= 4.5) return { type: 'keyword', label: `â˜… ${firm.rating}` };
+    if (['high rating', 'top rated', 'best', 'good'].some(k => lower.includes(k)) && Number(firm.rating || 0) >= 4.5) return { type: 'keyword', label: `<Star size={12} fill="#f59e0b" stroke="#f59e0b" /> ${firm.rating}` };
     if (['discount', 'promo', 'deal', 'coupon', 'sale'].some(k => lower.includes(k)) && firm.discount_code) return { type: 'keyword', label: `${firm.discount_percent || ''}% OFF` };
     if (['split', 'profit'].some(k => lower.includes(k)) && firm.profit_split) return { type: 'keyword', label: firm.profit_split };
     return null;
@@ -165,7 +165,7 @@ const SmartSearch = ({ firms, searchQuery, setSearchQuery, onSelectFirm }) => {
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: 1 }}>
                   {type === 'code' && <span style={{ color: '#10b981' }}>{label}</span>}
                   {type === 'keyword' && <span style={{ color: 'var(--accent-primary)' }}>{label}</span>}
-                  {type === 'name' && firm.rating && <span>â˜… {firm.rating}</span>}
+                  {type === 'name' && firm.rating && <span><Star size={12} fill="#f59e0b" stroke="#f59e0b" /> {firm.rating}</span>}
                 </div>
               </div>
               <span className="pf-search-type-badge">{type === 'code' ? 'CODE' : type === 'keyword' ? 'MATCH' : 'FIRM'}</span>
@@ -177,9 +177,9 @@ const SmartSearch = ({ firms, searchQuery, setSearchQuery, onSelectFirm }) => {
   );
 };
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* â═══════════════════════════════════════════════•
    Comparison Modal (Conversion-Optimized)
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+   â═══════════════════════════════════════════════• */
 const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
   const [firms, setFirms] = useState(initialFirms);
 
@@ -195,10 +195,10 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
 
   if (!firms || firms.length < 2) return null;
 
-  // â”€â”€ Dynamic modal width based on firm count â”€â”€
+  // ------------------------------------------------------------ Dynamic modal width based on firm count ──
   const modalMaxWidth = firms.length <= 2 ? '800px' : firms.length === 3 ? '1000px' : '1150px';
 
-  // â”€â”€ Helper: extract numeric price for a firm â”€â”€
+  // ------------------------------------------------------------ Helper: extract numeric price for a firm ──
   const getEffectivePrice = (f) => {
     if (f.discount_usd && Number(f.discount_usd) > 0) return Number(f.discount_usd);
     if (f.fifty_k_initial_cost && Number(f.fifty_k_initial_cost) > 0) return Number(f.fifty_k_initial_cost);
@@ -218,7 +218,7 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
   const getNumericPayout = (f) => { const n = parseInt(f.days_to_payout); return isNaN(n) ? Infinity : n; };
   const isFreeActivation = (f) => !f.activation_fee || Number(f.activation_fee) === 0;
 
-  // â”€â”€ Determine winners per category (tie-aware) â”€â”€
+  // ------------------------------------------------------------ Determine winners per category (tie-aware) ──
   const bestPrice = Math.min(...firms.map(f => getEffectivePrice(f)));
   const bestPriceIds = bestPrice < Infinity ? firms.filter(f => getEffectivePrice(f) === bestPrice).map(f => f.id) : [];
 
@@ -228,34 +228,34 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
   const fastestPayout = Math.min(...firms.map(f => getNumericPayout(f)));
   const bestPayoutIds = fastestPayout < Infinity ? firms.filter(f => getNumericPayout(f) === fastestPayout).map(f => f.id) : [];
 
-  // â”€â”€ Smart badges per firm â”€â”€
+  // ------------------------------------------------------------ Smart badges per firm ──
   const getBadges = (f) => {
     const badges = [];
     // Price badge
     if (bestPriceIds.includes(f.id)) {
-      badges.push({ text: bestPriceIds.length > 1 ? 'ðŸ’° Low Price (Tied)' : 'ðŸ’° Cheapest', color: '#10b981' });
+      badges.push({ text: bestPriceIds.length > 1 ? 'Low Price (Tied)' : 'Cheapest', color: '#10b981' });
     }
-    if (isFreeActivation(f)) badges.push({ text: 'ðŸ†“ Free Start', color: '#3b82f6' });
+    if (isFreeActivation(f)) badges.push({ text: 'Free Start', color: '#3b82f6' });
     // Rating badge
     if (bestRatingIds.includes(f.id) && maxRating >= 4.0) {
-      badges.push({ text: bestRatingIds.length > 1 ? 'â­ Top Rated' : 'ðŸ† Best Rated', color: '#f59e0b' });
+      badges.push({ text: bestRatingIds.length > 1 ? 'Top Rated' : 'Best Rated', color: '#f59e0b' });
     }
     // Payout badge
     if (bestPayoutIds.includes(f.id)) {
-      badges.push({ text: bestPayoutIds.length > 1 ? 'âš¡ Fast Payout (Tied)' : 'âš¡ Fastest Payout', color: '#8b5cf6' });
+      badges.push({ text: bestPayoutIds.length > 1 ? 'Fast Payout (Tied)' : 'Fastest Payout', color: '#8b5cf6' });
     }
     // Best overall value (cheapest + good rating, but not already the top rated)
     if (bestPriceIds.includes(f.id) && !bestRatingIds.includes(f.id) && getNumericRating(f) >= 4.0 && getEffectivePrice(f) < Infinity) {
-      badges.push({ text: 'ðŸ’Ž Best Value', color: '#06b6d4' });
+      badges.push({ text: 'Best Value', color: '#06b6d4' });
     }
     return badges;
   };
 
-  // â”€â”€ Winner check for a row (tie-aware) â”€â”€
+  // ------------------------------------------------------------ Winner check for a row (tie-aware) ──
   const isWinner = (firmId, winnerIds) => firms.length > 1 && winnerIds.includes(firmId);
   const isSoleWinner = (firmId, winnerIds) => winnerIds.length === 1 && winnerIds[0] === firmId;
 
-  // â”€â”€ Cell style with winner highlight â”€â”€
+  // ------------------------------------------------------------ Cell style with winner highlight ──
   const cellStyle = (firmId, winnerIds, extra = {}) => ({
     textAlign: 'center', fontWeight: 700, fontSize: '0.88rem',
     position: 'relative',
@@ -266,14 +266,14 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
     ...extra,
   });
 
-  // â”€â”€ Winner badge (shows BEST for sole winner, label for tied) â”€â”€
+  // ------------------------------------------------------------ Winner badge (shows BEST for sole winner, label for tied) ──
   const WinnerBadge = ({ tied }) => (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', background: tied ? 'rgba(245,158,11,0.15)' : 'rgba(16,185,129,0.15)', color: tied ? '#f59e0b' : '#10b981', fontSize: '0.65rem', fontWeight: 800, padding: '2px 7px', borderRadius: '6px', marginLeft: '6px', verticalAlign: 'middle', letterSpacing: '0.03em' }}>
-      {tied ? 'â­ TOP' : 'ðŸ† BEST'}
+      {tied ? 'TOP' : 'BEST'}
     </span>
   );
 
-  // â”€â”€ Section Header â”€â”€
+  // ------------------------------------------------------------ Section Header ──
   const SectionRow = ({ icon, title }) => (
     <tr>
       <td colSpan={firms.length + 1} style={{ padding: '1.25rem 1rem 0.5rem', border: 'none', background: 'transparent' }}>
@@ -348,16 +348,16 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
       `}</style>
       <div className="pf-compare-modal" onClick={e => e.stopPropagation()} style={{ animation: 'compareSlideUp 0.35s cubic-bezier(0.16,1,0.3,1)', maxWidth: modalMaxWidth, display: 'flex', flexDirection: 'column', transition: 'max-width 0.3s ease' }}>
 
-        {/* â”€â”€ Header â”€â”€ */}
+        {/* ── Header ── */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexShrink: 0 }}>
           <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <GitCompareArrows size={22} /> Compare {firms.length} Firms
           </h2>
-          <button onClick={onClose} style={{ background: 'var(--bg-secondary)', border: 'none', width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', fontSize: '1.1rem' }}>âœ•</button>
+          <button onClick={onClose} style={{ background: 'var(--bg-secondary)', border: 'none', width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', fontSize: '1.1rem' }}><X size={16} /></button>
         </div>
         <p style={{ margin: '0 0 1.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Side-by-side breakdown to help you pick the best prop firm for your trading style. {firms.length > 2 && <span style={{ color: 'var(--text-secondary)', opacity: 0.7 }}>Hover a firm header to remove it.</span>}</p>
 
-        {/* â”€â”€ Scrollable Table â”€â”€ */}
+        {/* ── Scrollable Table ── */}
         <div style={{ overflowX: 'auto', flex: 1 }}>
           <table className="pf-compare-table" style={{ minWidth: firms.length <= 2 ? '500px' : firms.length === 3 ? '650px' : '800px' }}>
             <thead>
@@ -366,7 +366,7 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
                 {firms.map((f, idx) => (
                   <th key={f.id} style={{ verticalAlign: 'bottom', paddingBottom: '1rem', position: 'relative' }} className="cmp-header-cell">
                     {firms.length > 2 && (
-                      <button className="cmp-remove-btn" onClick={() => handleRemove(f.id)} title={`Remove ${f.name}`}>âœ•</button>
+                      <button className="cmp-remove-btn" onClick={() => handleRemove(f.id)} title={`Remove ${f.name}`}><X size={16} /></button>
                     )}
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem' }}>
                       {f.logo_url && (
@@ -389,12 +389,12 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
             </thead>
             <tbody>
 
-              {/* â•â•â• PRICING SECTION â•â•â• */}
-              <SectionRow icon="ðŸ’°" title="Pricing & Savings" />
+              {/* â══• PRICING SECTION â══• */}
+              <SectionRow icon={<DollarSign size={14} />} title="Pricing & Savings" />
 
               {/* Rating */}
               <tr className="cmp-row">
-                <td className="pf-compare-label">â­ Rating</td>
+                <td className="pf-compare-label"><Star size={14} style={{ color: "#f59e0b" }} /> Rating</td>
                 {firms.map(f => (
                   <td key={f.id} style={cellStyle(f.id, bestRatingIds)}>
                     {f.rating ? <><span style={{ fontSize: '1.1rem' }}>{f.rating}</span><span style={{ fontSize: '0.78rem', opacity: 0.6 }}>/5</span></> : <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
@@ -405,11 +405,11 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
 
               {/* Activation Fee */}
               <tr className="cmp-row">
-                <td className="pf-compare-label">ðŸ”“ Activation Fee</td>
+                <td className="pf-compare-label"><Lock size={14} /> Activation Fee</td>
                 {firms.map(f => (
                   <td key={f.id} style={{ textAlign: 'center', fontWeight: 700 }}>
                     {isFreeActivation(f)
-                      ? <span style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981', padding: '4px 14px', borderRadius: '8px', fontWeight: 800, fontSize: '0.88rem' }}>FREE âœ“</span>
+                      ? <span style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981', padding: '4px 14px', borderRadius: '8px', fontWeight: 800, fontSize: '0.88rem' }}>FREE <Check size={14} /></span>
                       : <span>${f.activation_fee}</span>
                     }
                   </td>
@@ -418,7 +418,7 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
 
               {/* Final Price */}
               <tr className="cmp-row">
-                <td className="pf-compare-label">ðŸ’² Final Price</td>
+                <td className="pf-compare-label"><DollarSign size={14} /> Final Price</td>
                 {firms.map(f => {
                   const price = getEffectivePrice(f);
                   const savings = getSavings(f);
@@ -441,12 +441,12 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
 
               {/* Discount */}
               <tr className="cmp-row">
-                <td className="pf-compare-label">ðŸ·ï¸ Discount</td>
+                <td className="pf-compare-label"><Tag size={14} /> Discount</td>
                 {firms.map(f => (
                   <td key={f.id} style={{ textAlign: 'center', fontWeight: 700 }}>
                     {f.discount_percent
                       ? <span style={{ color: '#3b82f6', fontWeight: 800 }}>-{f.discount_percent}%</span>
-                      : <span style={{ color: 'var(--text-secondary)' }}>â€”</span>
+                      : <span style={{ color: 'var(--text-secondary)' }}>—</span>
                     }
                   </td>
                 ))}
@@ -454,23 +454,23 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
 
               {/* Promo Code */}
               <tr className="cmp-row">
-                <td className="pf-compare-label">ðŸŽŸï¸ Promo Code</td>
+                <td className="pf-compare-label"><Ticket size={14} /> Promo Code</td>
                 {firms.map(f => (
                   <td key={f.id} style={{ textAlign: 'center', fontWeight: 700 }}>
                     {f.discount_code
                       ? <span style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', padding: '4px 12px', borderRadius: '6px', fontWeight: 800, fontFamily: 'monospace', letterSpacing: '0.05em' }}>{f.discount_code}</span>
-                      : <span style={{ color: 'var(--text-secondary)' }}>â€”</span>
+                      : <span style={{ color: 'var(--text-secondary)' }}>—</span>
                     }
                   </td>
                 ))}
               </tr>
 
-              {/* â•â•â• TRADING RULES SECTION â•â•â• */}
-              <SectionRow icon="âš™ï¸" title="Trading Rules & Metrics" />
+              {/* â══• TRADING RULES SECTION â══• */}
+              <SectionRow icon={<Settings size={14} />} title="Trading Rules & Metrics" />
 
               {/* Profit Split */}
               <tr className="cmp-row">
-                <td className="pf-compare-label">ðŸ“Š Profit Split</td>
+                <td className="pf-compare-label"><BarChart3 size={14} /> Profit Split</td>
                 {firms.map(f => (
                   <td key={f.id} style={{ textAlign: 'center', fontWeight: 800, fontSize: '0.95rem', color: f.profit_split ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
                     {f.profit_split || 'N/A'}
@@ -480,7 +480,7 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
 
               {/* Profit Target */}
               <tr className="cmp-row">
-                <td className="pf-compare-label">ðŸŽ¯ Profit Target</td>
+                <td className="pf-compare-label"><Target size={14} /> Profit Target</td>
                 {firms.map(f => (
                   <td key={f.id} style={{ textAlign: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
                     {f.profit_target || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
@@ -490,7 +490,7 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
 
               {/* Daily Loss Limit */}
               <tr className="cmp-row">
-                <td className="pf-compare-label">ðŸ“‰ Daily Loss Limit</td>
+                <td className="pf-compare-label"><TrendingDown size={14} /> Daily Loss Limit</td>
                 {firms.map(f => (
                   <td key={f.id} style={{ textAlign: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
                     {f.dll || <span style={{ color: 'var(--text-secondary)' }}>None</span>}
@@ -500,7 +500,7 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
 
               {/* Drawdown */}
               <tr className="cmp-row">
-                <td className="pf-compare-label">ðŸ“‰ Drawdown Rules</td>
+                <td className="pf-compare-label"><TrendingDown size={14} /> Drawdown Rules</td>
                 {firms.map(f => (
                   <td key={f.id} style={{ textAlign: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
                     {f.drawdown_limit || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
@@ -510,26 +510,26 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
 
               {/* Buffer Support */}
               <tr className="cmp-row">
-                <td className="pf-compare-label">ðŸ›¡ï¸ Buffer</td>
+                <td className="pf-compare-label"><Shield size={14} /> Buffer</td>
                 {firms.map(f => (
                   <td key={f.id} style={{ textAlign: 'center', fontWeight: 700 }}>
                     {f.buffer ? (
                       <span style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', padding: '4px 12px', borderRadius: '8px', fontWeight: 800 }}>
-                        âœ“ {f.buffer_amount || 'Yes'}
+                        <Check size={14} /> {f.buffer_amount || 'Yes'}
                       </span>
                     ) : (
-                      <span className="cmp-check-off">âœ— No</span>
+                      <span className="cmp-check-off"><X size={14} /> No</span>
                     )}
                   </td>
                 ))}
               </tr>
 
-              {/* â•â•â• PAYOUT SECTION â•â•â• */}
-              <SectionRow icon="â±ï¸" title="Payout & Accounts" />
+              {/* â══• PAYOUT SECTION â══• */}
+              <SectionRow icon={<Timer size={14} />} title="Payout & Accounts" />
 
               {/* Days to Payout */}
               <tr className="cmp-row">
-                <td className="pf-compare-label">âš¡ Payout Speed</td>
+                <td className="pf-compare-label"><Zap size={14} /> Payout Speed</td>
                 {firms.map(f => (
                   <td key={f.id} style={cellStyle(f.id, bestPayoutIds)}>
                     <span>{f.days_to_payout || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}</span>
@@ -540,7 +540,7 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
 
               {/* Max Withdrawal */}
               <tr className="cmp-row">
-                <td className="pf-compare-label">ðŸ’¸ Max Withdrawal</td>
+                <td className="pf-compare-label"><Banknote size={14} /> Max Withdrawal</td>
                 {firms.map(f => (
                   <td key={f.id} style={{ textAlign: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
                     {f.max_withdrawal || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
@@ -550,7 +550,7 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
 
               {/* Days to Pass */}
               <tr className="cmp-row">
-                <td className="pf-compare-label">ðŸ“… Days to Pass</td>
+                <td className="pf-compare-label"><Calendar size={14} /> Days to Pass</td>
                 {firms.map(f => (
                   <td key={f.id} style={{ textAlign: 'center', fontWeight: 700 }}>
                     {f.days_to_pass || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
@@ -560,7 +560,7 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
 
               {/* Max Accounts */}
               <tr className="cmp-row">
-                <td className="pf-compare-label">ðŸ‘¤ Max Accounts</td>
+                <td className="pf-compare-label"><User size={14} /> Max Accounts</td>
                 {firms.map(f => (
                   <td key={f.id} style={{ textAlign: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
                     {f.max_accounts || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
@@ -570,7 +570,7 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
 
               {/* Eval */}
               <tr className="cmp-row">
-                <td className="pf-compare-label">ðŸ“‹ Eval</td>
+                <td className="pf-compare-label"><ClipboardList size={14} /> Eval</td>
                 {firms.map(f => (
                   <td key={f.id} style={{ textAlign: 'center', fontWeight: 700 }}>
                     {f.eval || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
@@ -578,26 +578,26 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
                 ))}
               </tr>
 
-              {/* â•â•â• TRADING FEATURES SECTION â•â•â• */}
-              <SectionRow icon="ðŸ”§" title="Trading Features" />
+              {/* â══• TRADING FEATURES SECTION â══• */}
+              <SectionRow icon={<Wrench size={14} />} title="Trading Features" />
 
               {/* Feature toggles as visual check/cross */}
               {[
-                { key: 'copy_trade', label: 'ðŸ“‹ Copy Trading' },
-                { key: 'news', label: 'ðŸ“° News Trading' },
-                { key: 'bots', label: 'ðŸ¤– Bots Allowed' },
-                { key: 'vpn', label: 'ðŸŒ VPN Allowed' },
-                { key: 'dca', label: 'ðŸ“ˆ DCA Allowed' },
-                { key: 'micro_scalping', label: 'âš¡ Micro Scalping' },
+                { key: 'copy_trade', label: 'Copy Trading' },
+                { key: 'news', label: 'News Trading' },
+                { key: 'bots', label: 'Bots Allowed' },
+                { key: 'vpn', label: 'VPN Allowed' },
+                { key: 'dca', label: 'DCA Allowed' },
+                { key: 'micro_scalping', label: 'Micro Scalping' },
               ].map(feat => (
                 <tr key={feat.key} className="cmp-row">
                   <td className="pf-compare-label">{feat.label}</td>
                   {firms.map(f => (
                     <td key={f.id} style={{ textAlign: 'center', fontWeight: 700 }}>
                       {f[feat.key] ? (
-                        <span style={{ color: '#10b981', fontSize: '1rem' }}>âœ“ Yes</span>
+                        <span style={{ color: '#10b981', fontSize: '1rem' }}><Check size={14} /> Yes</span>
                       ) : (
-                        <span className="cmp-check-off">âœ— No</span>
+                        <span className="cmp-check-off"><X size={14} /> No</span>
                       )}
                     </td>
                   ))}
@@ -608,7 +608,7 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
           </table>
         </div>
 
-        {/* â”€â”€ Sticky CTA Footer â”€â”€ */}
+        {/* ── Sticky CTA Footer ── */}
         <div style={{
           display: 'flex', gap: '0.75rem', justifyContent: 'center', alignItems: 'center',
           paddingTop: '1.5rem', marginTop: '1rem',
@@ -637,9 +637,9 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
   );
 };
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* â═══════════════════════════════════════════════•
    Grid Card (with compare + fav)
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+   â═══════════════════════════════════════════════• */
 const FirmGridCard = ({ firm, onClick, isComparing, onToggleCompare, isFav, onToggleFav, compareDisabled }) => (
   <div className={`firm-grid-card ${isComparing ? 'comparing' : ''}`} onClick={onClick} style={{
     background: 'var(--bg-secondary)', borderRadius: '24px', padding: '1.75rem',
@@ -662,7 +662,7 @@ const FirmGridCard = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTo
         title={isComparing ? 'Remove from comparison' : compareDisabled ? 'Max 4 firms' : 'Add to compare'}
       >
         <GitCompareArrows size={13} />
-        {isComparing ? 'âœ“' : '+'}
+        {isComparing ? <Check size={12} /> : '+'}
       </button>
     </div>
 
@@ -675,7 +675,7 @@ const FirmGridCard = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTo
       )}
       <div>
         <h3 style={{ fontSize: '1.15rem', margin: 0, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>{firm.name}</h3>
-        {firm.featured && <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#f97316', textTransform: 'uppercase', letterSpacing: '0.08em' }}>â˜… Featured</span>}
+        {firm.featured && <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#f97316', textTransform: 'uppercase', letterSpacing: '0.08em' }}><Star size={12} fill="#f97316" stroke="#f97316" /> Featured</span>}
       </div>
     </div>
 
@@ -722,9 +722,9 @@ const FirmGridCard = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTo
   </div>
 );
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* â═══════════════════════════════════════════════•
    List Row (with compare + fav)
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+   â═══════════════════════════════════════════════• */
 const FirmListRow = ({ firm, onClick, isComparing, onToggleCompare, isFav, onToggleFav, compareDisabled }) => (
   <div className={`firm-list-row ${isComparing ? 'comparing' : ''}`} onClick={onClick} style={{
     background: 'var(--bg-secondary)', borderRadius: '16px', padding: '1.25rem 1.5rem',
@@ -776,7 +776,7 @@ const FirmListRow = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTog
     </div>
 
     <div style={{ flex: '0 0 auto' }}>
-      {firm.discount_code ? <CopyBadge code={firm.discount_code} /> : <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>â€”</span>}
+      {firm.discount_code ? <CopyBadge code={firm.discount_code} /> : <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>—</span>}
     </div>
 
     {firm.website && (
@@ -787,9 +787,9 @@ const FirmListRow = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTog
   </div>
 );
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* â═══════════════════════════════════════════════•
    Main Page Component
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+   â═══════════════════════════════════════════════• */
 const PropFirmList = () => {
   const [firms, setFirms] = useState([]);
   const [groupsData, setGroupsData] = useState([]);
@@ -945,7 +945,7 @@ const PropFirmList = () => {
             Prop Firm <span className="text-gradient">Comparisons</span>
           </h1>
           <p style={{ color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto' }}>
-            Unbiased, detailed reviews of every major prop trading firm â€” profit splits, evaluation costs, drawdown rules, and more.
+            Unbiased, detailed reviews of every major prop trading firm — profit splits, evaluation costs, drawdown rules, and more.
           </p>
         </div>
       </section>
@@ -960,13 +960,13 @@ const PropFirmList = () => {
           </div>
         ) : firms.length === 0 ? (
           <div className="empty-state-page">
-            <p style={{ fontSize: '3rem', marginBottom: '1rem' }}>ðŸ¦</p>
+            <Landmark size={48} style={{ marginBottom: '1rem', color: 'var(--accent-primary)' }} />
             <h3 className="mb-2">Reviews Coming Soon</h3>
             <p style={{ color: 'var(--text-secondary)' }}>We're working on in-depth prop firm reviews. Stay tuned.</p>
           </div>
         ) : (
           <>
-            {/* â”€â”€ Toolbar â”€â”€ */}
+            {/* ── Toolbar ── */}
             <div className="pf-toolbar">
               <SmartSearch firms={firms} searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSelectFirm={f => setViewingFirm(f)} />
 
@@ -990,7 +990,7 @@ const PropFirmList = () => {
               </button>
             </div>
 
-            {/* â”€â”€ Content â”€â”€ */}
+            {/* ── Content ── */}
             <div className="pf-content-area">
               {/* Filter Sidebar */}
               <div className={`pf-filter-sidebar ${filtersOpen ? 'open' : ''}`}>
@@ -1000,7 +1000,7 @@ const PropFirmList = () => {
                   <button className="pf-filter-close-btn" onClick={() => setFiltersOpen(false)}><X size={18} /></button>
                 </div>
 
-                {/* â”€â”€ Active Filter Tags â”€â”€ */}
+                {/* ── Active Filter Tags ── */}
                 {activeFilters.length > 0 && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', paddingBottom: '0.75rem', borderBottom: '1px solid var(--border-color)' }}>
                     {activeFilters.map(tag => (
@@ -1017,7 +1017,7 @@ const PropFirmList = () => {
                   </div>
                 )}
 
-                {/* â•â•â• SECTION: Personal â•â•â• */}
+                {/* â══• SECTION: Personal â══• */}
                 <button className="pf-section-toggle" onClick={() => toggleSection('personal')}>
                   <span><Heart size={14} style={{ color: '#3b82f6' }} /> Personal</span>
                   {openSections.personal ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
@@ -1032,7 +1032,7 @@ const PropFirmList = () => {
                   </div>
                 )}
 
-                {/* â•â•â• SECTION: Pricing â•â•â• */}
+                {/* â══• SECTION: Pricing â══• */}
                 <button className="pf-section-toggle" onClick={() => toggleSection('pricing')}>
                   <span><DollarSign size={14} style={{ color: '#10b981' }} /> Pricing</span>
                   {openSections.pricing ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
@@ -1056,7 +1056,7 @@ const PropFirmList = () => {
                   </div>
                 )}
 
-                {/* â•â•â• SECTION: Performance â•â•â• */}
+                {/* â══• SECTION: Performance â══• */}
                 <button className="pf-section-toggle" onClick={() => toggleSection('performance')}>
                   <span><BarChart3 size={14} style={{ color: '#3b82f6' }} /> Performance</span>
                   {openSections.performance ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
@@ -1073,7 +1073,7 @@ const PropFirmList = () => {
                   </div>
                 )}
 
-                {/* â•â•â• SECTION: Trading Rules â•â•â• */}
+                {/* â══• SECTION: Trading Rules â══• */}
                 <button className="pf-section-toggle" onClick={() => toggleSection('rules')}>
                   <span><Shield size={14} style={{ color: '#f59e0b' }} /> Trading Rules</span>
                   {openSections.rules ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
@@ -1108,7 +1108,7 @@ const PropFirmList = () => {
                   </div>
                 )}
 
-                {/* â•â•â• SECTION: Payout â•â•â• */}
+                {/* â══• SECTION: Payout â══• */}
                 <button className="pf-section-toggle" onClick={() => toggleSection('payout')}>
                   <span><Clock size={14} style={{ color: '#8b5cf6' }} /> Payout</span>
                   {openSections.payout ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
@@ -1234,7 +1234,7 @@ const PropFirmList = () => {
               </div>
             </div>
 
-            {/* â”€â”€ Floating Compare Bar â”€â”€ */}
+            {/* ── Floating Compare Bar ── */}
             {compareIds.length >= 2 && (
               <div className="pf-compare-bar">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -1258,10 +1258,10 @@ const PropFirmList = () => {
         )}
       </div>
 
-      {/* â”€â”€ Compare Modal â”€â”€ */}
+      {/* ── Compare Modal ── */}
       {showCompare && <CompareModal firms={compareFirms} onClose={() => setShowCompare(false)} onRemoveFirm={(id) => setCompareIds(prev => prev.filter(x => x !== id))} />}
 
-      {/* â”€â”€ Detail Modal â”€â”€ */}
+      {/* ── Detail Modal ── */}
       {viewingFirm && createPortal(
         <div style={{ position: 'fixed', inset: 0, zIndex: 999999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', animation: 'fadeIn 0.2s ease-out' }} onClick={() => setViewingFirm(null)}>
           <style>{`@keyframes fadeIn{from{opacity:0}to{opacity:1}} @keyframes slideUp{from{opacity:0;transform:translateY(30px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}} .modal-content-glass::-webkit-scrollbar{width:0}`}</style>
@@ -1278,13 +1278,13 @@ const PropFirmList = () => {
                   <div>
                     <h2 style={{ fontSize: '2.5rem', fontWeight: 900, margin: 0, letterSpacing: '-1px', lineHeight: 1 }}>{viewingFirm.name}</h2>
                     <div className="flex items-center gap-4 mt-2">
-                      {viewingFirm.rating && <span style={{ color: 'var(--text-secondary)', fontWeight: 600, fontSize: '15px', display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ color: '#f59e0b' }}>â˜…</span> {viewingFirm.rating} Trust Score</span>}
+                      {viewingFirm.rating && <span style={{ color: 'var(--text-secondary)', fontWeight: 600, fontSize: '15px', display: 'flex', alignItems: 'center', gap: '6px' }}><Star size={16} fill="#f59e0b" stroke="#f59e0b" /> {viewingFirm.rating} Trust Score</span>}
                       {viewingFirm.featured && <span style={{ background: 'rgba(249,115,22,0.1)', color: '#f97316', padding: '4px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase' }}>Featured</span>}
                     </div>
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-3">
-                  <button onClick={() => setViewingFirm(null)} style={{ background: 'var(--bg-secondary)', border: 'none', width: 40, height: 40, borderRadius: '50%', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>âœ•</button>
+                  <button onClick={() => setViewingFirm(null)} style={{ background: 'var(--bg-secondary)', border: 'none', width: 40, height: 40, borderRadius: '50%', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}><X size={16} /></button>
                   {viewingFirm.website && (
                     <a href={viewingFirm.website} target="_blank" rel="noreferrer" style={{ background: 'linear-gradient(135deg, var(--accent-secondary), var(--accent-primary))', color: '#fff', padding: '0.75rem 1.5rem', borderRadius: '99px', fontWeight: 700, textDecoration: 'none', boxShadow: '0 8px 25px -5px rgba(59,130,246,0.4)', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                       Visit Official Site <ExternalLink size={15} />
@@ -1295,7 +1295,7 @@ const PropFirmList = () => {
             </div>
             <div style={{ padding: '3rem', display: 'flex', flexDirection: 'column', gap: '4rem' }}>
               <div>
-                <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem' }}>ðŸ¢ Basic Information</h4>
+                <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem' }}><Building2 size={20} style={{ color: "var(--accent-primary)" }} /> Basic Information</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
                   <div style={{ background: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '20px' }}>
                     <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', display: 'block', marginBottom: '0.5rem' }}>Account Category</span>
@@ -1303,7 +1303,7 @@ const PropFirmList = () => {
                   </div>
                   <div style={{ background: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '20px' }}>
                     <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', display: 'block', marginBottom: '0.5rem' }}>Trustpilot Rating</span>
-                    <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>â­ {viewingFirm.rating ? `${viewingFirm.rating} / 5` : '-'}</span>
+                    <span style={{ fontSize: '1.25rem', fontWeight: 800 }}><Star size={18} fill="#f59e0b" stroke="#f59e0b" /> {viewingFirm.rating ? `${viewingFirm.rating} / 5` : '-'}</span>
                   </div>
                   <div style={{ background: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '20px', gridColumn: '1 / -1' }}>
                     <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', display: 'block', marginBottom: '1rem' }}>Supported Platforms</span>
@@ -1317,7 +1317,7 @@ const PropFirmList = () => {
               </div>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '1.25rem' }}>
-                  <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', margin: 0 }}>ðŸ’² Pricing Details</h4>
+                  <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', margin: 0 }}><DollarSign size={20} style={{ color: "var(--accent-primary)" }} /> Pricing Details</h4>
                   {viewingFirm.discount_code && <CopyBadge code={viewingFirm.discount_code} />}
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
@@ -1330,7 +1330,7 @@ const PropFirmList = () => {
                 </div>
               </div>
               <div>
-                <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem' }}>âš™ï¸ Trading Rules & Metrics</h4>
+                <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem' }}><Settings size={20} style={{ color: "var(--accent-primary)" }} /> Trading Rules & Metrics</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                   <StatBox label="Profit Target" value={viewingFirm.profit_target} />
                   <StatBox label="Profit Split" value={viewingFirm.profit_split} highlight />
@@ -1345,7 +1345,7 @@ const PropFirmList = () => {
                 </div>
               </div>
               <div>
-                <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem' }}>ðŸ”§ Feature Support</h4>
+                <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem' }}><Wrench size={20} style={{ color: "var(--accent-primary)" }} /> Feature Support</h4>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
                   {['buffer', 'copy_trade', 'vpn', 'dca', 'news', 'bots', 'micro_scalping'].map(feat => {
                     const isEnabled = viewingFirm[feat];
@@ -1359,7 +1359,7 @@ const PropFirmList = () => {
                         color: isEnabled ? '#10b981' : 'var(--text-secondary)',
                         border: `1px solid ${isEnabled ? 'rgba(16,185,129,0.2)' : 'var(--border-color)'}`
                       }}>
-                        {isEnabled ? 'âœ“' : 'âœ—'} {label}
+                        {isEnabled ? <Check size={14} /> : <X size={14} />} {label}
                       </span>
                     );
                   })}
@@ -1367,7 +1367,7 @@ const PropFirmList = () => {
               </div>
               {viewingFirm.notes && (
                 <div style={{ padding: '2rem', background: 'var(--bg-secondary)', borderRadius: '24px', fontSize: '16px', lineHeight: 1.8, color: 'var(--text-secondary)' }}>
-                  <strong style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-primary)', marginBottom: '1rem', fontSize: '1.1rem', fontWeight: 800 }}>ðŸ“ Author Notes</strong>
+                  <strong style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-primary)', marginBottom: '1rem', fontSize: '1.1rem', fontWeight: 800 }}><Pencil size={18} style={{ color: "var(--accent-primary)" }} /> Author Notes</strong>
                   {viewingFirm.notes}
                 </div>
               )}

@@ -4,9 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Clock, Copy, Check, X } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+/* ─────────────────────────────────────────────
    CopyCode Button
-â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+───────────────────────────────────────────── */
 const CopyCode = ({ code }) => {
   const [copied, setCopied] = useState(false);
   const { theme } = useTheme();
@@ -68,9 +68,9 @@ const CopyCode = ({ code }) => {
   );
 };
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+/* ─────────────────────────────────────────────
    Single promo item (rendered in the ticker)
-â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+───────────────────────────────────────────── */
 const PromoItem = ({ promo, theme }) => {
   const discountMatch = promo.title.match(/(\d+%\s*OFF)/i);
   const discountText = discountMatch ? discountMatch[1] : null;
@@ -173,9 +173,9 @@ const PromoItem = ({ promo, theme }) => {
   );
 };
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-   Main Banner â€” shows ALL active promotions
-â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─────────────────────────────────────────────
+   Main Banner — shows ALL active promotions
+───────────────────────────────────────────── */
 const PromotionBanner = () => {
   const [promos, setPromos] = useState([]);
   const [dismissed, setDismissed] = useState(false);
@@ -251,7 +251,7 @@ const PromotionBanner = () => {
             : '1px solid rgba(99,60,180,0.12)',
         }}
       >
-        {/* â”€â”€ Top gradient beam â”€â”€ */}
+        {/* ── Top gradient beam ── */}
         <div style={{
           position: 'absolute',
           top: 0, left: 0, right: 0,
@@ -261,7 +261,7 @@ const PromotionBanner = () => {
           zIndex: 2,
         }} />
 
-        {/* â”€â”€ Subtle glow orbs â”€â”€ */}
+        {/* ── Subtle glow orbs ── */}
         <div style={{
           position: 'absolute',
           left: '20%', top: '50%',
@@ -283,7 +283,7 @@ const PromotionBanner = () => {
           pointerEvents: 'none',
         }} />
 
-        {/* â”€â”€ Ticker row â”€â”€ */}
+        {/* ── Ticker row ── */}
         <div style={{
           position: 'relative',
           display: 'flex',
@@ -363,7 +363,7 @@ const PromotionBanner = () => {
           </div>
         </div>
 
-        {/* â”€â”€ Bottom gradient beam â”€â”€ */}
+        {/* ── Bottom gradient beam ── */}
         <div style={{
           position: 'absolute',
           bottom: 0, left: 0, right: 0,

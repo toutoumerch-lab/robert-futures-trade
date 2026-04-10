@@ -32,12 +32,13 @@ const applyFavicon = (faviconUrl) => {
 // Apply theme colors as CSS variables on :root
 const applyThemeColors = (primary, secondary, accent) => {
   const root = document.documentElement;
+  const pri = primary || root.style.getPropertyValue('--accent-primary').trim() || '#2563eb';
+  const sec = secondary || root.style.getPropertyValue('--accent-secondary').trim() || '#3b82f6';
+  const acc = accent || root.style.getPropertyValue('--accent-teal').trim() || '#10b981';
+
   if (primary) {
     root.style.setProperty('--brand-primary', primary);
     root.style.setProperty('--accent-primary', primary);
-    // Generate glow variants from primary
-    root.style.setProperty('--glow-soft', `0 0 40px ${primary}1a`);
-    root.style.setProperty('--glow-accent', `0 0 15px ${primary}40`);
   }
   if (secondary) {
     root.style.setProperty('--brand-secondary', secondary);
@@ -47,6 +48,32 @@ const applyThemeColors = (primary, secondary, accent) => {
   if (accent) {
     root.style.setProperty('--accent-teal', accent);
   }
+
+  // Re-derive all dynamic gradients & glows from current colors
+  const finalPri = primary || pri;
+  const finalSec = secondary || sec;
+  const finalAcc = accent || acc;
+
+  root.style.setProperty('--glow-soft', `0 0 40px ${finalPri}1a`);
+  root.style.setProperty('--glow-accent', `0 0 15px ${finalSec}40`);
+  root.style.setProperty('--glow-beam', `linear-gradient(90deg, transparent, ${finalSec}80, ${finalPri}80, ${finalSec}80, transparent)`);
+
+  // Main brand gradient (buttons, text-gradient, borders)
+  root.style.setProperty('--gradient-lotus',
+    `linear-gradient(135deg, ${finalAcc} 0%, ${finalSec} 30%, ${finalPri} 60%, ${finalSec} 80%, ${finalAcc} 100%)`
+  );
+  root.style.setProperty('--gradient-brand',
+    `linear-gradient(135deg, ${finalPri}, ${finalSec})`
+  );
+
+  // Mesh background gradient
+  root.style.setProperty('--gradient-mesh', [
+    `radial-gradient(at 0% 0%, ${finalAcc}1e 0, transparent 50%)`,
+    `radial-gradient(at 50% 0%, ${finalPri}1e 0, transparent 50%)`,
+    `radial-gradient(at 100% 0%, ${finalSec}14 0, transparent 50%)`,
+    `radial-gradient(at 100% 100%, ${finalAcc}14 0, transparent 50%)`,
+    `radial-gradient(at 0% 100%, ${finalSec}1e 0, transparent 50%)`,
+  ].join(',\n    '));
 };
 
 // Clear theme colors (reset to CSS defaults)
@@ -55,7 +82,8 @@ const clearThemeColors = () => {
   const props = [
     '--brand-primary', '--brand-secondary',
     '--accent-primary', '--accent-secondary', '--accent-blue', '--accent-teal',
-    '--glow-soft', '--glow-accent',
+    '--glow-soft', '--glow-accent', '--glow-beam',
+    '--gradient-lotus', '--gradient-brand', '--gradient-mesh',
   ];
   props.forEach(p => root.style.removeProperty(p));
 };
@@ -154,13 +182,11 @@ export const BrandingProvider = ({ children }) => {
     const cachedFavicon = localStorage.getItem('branding_site_favicon');
     if (cachedFavicon) applyFavicon(cachedFavicon);
 
-    // Apply cached colors
-    const cp = localStorage.getItem('branding_primary');
-    const cs = localStorage.getItem('branding_secondary');
-    const ca = localStorage.getItem('branding_accent');
-    if (cp || cs || ca) {
-      applyThemeColors(cp, cs, ca);
-    }
+    // Apply cached colors (always pass all 3 for complete gradient computation)
+    const cp = localStorage.getItem('branding_primary') || THEME_DEFAULTS.primaryColor;
+    const cs = localStorage.getItem('branding_secondary') || THEME_DEFAULTS.secondaryColor;
+    const ca = localStorage.getItem('branding_accent') || THEME_DEFAULTS.accentColor;
+    applyThemeColors(cp, cs, ca);
 
     // Apply cached layout
     const cl = localStorage.getItem('branding_layout');
@@ -204,14 +230,26 @@ export const BrandingProvider = ({ children }) => {
 
   // — Theme Color Updaters (live preview — apply instantly without persisting)
   const updateThemeColors = useCallback((primary, secondary, accent) => {
-    if (primary !== undefined) setPrimaryColor(primary || THEME_DEFAULTS.primaryColor);
-    if (secondary !== undefined) setSecondaryColor(secondary || THEME_DEFAULTS.secondaryColor);
-    if (accent !== undefined) setAccentColor(accent || THEME_DEFAULTS.accentColor);
-    applyThemeColors(
-      primary !== undefined ? (primary || THEME_DEFAULTS.primaryColor) : undefined,
-      secondary !== undefined ? (secondary || THEME_DEFAULTS.secondaryColor) : undefined,
-      accent !== undefined ? (accent || THEME_DEFAULTS.accentColor) : undefined,
-    );
+    // Use functional updater to get the latest state values
+    setPrimaryColor(prev => {
+      const newPri = primary !== undefined ? (primary || THEME_DEFAULTS.primaryColor) : prev;
+
+      setSecondaryColor(prevSec => {
+        const newSec = secondary !== undefined ? (secondary || THEME_DEFAULTS.secondaryColor) : prevSec;
+
+        setAccentColor(prevAcc => {
+          const newAcc = accent !== undefined ? (accent || THEME_DEFAULTS.accentColor) : prevAcc;
+
+          // Always apply all 3 colors so gradients are fully computed
+          applyThemeColors(newPri, newSec, newAcc);
+          return newAcc;
+        });
+
+        return newSec;
+      });
+
+      return newPri;
+    });
   }, []);
 
   // — Layout Updater (live preview)

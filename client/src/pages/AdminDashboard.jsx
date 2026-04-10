@@ -16,7 +16,7 @@ import {
   Monitor, Smartphone, ChevronDown, ChevronRight, Layers, Upload
 } from 'lucide-react';
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Generic Modal Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ──────────────────── Generic Modal ────────────────────
 const Modal = ({ title, onClose, hideHeader, style, children }) => {
   useEffect(() => {
     // Lock body scroll and prevent layout shift from scrollbar disappearing
@@ -52,7 +52,7 @@ const Modal = ({ title, onClose, hideHeader, style, children }) => {
   );
 };
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ FormField helper Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ──────────────────── FormField helper ────────────────────
 const Field = ({ label, type = 'text', value, onChange, placeholder, as, ...rest }) => (
   <div className="form-group">
     <label className="form-label">{label}</label>
@@ -64,7 +64,7 @@ const Field = ({ label, type = 'text', value, onChange, placeholder, as, ...rest
   </div>
 );
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Users Tab Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ──────────────────── Users Tab ────────────────────
 const UsersTab = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -128,7 +128,7 @@ const UsersTab = () => {
   );
 };
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Posts Tab Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ──────────────────── Posts Tab ────────────────────
 const PostsTab = ({ adminUser }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -210,7 +210,7 @@ const PostsTab = ({ adminUser }) => {
   );
 };
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Courses Tab Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ──────────────────── Courses Tab ────────────────────
 const CoursesTab = () => {
   const { user } = useAuth();
   const [courses, setCourses] = useState([]);
@@ -378,7 +378,7 @@ const CoursesTab = () => {
               
               <div style={{ marginTop: 'auto', display: 'flex', gap: '10px' }}>
                 <button onClick={() => openEdit(c)} style={{ flex: 1, background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border)', padding: '0.7rem', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }} className="hover:bg-[var(--accent-primary)] hover:text-white hover:border-transparent">Edit Course</button>
-                <button onClick={() => deleteCourse(c.id)} style={{ padding: '0.7rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s', width: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="hover:bg-red-500 hover:text-white" title="Delete Course">Ã¢Å“â€“</button>
+                <button onClick={() => deleteCourse(c.id)} style={{ padding: '0.7rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s', width: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="hover:bg-red-500 hover:text-white" title="Delete Course">Ã¢Å“–</button>
               </div>
             </div>
           </div>
@@ -387,7 +387,7 @@ const CoursesTab = () => {
       
       {courses.length === 0 && (
         <div style={{ textAlign: 'center', padding: '6rem 2rem', background: 'var(--bg-secondary)', borderRadius: '32px', border: '1px dashed var(--border)' }}>
-          <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>ðŸ“š</div>
+          <BookOpen size={48} style={{ marginBottom: '1.5rem', color: 'var(--accent-primary)' }} />
           <h3 style={{ fontSize: '1.5rem', color: 'var(--text-primary)', marginBottom: '0.5rem', fontWeight: 800 }}>No courses available</h3>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '1.1rem' }}>Get started by building your first premium trading course.</p>
           <Button onClick={openCreate} style={{ padding: '0.8rem 2rem', borderRadius: '99px', fontSize: '1.1rem', fontWeight: 700 }}>Deploy First Course</Button>
@@ -550,7 +550,7 @@ const CoursesTab = () => {
                                boxShadow: isActive ? '0 0 10px rgba(124, 58, 237, 0.4)' : 'none'
                              }}
                            >
-                             <span onClick={() => setForm({ ...form, category: cat.name })} style={{ cursor: 'pointer' }}>{cat.name}</span>                           {user?.role === 'admin' && (<button type="button" onClick={e => handleDeleteCategory(cat.id, cat.name, e)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: isActive ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.25)', fontSize: '0.75rem', lineHeight: 1, padding: '0 0 0 2px', display: 'flex', alignItems: 'center', transition: 'color 0.15s' }} onMouseOver={e => { e.currentTarget.style.color = '#ef4444'; }} onMouseOut={e => { e.currentTarget.style.color = isActive ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.25)'; }} title={`Delete "${cat.name}"`}>âœ•</button>)}                           </div>
+                             <span onClick={() => setForm({ ...form, category: cat.name })} style={{ cursor: 'pointer' }}>{cat.name}</span>                           {user?.role === 'admin' && (<button type="button" onClick={e => handleDeleteCategory(cat.id, cat.name, e)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: isActive ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.25)', fontSize: '0.75rem', lineHeight: 1, padding: '0 0 0 2px', display: 'flex', alignItems: 'center', transition: 'color 0.15s' }} onMouseOver={e => { e.currentTarget.style.color = '#ef4444'; }} onMouseOut={e => { e.currentTarget.style.color = isActive ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.25)'; }} title={`Delete "${cat.name}"`}><X size={14} /></button>)}                           </div>
                          );
                        })}
                      </div>
@@ -583,7 +583,7 @@ const CoursesTab = () => {
                    
                    {/* Thumbnail Upload */}
                    <div className="form-group" style={{ border: '2px dashed var(--border)', padding: '2.5rem 2rem', borderRadius: '24px', textAlign: 'center', background: 'var(--bg-secondary)' }}>
-                     <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>ðŸ“¸</div>
+                     <Camera size={40} style={{ marginBottom: '1rem', color: 'var(--accent-primary)' }} />
                      <label className="form-label text-center" style={{ fontSize: '1.25rem', marginBottom: '0.5rem', fontWeight: 800 }}>Course Cover Art</label>
                      <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Upload a high-quality 16:9 thumbnail image (JPG/PNG)</p>
                      
@@ -591,14 +591,14 @@ const CoursesTab = () => {
                        <input type="file" accept="image/*" onChange={e => setForm({...form, image: e.target.files[0]})} style={{ width: '100%', padding: '0.75rem', background: 'var(--bg-primary)', borderRadius: '12px', color: 'var(--text-primary)', border: '1px solid var(--border)' }} />
                      </div>
                      {editing && editing.image_url && !form.image && (
-                       <div style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Current banner: <a href={`http://localhost:5000${editing.image_url}`} target="_blank" rel="noreferrer" style={{color: 'var(--accent-secondary)', fontWeight: 700}}>View active image Ã¢â€ â€™</a></div>
+                       <div style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Current banner: <a href={`http://localhost:5000${editing.image_url}`} target="_blank" rel="noreferrer" style={{color: 'var(--accent-secondary)', fontWeight: 700}}>View active image <ArrowUpRight size={12} /></a></div>
                      )}
                    </div>
 
                    {/* Video Options */}
                    <div style={{ background: 'var(--bg-secondary)', padding: '2.5rem', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.1)' }}>
                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                       <div style={{ fontSize: '2rem' }}>ðŸŽ¬</div>
+                       <Film size={28} style={{ color: 'var(--accent-primary)' }} />
                        <div>
                          <h4 style={{ margin: '0 0 0.25rem 0', color: 'var(--text-primary)', fontSize: '1.25rem', fontWeight: 800 }}>Video Engine</h4>
                          <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>We support either YouTube links or secure raw MP4 uploads. Do not use both simultaneously.</span>
@@ -615,19 +615,19 @@ const CoursesTab = () => {
                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '-0.25rem 0 1rem 0' }}>Max Size: 500MB payload limit injected directly to Node relay.</p>
                        <input type="file" accept="video/mp4,video/webm" onChange={e => setForm({...form, video_file: e.target.files[0]})} style={{ width: '100%', padding: '0.75rem', background: 'var(--bg-primary)', borderRadius: '12px', border: '1px solid var(--border)', color: 'var(--text-primary)' }} />
                        {editing && editing.video_file && !form.video_file && (
-                         <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'rgba(16,185,129,0.1)', color: '#10b981', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600 }}>Ã¢Å“â€¦ Raw MP4 actively streaming from server.</div>
+                         <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'rgba(16,185,129,0.1)', color: '#10b981', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600 }}>Ã¢Å“… Raw MP4 actively streaming from server.</div>
                        )}
                      </div>
                    </div>
 
                    {/* PDF Upload */}
                    <div className="form-group" style={{ border: '2px dashed var(--border)', padding: '2.5rem', borderRadius: '24px', background: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                     <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>ðŸ“„</div>
+                     <FileDown size={40} style={{ marginBottom: '1rem', color: 'var(--accent-primary)' }} />
                      <label className="form-label" style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.5rem' }}>Supporting Documentation</label>
                      <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Attach any PDF cheatsheets or study guides associated with this course.</p>
                      <input type="file" accept="application/pdf" onChange={e => setForm({...form, pdf_file: e.target.files[0]})} style={{ width: '100%', maxWidth: '400px', padding: '0.75rem', background: 'var(--bg-primary)', borderRadius: '12px', border: '1px solid var(--border)', color: 'var(--text-primary)' }} />
                      {editing && editing.pdf_url && !form.pdf_file && (
-                       <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>PDF Payload Active: <a href={`http://localhost:5000${editing.pdf_url}`} target="_blank" rel="noreferrer" style={{color: 'var(--accent-primary)', fontWeight: 700}}>Verify PDF Ã¢â€ â€™</a></div>
+                       <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>PDF Payload Active: <a href={`http://localhost:5000${editing.pdf_url}`} target="_blank" rel="noreferrer" style={{color: 'var(--accent-primary)', fontWeight: 700}}>Verify PDF <ArrowUpRight size={12} /></a></div>
                      )}
                    </div>
 
@@ -646,7 +646,7 @@ const CoursesTab = () => {
   );
 };
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Prop Firms Tab Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ──────────────────── Prop Firms Tab ────────────────────
 const PropFirmsTab = () => {
   const [firms, setFirms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -790,7 +790,7 @@ const PropFirmsTab = () => {
 
     const latest = formRef.current;
     
-    // Build FormData â€” let the backend handle all type coercion
+    // Build FormData — let the backend handle all type coercion
     const formData = new FormData();
     
     Object.keys(latest).forEach(key => {
@@ -804,7 +804,7 @@ const PropFirmsTab = () => {
           formData.append('logo', latest[key]);
         }
       } 
-      // 3. Append all other values (empty strings are fine â€” backend converts them to null)
+      // 3. Append all other values (empty strings are fine — backend converts them to null)
       else {
         let val = latest[key];
         if (val === null || val === undefined) val = '';
@@ -997,9 +997,9 @@ const PropFirmsTab = () => {
         })()}
         {firms.length === 0 && <p className="empty-state">No prop firms listed yet.</p>}
 
-        {/* â”€â”€ Group Assignment Modal â”€â”€ */}
+        {/* ── Group Assignment Modal ── */}
         {groupingFirm && (
-          <Modal title={`Assign Group â€” ${groupingFirm.name}`} onClose={() => { setGroupingFirm(null); setGroupLogoFile(null); setGroupLogoPreview(null); }}>
+          <Modal title={`Assign Group — ${groupingFirm.name}`} onClose={() => { setGroupingFirm(null); setGroupLogoFile(null); setGroupLogoPreview(null); }}>
             <div style={{ padding: '0.5rem 0', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               {/* Current Group */}
               {groupingFirm.group_name && (
@@ -1060,7 +1060,7 @@ const PropFirmsTab = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '0.5rem' }}>
                       <Upload size={20} style={{ color: '#2563eb' }} />
                       <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Click to upload group logo</p>
-                      <p style={{ margin: 0, fontSize: '0.7rem', color: 'var(--text-secondary)', opacity: 0.6 }}>PNG, JPG, SVG â€¢ Max 2MB</p>
+                      <p style={{ margin: 0, fontSize: '0.7rem', color: 'var(--text-secondary)', opacity: 0.6 }}>PNG, JPG, SVG • Max 2MB</p>
                     </div>
                   )}
                 </div>
@@ -1142,7 +1142,7 @@ const PropFirmsTab = () => {
                           type="button"
                           onClick={(e) => { e.preventDefault(); setForm({ ...form, imageFile: null, logo_url: '' }) }}
                           style={{ position: 'absolute', top: '-8px', right: '-8px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}
-                        >Ã¢Å“â€¢</button>
+                        >Ã¢Å“•</button>
                       </div>
                     ) : (
                       <div style={{ margin: '1rem 0', pointerEvents: 'none' }}>
@@ -1171,10 +1171,10 @@ const PropFirmsTab = () => {
                   <div className="form-group">
                     <label className="form-label">Internal Status (Admin Only)</label>
                     <select className="input" required value={form.status_color} onChange={e => setForm({ ...form, status_color: e.target.value })}>
-                      <option value="green">ðŸŸ¢ Green (Top Ranked)</option>
-                      <option value="blue">ðŸ”µ Blue (Community Trusted)</option>
-                      <option value="yellow">ðŸŸ¡ Yellow (New / Building Trust)</option>
-                      <option value="red">ðŸ”´ Red (Avoid / Possible Scam)</option>
+                      <option value="green">● Green (Top Ranked)</option>
+                      <option value="blue">● Blue (Community Trusted)</option>
+                      <option value="yellow">● Yellow (New / Building Trust)</option>
+                      <option value="red">● Red (Avoid / Possible Scam)</option>
                     </select>
                   </div>
                   <div className="form-group">
@@ -1487,7 +1487,7 @@ const PropFirmsTab = () => {
   );
 };
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Promotions Tab Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ──────────────────── Promotions Tab ────────────────────
 const PromotionsTab = () => {
   const [promos, setPromos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -1615,7 +1615,7 @@ const PromotionsTab = () => {
             </div>
             <Field label="Expiration Date" type="datetime-local" value={form.expires_at} onChange={e => setForm({ ...form, expires_at: e.target.value })} />
 
-            {/* Ã¢â€â‚¬Ã¢â€â‚¬ Ticker Speed Ã¢â€â‚¬Ã¢â€â‚¬ */}
+            {/* Ã¢”â‚¬Ã¢”â‚¬ Ticker Speed Ã¢”â‚¬Ã¢”â‚¬ */}
             <div className="form-group">
               <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>Banner Scroll Speed</span>
@@ -1673,7 +1673,7 @@ const PromotionsTab = () => {
   );
 };
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Main Admin Dashboard Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ──────────────────── Main Admin Dashboard ────────────────────
 const TABS = [
   { id: 'users',      label: 'Users',      Icon: Users,         color: '#8b5cf6' },
   { id: 'posts',      label: 'Blog Posts',  Icon: FileText,     color: '#3b82f6' },

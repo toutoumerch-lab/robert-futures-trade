@@ -333,7 +333,7 @@ button {
   color: var(--text-primary);
 }
 
-/* â”€â”€ Missing utility â”€â”€ */
+/* ── Missing utility ── */
 .text-sm { font-size: 0.875rem; }
 .text-center { text-align: center; }
 .mb-2 { margin-bottom: 0.5rem; }
@@ -344,14 +344,14 @@ button {
   padding: 8rem 0;
 }
 
-/* â”€â”€ Hero Section â”€â”€ */
+/* ── Hero Section ── */
 .hero-section {
   position: relative;
   padding: 7rem 0 5rem;
   overflow: hidden;
 }
 
-/* â”€â”€ Hero Watermark Animation â”€â”€ */
+/* ── Hero Watermark Animation ── */
 .hero-watermark {
   /* Dark mode default - rich, prominent */
   opacity: 0.22;
@@ -457,7 +457,7 @@ button {
   transform: translateY(0);
 }
 
-/* â”€â”€ Stats Row â”€â”€ */
+/* ── Stats Row ── */
 .stats-section {
   padding: 2.5rem 0;
   border-top: 1px solid var(--border-color);
@@ -484,7 +484,7 @@ button {
   margin-top: 0.25rem;
 }
 
-/* â”€â”€ Feature Cards â”€â”€ */
+/* ── Feature Cards ── */
 .feature-card { display: flex; flex-direction: column; }
 .feature-icon {
   font-size: 2.5rem;
@@ -498,7 +498,7 @@ button {
 }
 .feature-link:hover { color: var(--accent-secondary); }
 
-/* â”€â”€ Steps â”€â”€ */
+/* ── Steps ── */
 .steps-list { display: flex; flex-direction: column; gap: 2rem; }
 .step-item { display: flex; gap: 1.5rem; align-items: flex-start; }
 .step-num {
@@ -512,7 +512,7 @@ button {
   width: 3rem;
 }
 
-/* â”€â”€ CTA Box â”€â”€ */
+/* ── CTA Box ── */
 .cta-box {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
@@ -529,7 +529,7 @@ button {
   opacity: 0.04;
 }
 
-/* â”€â”€ Page Hero (courses, firms) â”€â”€ */
+/* ── Page Hero (courses, firms) ── */
 .page-hero {
   position: relative;
   padding: 4rem 0;
@@ -543,7 +543,7 @@ button {
   pointer-events: none;
 }
 
-/* â”€â”€ Blog â”€â”€ */
+/* ── Blog ── */
 .read-more-link {
   color: var(--accent-secondary);
   font-weight: 500;
@@ -583,7 +583,7 @@ button {
   transform: translateY(-2px);
 }
 
-/* â”€â”€ Courses â”€â”€ */
+/* ── Courses ── */
 .course-card {
   display: flex;
   flex-direction: column;
@@ -624,7 +624,7 @@ button {
   color: var(--success);
 }
 
-/* â”€â”€ Prop Firms â”€â”€ */
+/* ── Prop Firms ── */
 .firm-stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -674,7 +674,7 @@ button {
   background: color-mix(in srgb, var(--brand-primary) 10%, transparent);
 }
 
-/* â”€â”€ Badges â”€â”€ */
+/* ── Badges ── */
 .badge {
   display: inline-block;
   padding: 0.25rem 0.65rem;
@@ -702,7 +702,7 @@ button {
   margin-bottom: 0.75rem;
 }
 
-/* â”€â”€ Admin Dashboard â”€â”€ */
+/* ── Admin Dashboard ── */
 .admin-workspace {
   min-width: 0;
 }
@@ -907,7 +907,7 @@ button {
   color: var(--text-secondary);
 }
 
-/* â”€â”€ Modal â”€â”€ */
+/* ── Modal ── */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -988,7 +988,7 @@ button {
 }
 textarea.input { resize: vertical; }
 
-/* â”€â”€ Promotion Banner â”€â”€ */
+/* ── Promotion Banner ── */
 .promo-banner {
   background: var(--gradient-main);
   color: white;
@@ -1144,7 +1144,7 @@ textarea.input { resize: vertical; }
   pointer-events: none;
 }
 
-/* â”€â”€ Brand Colors Section (Branding Manager) â”€â”€ */
+/* ── Brand Colors Section (Branding Manager) ── */
 .brand-colors-section {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
@@ -1308,7 +1308,7 @@ textarea.input { resize: vertical; }
   background: rgba(244, 63, 94, 0.08);
 }
 
-/* â”€â”€ Preset Palettes â”€â”€ */
+/* ── Preset Palettes ── */
 .preset-section {
   margin-top: 1.75rem;
   padding-top: 1.5rem;
@@ -1377,7 +1377,7 @@ textarea.input { resize: vertical; }
   color: var(--text-primary);
 }
 
-/* â”€â”€ Live Preview â”€â”€ */
+/* ── Live Preview ── */
 .live-preview-section {
   margin-top: 1.75rem;
   padding-top: 1.5rem;
@@ -1399,7 +1399,7 @@ textarea.input { resize: vertical; }
   flex-wrap: wrap;
 }
 
-/* â”€â”€ Status Pill â”€â”€ */
+/* ── Status Pill ── */
 .status-pill {
   display: flex;
   align-items: center;
@@ -1444,11 +1444,11 @@ textarea.input { resize: vertical; }
 .hidden { display: none; }
 .overflow-hidden { overflow: hidden; }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ══════════════════════════════════════════════
    Prop Firms Page
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+   ══════════════════════════════════════════════ */
 
-/* â”€â”€ Toolbar â”€â”€ */
+/* ── Toolbar ── */
 .pf-toolbar {
   display: flex;
   align-items: center;
@@ -1582,10 +1582,10 @@ textarea.input { resize: vertical; }
   justify-content: center;
 }
 
-/* â”€â”€ Content Area â”€â”€ */
+/* ── Content Area ── */
 .pf-content-area { display: flex; gap: 1.5rem; }
 
-/* â”€â”€ Filter Sidebar â”€â”€ */
+/* ── Filter Sidebar ── */
 .pf-filter-sidebar {
   width: 260px;
   flex-shrink: 0;
@@ -1677,7 +1677,7 @@ textarea.input { resize: vertical; }
   border-color: var(--accent-primary);
 }
 .pf-filter-toggle-label input:checked + .pf-checkbox-custom::after {
-  content: 'âœ“';
+  content: '✓';
   position: absolute;
   top: -1px;
   left: 2px;
@@ -1694,7 +1694,7 @@ textarea.input { resize: vertical; }
 }
 .pf-filter-results span { color: var(--accent-primary); font-weight: 800; }
 
-/* â”€â”€ Collapsible Filter Sections â”€â”€ */
+/* ── Collapsible Filter Sections ── */
 .pf-section-toggle {
   display: flex;
   align-items: center;
@@ -1730,7 +1730,7 @@ textarea.input { resize: vertical; }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* â”€â”€ Results â”€â”€ */
+/* ── Results ── */
 .pf-results { flex: 1; min-width: 0; }
 .pf-grid {
   display: grid;
@@ -1821,7 +1821,7 @@ textarea.input { resize: vertical; }
   text-align: center;
 }
 
-/* â”€â”€ Smart Search Dropdown â”€â”€ */
+/* ── Smart Search Dropdown ── */
 .pf-search-dropdown {
   position: absolute;
   top: calc(100% + 6px);
@@ -1863,7 +1863,7 @@ textarea.input { resize: vertical; }
   flex-shrink: 0;
 }
 
-/* â”€â”€ Shimmer skeleton â”€â”€ */
+/* ── Shimmer skeleton ── */
 .pf-shimmer {
   background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-secondary) 50%, var(--bg-tertiary) 75%);
   background-size: 400% 100%;
@@ -1871,10 +1871,10 @@ textarea.input { resize: vertical; }
 }
 @keyframes pfShimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
-/* â”€â”€ Card entrance animation â”€â”€ */
+/* ── Card entrance animation ── */
 @keyframes pfCardIn { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
 
-/* â”€â”€ Card action buttons (fav + compare) â”€â”€ */
+/* ── Card action buttons (fav + compare) ── */
 .pf-card-actions {
   position: absolute;
   top: 14px;
@@ -1918,13 +1918,13 @@ textarea.input { resize: vertical; }
 .pf-compare-btn.active { border-color: var(--accent-primary); background: var(--accent-primary); color: #fff; }
 .pf-compare-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
-/* â”€â”€ Comparing highlight â”€â”€ */
+/* ── Comparing highlight ── */
 .firm-grid-card.comparing,
 .firm-list-row.comparing {
   box-shadow: 0 0 0 2px var(--accent-primary), 0 12px 30px -6px rgba(37,99,235,0.2);
 }
 
-/* â”€â”€ Floating Compare Bar â”€â”€ */
+/* ── Floating Compare Bar ── */
 .pf-compare-bar {
   position: fixed;
   bottom: 24px;
@@ -1969,7 +1969,7 @@ textarea.input { resize: vertical; }
 }
 .pf-compare-now-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(37,99,235,0.4); }
 
-/* â”€â”€ Compare Modal â”€â”€ */
+/* ── Compare Modal ── */
 .pf-compare-overlay {
   position: fixed;
   inset: 0;
@@ -2018,9 +2018,9 @@ textarea.input { resize: vertical; }
 .pf-compare-table tbody tr:hover { background: var(--bg-secondary); }
 .pf-compare-table tbody tr:last-child td { border-bottom: none; }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ══════════════════════════════════════════════
    Grouped Firm Card
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+   ══════════════════════════════════════════════ */
 .firm-group-card {
   background: var(--bg-secondary);
   border-radius: 24px;
@@ -2308,7 +2308,7 @@ textarea.input { resize: vertical; }
   padding: 0;
 }
 
-/* â”€â”€ Grouped List Row â”€â”€ */
+/* ── Grouped List Row ── */
 .firm-group-list-row {
   background: var(--bg-secondary);
   border-radius: 16px;
@@ -2389,7 +2389,7 @@ textarea.input { resize: vertical; }
   color: #10b981;
 }
 
-/* â”€â”€ Mobile responsive â”€â”€ */
+/* ── Mobile responsive ── */
 @media (max-width: 768px) {
   .pf-toolbar { flex-direction: column; align-items: stretch; }
   .pf-search-wrap { max-width: 100%; }

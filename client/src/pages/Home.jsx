@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Card from '../components/common/Card';
 import { useBranding } from '../context/BrandingContext';
+import { Scale, Gem, Newspaper, Sparkles, ArrowRight } from 'lucide-react';
 
 const StatItem = ({ value, label }) => (
   <div className="stat-item text-center">
@@ -16,7 +17,7 @@ const FeatureCard = ({ icon, title, desc, to, linkText }) => (
     <div className="feature-icon" style={{ fontSize: '2.5rem', marginBottom: '1.5rem' }}>{icon}</div>
     <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>{title}</h3>
     <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, marginBottom: '2rem' }}>{desc}</p>
-    <Link to={to} className="text-gradient" style={{ fontWeight: '600' }}>{linkText} â†’</Link>
+    <Link to={to} className="text-gradient" style={{ fontWeight: '600' }}>{linkText} <ArrowRight size={14} /></Link>
   </Card>
 );
 
@@ -70,11 +71,11 @@ const Home = () => {
 
   return (
     <div style={{ overflow: 'hidden' }}>
-      {/* â”€â”€ Background Blobs (Surgical Placement) â”€â”€ */}
+      {/* ── Background Blobs (Surgical Placement) ── */}
       <AnimatedBlob className="blob-hero-1" color1="var(--accent-teal)" color2="rgba(16, 185, 129, 0)" style={{ top: '-10%', left: '10%' }} />
       <AnimatedBlob className="blob-hero-2" color1="var(--accent-primary)" color2="rgba(37, 99, 235, 0)" delay={3} style={{ top: '20%', right: '5%' }} size="500px" />
       
-      {/* â”€â”€ Hero â”€â”€ */}
+      {/* ── Hero ── */}
       <section className="hero-section" style={{ minHeight: '85vh', display: 'flex', alignItems: 'center', position: 'relative' }}>
         
         {/* Static Background Image from Branding */}
@@ -94,8 +95,8 @@ const Home = () => {
         )}
 
         <div className="container text-center" style={{ position: 'relative', zIndex: 1 }}>
-          <div className="hero-badge fade-in inline-block py-2 px-6 mb-8 glass" style={{ borderRadius: 'var(--radius-full)', fontWeight: '600', fontSize: '0.9rem' }}>
-            âœ¨ Precision-Engineered Trading Experience
+          <div className="hero-badge fade-in inline-block py-2 px-6 mb-8 glass" style={{ borderRadius: 'var(--radius-full)', fontWeight: '600', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Sparkles size={16} style={{ color: "var(--accent-primary)" }} /> Precision-Engineered Trading Experience
           </div>
           <h1 className="hero-title fade-in" style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(3rem, 8vw, 5rem)', marginBottom: '1.5rem' }}>
             Elevate Your Edge.<br />
@@ -116,7 +117,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* â”€â”€ Stats â”€â”€ */}
+      {/* ── Stats ── */}
       <section className="fade-in" style={{ padding: '4rem 0' }}>
         <div className="container">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -128,7 +129,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* â”€â”€ Features â”€â”€ */}
+      {/* ── Features ── */}
       <section className="section-pad fade-in">
         <div className="container">
           <div className="section-header text-center mb-20">
@@ -139,21 +140,21 @@ const Home = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             <FeatureCard
-              icon="âš–ï¸"
+              icon={<Scale size={36} style={{ color: "var(--accent-primary)" }} />}
               title="Transparent Analysis"
               desc="We audit the rules, the fine print, and the track record of every major prop firm. No fluff, just the facts."
               to="/prop-firms"
               linkText="View Audits"
             />
             <FeatureCard
-              icon="ðŸ’Ž"
+              icon={<Gem size={36} style={{ color: "var(--accent-primary)" }} />}
               title="Elite Education"
               desc="Master high-probability setups and the institutional mindset. Designed for professional advancement."
               to="/courses"
               linkText="Explore Courses"
             />
             <FeatureCard
-              icon="ðŸ—žï¸"
+              icon={<Newspaper size={36} style={{ color: "var(--accent-primary)" }} />}
               title="Market Intelligence"
               desc="Daily strategic breakdowns of market context, sentiment, and major economic catalysts."
               to="/blog"
@@ -163,7 +164,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* â”€â”€ Path â”€â”€ */}
+      {/* ── Path ── */}
       <section className="section-pad fade-in">
         <div className="container" style={{ maxWidth: '900px' }}>
           <div className="glass" style={{ padding: '5rem', borderRadius: 'var(--radius-xl)' }}>
@@ -180,7 +181,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* â”€â”€ CTA â”€â”€ */}
+      {/* ── CTA ── */}
       <section className="section-pad text-center fade-in">
         <div className="container" style={{ maxWidth: '800px' }}>
           <h2 className="mb-6" style={{ fontSize: '3.5rem', fontFamily: 'var(--font-serif)' }}>Define Your <span className="text-gradient">Future</span></h2>

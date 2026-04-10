@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/common/Button';
+import { Film, Paperclip, FileDown, Package, Link2, Lock, BookOpen, ChevronUp, ChevronDown, Play, ArrowLeft, Clock } from 'lucide-react';
 
 const CourseDetail = () => {
   const { id } = useParams();
@@ -77,7 +78,7 @@ const CourseDetail = () => {
 
     return (
       <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary))', color: 'var(--text-secondary)' }}>
-        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>ðŸŽ¬</div>
+        <Film size={48} style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }} />
         <p style={{ fontWeight: 800 }}>{activeLesson ? 'No Video for This Lesson' : 'Video Content Not Attached'}</p>
       </div>
     );
@@ -88,13 +89,13 @@ const CourseDetail = () => {
        {/* Breadcrumbs Header */}
        <div style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', padding: '1.5rem 0' }}>
          <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-           <Button variant="outline" onClick={() => navigate('/courses')} style={{ padding: '0.4rem 1rem', borderRadius: '99px', fontSize: '0.85rem' }}>â† Library</Button>
+           <Button variant="outline" onClick={() => navigate('/courses')} style={{ padding: '0.4rem 1rem', borderRadius: '99px', fontSize: '0.85rem' }}><ArrowLeft size={14} /> Library</Button>
            {activeLesson && (
              <button 
                onClick={() => setActiveLesson(null)} 
                style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', padding: '0.4rem 1rem', borderRadius: '99px', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 600 }}
              >
-               â† Back to Intro
+               <ArrowLeft size={14} /> Back to Intro
              </button>
            )}
          </div>
@@ -117,7 +118,7 @@ const CourseDetail = () => {
                 <div style={{ background: 'var(--bg-secondary)', borderRadius: '24px', border: '1px solid var(--border)', padding: '2.5rem' }}>
                    <div style={{ display: 'flex', gap: '8px', marginBottom: '1rem' }}>
                      <span style={{ fontSize: '0.75rem', background: 'rgba(59, 130, 246, 0.1)', padding: '4px 12px', borderRadius: '99px', color: '#3b82f6', fontWeight: 800, textTransform: 'uppercase' }}>Now Playing</span>
-                     {activeLesson.duration && <span style={{ fontSize: '0.75rem', background: 'var(--bg-primary)', padding: '4px 12px', borderRadius: '99px', color: 'var(--text-secondary)', fontWeight: 700, border: '1px solid var(--border)' }}>â± {activeLesson.duration}</span>}
+                     {activeLesson.duration && <span style={{ fontSize: '0.75rem', background: 'var(--bg-primary)', padding: '4px 12px', borderRadius: '99px', color: 'var(--text-secondary)', fontWeight: 700, border: '1px solid var(--border)' }}><Clock size={12} /> {activeLesson.duration}</span>}
                    </div>
                    <h2 style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '1rem', lineHeight: 1.2, letterSpacing: '-0.5px' }}>{activeLesson.title}</h2>
                    {activeLesson.description && (
@@ -132,7 +133,7 @@ const CourseDetail = () => {
                    {/* Lesson Resources */}
                    {((activeLesson.pdf_url) || (activeLesson.zip_url) || (activeLesson.resources && activeLesson.resources.length > 0)) && (
                      <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
-                       <h4 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)' }}>ðŸ“Ž Lesson Resources</h4>
+                       <h4 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)' }}><Paperclip size={16} /> Lesson Resources</h4>
                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                          {activeLesson.pdf_url && (
                            <a href={`http://localhost:5000${activeLesson.pdf_url}`} target="_blank" rel="noreferrer" style={{
@@ -140,7 +141,7 @@ const CourseDetail = () => {
                              background: 'var(--bg-primary)', borderRadius: '14px', border: '1px solid var(--border)',
                              textDecoration: 'none', color: '#8b5cf6', fontWeight: 700, fontSize: '0.9rem', transition: 'all 0.15s'
                            }}>
-                             ðŸ“„ Download PDF
+                             <FileDown size={16} /> Download PDF
                            </a>
                          )}
                          {activeLesson.zip_url && (
@@ -149,7 +150,7 @@ const CourseDetail = () => {
                              background: 'var(--bg-primary)', borderRadius: '14px', border: '1px solid var(--border)',
                              textDecoration: 'none', color: '#f59e0b', fontWeight: 700, fontSize: '0.9rem', transition: 'all 0.15s'
                            }}>
-                             ðŸ“¦ Download ZIP Bundle
+                             <Package size={16} /> Download ZIP Bundle
                            </a>
                          )}
                          {(activeLesson.resources || []).map((r, i) => (
@@ -158,7 +159,7 @@ const CourseDetail = () => {
                              background: 'var(--bg-primary)', borderRadius: '14px', border: '1px solid var(--border)',
                              textDecoration: 'none', color: '#10b981', fontWeight: 700, fontSize: '0.9rem', transition: 'all 0.15s'
                            }}>
-                             ðŸ”— {r.label}
+                             <Link2 size={16} /> {r.label}
                            </a>
                          ))}
                        </div>
@@ -236,7 +237,7 @@ const CourseDetail = () => {
              {/* Course Content Sidebar - Module/Lesson Navigator */}
              {hasModules && (
                <div style={{ background: 'var(--bg-secondary)', borderRadius: '24px', border: '1px solid var(--border)', padding: '1.5rem', maxHeight: '500px', overflowY: 'auto' }}>
-                 <h4 style={{ margin: '0 0 1rem 0', color: 'var(--text-primary)', fontSize: '1.1rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>ðŸ“š Course Content</h4>
+                 <h4 style={{ margin: '0 0 1rem 0', color: 'var(--text-primary)', fontSize: '1.1rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}><BookOpen size={18} /> Course Content</h4>
                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                    {course.modules.map((mod, modIdx) => {
                      const isExpanded = expandedModules[mod.id];
@@ -249,7 +250,7 @@ const CourseDetail = () => {
                            <span style={{ width: '26px', height: '26px', borderRadius: '8px', background: 'linear-gradient(135deg, #3b82f6, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: '0.7rem', flexShrink: 0 }}>{modIdx + 1}</span>
                            <span style={{ flex: 1, fontWeight: 700, fontSize: '0.85rem', color: 'var(--text-primary)' }}>{mod.title}</span>
                            <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{mod.lessons?.length || 0}</span>
-                           <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>{isExpanded ? 'â–²' : 'â–¼'}</span>
+                           <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>{isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</span>
                          </div>
                          {isExpanded && mod.lessons && mod.lessons.length > 0 && (
                            <div style={{ marginLeft: '1rem', marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
@@ -269,7 +270,7 @@ const CourseDetail = () => {
                                  >
                                    <span style={{ width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 800, flexShrink: 0, background: isActive ? '#3b82f6' : 'var(--border)', color: isActive ? '#fff' : 'var(--text-secondary)' }}>{lIdx + 1}</span>
                                    <span style={{ flex: 1, fontSize: '0.8rem', fontWeight: isActive ? 700 : 500, color: isActive ? '#3b82f6' : 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{lesson.title}</span>
-                                   {(lesson.video_url || lesson.video_file) && <span style={{ fontSize: '0.65rem', color: '#3b82f6' }}>â–¶</span>}
+                                   {(lesson.video_url || lesson.video_file) && <span style={{ fontSize: '0.65rem', color: '#3b82f6' }}><Play size={10} fill="#3b82f6" /></span>}
                                  </button>
                                );
                              })}
@@ -285,7 +286,7 @@ const CourseDetail = () => {
              {/* PDF Downloads Module (course-level) */}
              {course.pdf_url && !activeLesson && (
                <div style={{ background: 'var(--bg-secondary)', borderRadius: '24px', border: '1px solid var(--border)', padding: '2rem' }}>
-                  <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>ðŸ“„</div>
+                  <FileDown size={32} style={{ marginBottom: '1rem', color: 'var(--accent-primary)' }} />
                   <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--text-primary)', fontSize: '1.25rem', fontWeight: 800 }}>Course Resources</h4>
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>Download the official study guide & cheat sheet.</p>
                   
@@ -295,7 +296,7 @@ const CourseDetail = () => {
                     </a>
                   ) : (
                     <div style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', padding: '1rem', borderRadius: '12px', textAlign: 'center', fontWeight: 700, fontSize: '0.9rem' }}>
-                      ðŸ”’ Login to download
+                      <Lock size={16} /> Login to download
                     </div>
                   )}
                </div>

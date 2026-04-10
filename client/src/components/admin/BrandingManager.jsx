@@ -18,42 +18,42 @@ const PRESETS = [
     primary: '#2563EB',
     secondary: '#3B82F6',
     accent: '#10b981',
-    icon: '💎',
+    icon: 'diamond',
   },
   {
     name: 'Dark Pro',
     primary: '#6366F1',
     secondary: '#818CF8',
     accent: '#F59E0B',
-    icon: '🌙',
+    icon: 'moon',
   },
   {
     name: 'Emerald',
     primary: '#059669',
     secondary: '#10B981',
     accent: '#3B82F6',
-    icon: '🍀',
+    icon: 'clover',
   },
   {
     name: 'Sunset',
     primary: '#DC2626',
     secondary: '#F97316',
     accent: '#FBBF24',
-    icon: '🌅',
+    icon: 'sunset',
   },
   {
     name: 'Royal Purple',
     primary: '#7C3AED',
     secondary: '#A78BFA',
     accent: '#EC4899',
-    icon: '👑',
+    icon: 'crown',
   },
   {
     name: 'Minimal',
     primary: '#374151',
     secondary: '#6B7280',
     accent: '#2563EB',
-    icon: '⚡',
+    icon: 'bolt',
   },
 ];
 
@@ -597,9 +597,9 @@ const BrandingManager = () => {
                 </label>
                 <div className="branding-layout-grid">
                   {[
-                    { id: 'default', label: 'Default',  desc: 'Standard spacing & radii', icon: '📐' },
-                    { id: 'compact', label: 'Compact',  desc: 'Tighter, efficient layout', icon: '📱' },
-                    { id: 'modern',  label: 'Modern',   desc: 'Cards, shadows, depth', icon: '✨' },
+                    { id: 'default', label: 'Default',  desc: 'Standard spacing & radii', icon: 'layout' },
+                    { id: 'compact', label: 'Compact',  desc: 'Tighter, efficient layout', icon: 'compact' },
+                    { id: 'modern',  label: 'Modern',   desc: 'Cards, shadows, depth', icon: 'sparkle' },
                   ].map(l => (
                     <button
                       key={l.id}

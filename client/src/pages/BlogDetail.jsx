@@ -4,6 +4,7 @@ import axios from 'axios';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import { useAuth } from '../context/AuthContext';
+import { ThumbsUp, Flame, Rocket, ArrowLeft } from 'lucide-react';
 
 const BlogDetail = () => {
   const { id } = useParams();
@@ -55,12 +56,12 @@ const BlogDetail = () => {
   };
 
   if (loading) return <div className="container py-16">Loading…</div>;
-  if (!post) return <div className="container py-16">Post not found. <Link to="/blog">← Back to Blog</Link></div>;
+  if (!post) return <div className="container py-16">Post not found. <Link to="/blog"><ArrowLeft size={14} /> Back to Blog</Link></div>;
 
   return (
     <div className="container py-16" style={{ maxWidth: '800px' }}>
       <Link to="/blog" style={{ color: 'var(--text-secondary)', display: 'inline-block', marginBottom: '2rem' }}>
-        ← Back to Blog
+        <ArrowLeft size={14} /> Back to Blog
       </Link>
 
       <article>
@@ -79,9 +80,9 @@ const BlogDetail = () => {
 
         {/* Reactions */}
         <div className="flex gap-4 mb-8">
-          <button className="reaction-btn" onClick={() => handleReaction('like')}>👍 Like</button>
-          <button className="reaction-btn" onClick={() => handleReaction('fire')}>🔥 Fire</button>
-          <button className="reaction-btn" onClick={() => handleReaction('rocket')}>🚀 Rocket</button>
+          <button className="reaction-btn" onClick={() => handleReaction('like')}><ThumbsUp size={16} /> Like</button>
+          <button className="reaction-btn" onClick={() => handleReaction('fire')}><Flame size={16} /> Fire</button>
+          <button className="reaction-btn" onClick={() => handleReaction('rocket')}><Rocket size={16} /> Rocket</button>
         </div>
       </article>
 
