@@ -611,7 +611,6 @@ const BrandingManager = () => {
                   {[
                     { id: 'default', label: 'Default',  desc: 'Standard spacing & radii', icon: 'layout' },
                     { id: 'compact', label: 'Compact',  desc: 'Tighter, efficient layout', icon: 'compact' },
-                    { id: 'modern',  label: 'Modern',   desc: 'Cards, shadows, depth', icon: 'sparkle' },
                   ].map(l => (
                     <button
                       key={l.id}

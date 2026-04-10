@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
@@ -13,7 +13,8 @@ import {
   Image, Building2, DollarSign, Settings, Link2, Wrench,
   Star, Check, X, Zap, Flame, Turtle,
   Users, FileText, GraduationCap, Briefcase, PartyPopper, Palette,
-  Monitor, Smartphone, ChevronDown, ChevronRight, Layers, Upload
+  Monitor, Smartphone, ChevronDown, ChevronRight, Layers, Upload,
+  Video, BookOpen, Plus, Trash2, Edit3, ChevronUp, ExternalLink
 } from 'lucide-react';
 
 // ──────────────────── Generic Modal ────────────────────
@@ -229,6 +230,135 @@ const CoursesTab = () => {
   const [categories, setCategories] = useState([]);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
 
+  // ── Content (Modules/Lessons) state ──
+  const [modules, setModules] = useState([]);
+  const [modulesLoading, setModulesLoading] = useState(false);
+  const [expandedModules, setExpandedModules] = useState({});
+  const [addingModule, setAddingModule] = useState(false);
+  const [newModuleTitle, setNewModuleTitle] = useState('');
+  const [newModuleDesc, setNewModuleDesc] = useState('');
+  const [editingModule, setEditingModule] = useState(null);
+  const [editModuleTitle, setEditModuleTitle] = useState('');
+  const [editModuleDesc, setEditModuleDesc] = useState('');
+  const [addingLessonTo, setAddingLessonTo] = useState(null);
+  const [newLessonTitle, setNewLessonTitle] = useState('');
+  const [newLessonDesc, setNewLessonDesc] = useState('');
+  const [newLessonVideoUrl, setNewLessonVideoUrl] = useState('');
+  const [newLessonDuration, setNewLessonDuration] = useState('');
+  const [editingLesson, setEditingLesson] = useState(null);
+  const [editLessonTitle, setEditLessonTitle] = useState('');
+  const [editLessonDesc, setEditLessonDesc] = useState('');
+  const [editLessonVideoUrl, setEditLessonVideoUrl] = useState('');
+  const [editLessonDuration, setEditLessonDuration] = useState('');
+  const [newLessonVideoFile, setNewLessonVideoFile] = useState(null);
+  const [newLessonPdfFile, setNewLessonPdfFile] = useState(null);
+  const [newLessonZipFile, setNewLessonZipFile] = useState(null);
+  const [editLessonVideoFile, setEditLessonVideoFile] = useState(null);
+  const [editLessonPdfFile, setEditLessonPdfFile] = useState(null);
+  const [editLessonZipFile, setEditLessonZipFile] = useState(null);
+
+  const fetchModules = useCallback(async (courseId) => {
+    if (!courseId) { setModules([]); return; }
+    setModulesLoading(true);
+    try {
+      const res = await axios.get(`http://localhost:5000/api/courses/${courseId}/modules`);
+      setModules(res.data || []);
+    } catch (e) { console.error('Error fetching modules:', e); }
+    finally { setModulesLoading(false); }
+  }, []);
+
+  const handleAddModule = async (courseId) => {
+    if (!newModuleTitle.trim()) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.post(`http://localhost:5000/api/courses/${courseId}/modules`, 
+        { title: newModuleTitle.trim(), description: newModuleDesc.trim() },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setModules(prev => [...prev, res.data]);
+      setNewModuleTitle(''); setNewModuleDesc(''); setAddingModule(false);
+    } catch (e) { alert(e.response?.data?.message || 'Error adding module'); }
+  };
+
+  const handleUpdateModule = async (modId) => {
+    if (!editModuleTitle.trim()) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`http://localhost:5000/api/modules/${modId}`,
+        { title: editModuleTitle.trim(), description: editModuleDesc.trim() },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setModules(prev => prev.map(m => m.id === modId ? { ...m, title: editModuleTitle.trim(), description: editModuleDesc.trim() } : m));
+      setEditingModule(null);
+    } catch (e) { alert(e.response?.data?.message || 'Error updating module'); }
+  };
+
+  const handleDeleteModule = async (modId) => {
+    if (!window.confirm('Delete this module and all its lessons?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:5000/api/modules/${modId}`, { headers: { Authorization: `Bearer ${token}` } });
+      setModules(prev => prev.filter(m => m.id !== modId));
+    } catch (e) { alert('Error deleting module'); }
+  };
+
+  const handleAddLesson = async (moduleId) => {
+    if (!newLessonTitle.trim()) return;
+    try {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('title', newLessonTitle.trim());
+      formData.append('description', newLessonDesc.trim());
+      formData.append('video_url', newLessonVideoUrl.trim());
+      formData.append('duration', newLessonDuration.trim());
+      if (newLessonVideoFile) formData.append('video_file', newLessonVideoFile);
+      if (newLessonPdfFile) formData.append('pdf_file', newLessonPdfFile);
+      if (newLessonZipFile) formData.append('zip_file', newLessonZipFile);
+      const res = await axios.post(`http://localhost:5000/api/modules/${moduleId}/lessons`, formData,
+        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } }
+      );
+      setModules(prev => prev.map(m => m.id === moduleId ? { ...m, lessons: [...(m.lessons || []), res.data] } : m));
+      setNewLessonTitle(''); setNewLessonDesc(''); setNewLessonVideoUrl(''); setNewLessonDuration('');
+      setNewLessonVideoFile(null); setNewLessonPdfFile(null); setNewLessonZipFile(null);
+      setAddingLessonTo(null);
+    } catch (e) { alert(e.response?.data?.message || 'Error adding lesson'); }
+  };
+
+  const handleUpdateLesson = async (lessonId, moduleId) => {
+    if (!editLessonTitle.trim()) return;
+    try {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('title', editLessonTitle.trim());
+      formData.append('description', editLessonDesc.trim());
+      formData.append('video_url', editLessonVideoUrl.trim());
+      formData.append('duration', editLessonDuration.trim());
+      if (editLessonVideoFile) formData.append('video_file', editLessonVideoFile);
+      if (editLessonPdfFile) formData.append('pdf_file', editLessonPdfFile);
+      if (editLessonZipFile) formData.append('zip_file', editLessonZipFile);
+      const res = await axios.put(`http://localhost:5000/api/lessons/${lessonId}`, formData,
+        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } }
+      );
+      setModules(prev => prev.map(m => m.id === moduleId
+        ? { ...m, lessons: (m.lessons || []).map(l => l.id === lessonId ? { ...l, ...res.data } : l) }
+        : m
+      ));
+      setEditingLesson(null);
+      setEditLessonVideoFile(null); setEditLessonPdfFile(null); setEditLessonZipFile(null);
+    } catch (e) { alert(e.response?.data?.message || 'Error updating lesson'); }
+  };
+
+  const handleDeleteLesson = async (lessonId, moduleId) => {
+    if (!window.confirm('Delete this lesson?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:5000/api/lessons/${lessonId}`, { headers: { Authorization: `Bearer ${token}` } });
+      setModules(prev => prev.map(m => m.id === moduleId ? { ...m, lessons: (m.lessons || []).filter(l => l.id !== lessonId) } : m));
+    } catch (e) { alert('Error deleting lesson'); }
+  };
+
+  const toggleModuleExpand = (modId) => setExpandedModules(prev => ({ ...prev, [modId]: !prev[modId] }));
+
   const fetchCourses = useCallback(() => {
     setLoading(true);
     axios.get('http://localhost:5000/api/courses')
@@ -284,7 +414,7 @@ const CoursesTab = () => {
     }
   };
 
-  const openCreate = () => { setEditing(null); setForm(initialForm); setActiveTab('basic'); setShowModal(true); };
+  const openCreate = () => { setEditing(null); setForm(initialForm); setActiveTab('basic'); setModules([]); setShowModal(true); };
   
   const openEdit = (c) => { 
     setEditing(c); 
@@ -301,6 +431,7 @@ const CoursesTab = () => {
     }); 
     setActiveTab('basic'); 
     setShowModal(true); 
+    fetchModules(c.id);
   };
 
   const handleSave = async (e) => {
@@ -364,7 +495,7 @@ const CoursesTab = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '2rem' }}>
         {courses.map(c => (
           <div key={c.id} style={{ background: 'var(--bg-secondary)', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.15)' }} className="hover:-translate-y-2 hover:shadow-[0_20px_40px_-10px_rgba(59,130,246,0.15)] hover:border-[var(--accent-primary)]">
-            <div style={{ height: '180px', width: '100%', background: c.image_url ? `url(http://localhost:5000${c.image_url}) center/cover` : 'linear-gradient(135deg, var(--bg-tertiary), rgba(255,255,255,0.02))', position: 'relative' }}>
+            <div style={{ height: '180px', width: '100%', backgroundImage: c.image_url ? `url(http://localhost:5000${c.image_url})` : 'linear-gradient(135deg, var(--bg-tertiary), rgba(255,255,255,0.02))', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', position: 'relative' }}>
               <div style={{ position: 'absolute', top: '16px', right: '16px', background: c.is_free ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, var(--bg-primary), var(--bg-secondary))', border: c.is_free ? 'none' : '1px solid var(--border)', padding: '6px 16px', borderRadius: '99px', color: c.is_free ? 'white' : 'var(--text-primary)', fontWeight: 800, fontSize: '0.85rem', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }}>
                 {c.is_free ? 'FREE' : `$${c.price}`}
               </div>
@@ -404,7 +535,7 @@ const CoursesTab = () => {
              </div>
              
              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }} className="form-tabs">
-               {['basic', 'details', 'pricing', 'media'].map(tab => (
+               {['basic', 'details', 'pricing', 'media', 'content'].map(tab => (
                  <button 
                    key={tab} 
                    onClick={(e) => { e.preventDefault(); setActiveTab(tab); }}
@@ -583,7 +714,7 @@ const CoursesTab = () => {
                    
                    {/* Thumbnail Upload */}
                    <div className="form-group" style={{ border: '2px dashed var(--border)', padding: '2.5rem 2rem', borderRadius: '24px', textAlign: 'center', background: 'var(--bg-secondary)' }}>
-                     <Camera size={40} style={{ marginBottom: '1rem', color: 'var(--accent-primary)' }} />
+                     <Upload size={40} style={{ marginBottom: '1rem', color: 'var(--accent-primary)' }} />
                      <label className="form-label text-center" style={{ fontSize: '1.25rem', marginBottom: '0.5rem', fontWeight: 800 }}>Course Cover Art</label>
                      <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Upload a high-quality 16:9 thumbnail image (JPG/PNG)</p>
                      
@@ -591,14 +722,14 @@ const CoursesTab = () => {
                        <input type="file" accept="image/*" onChange={e => setForm({...form, image: e.target.files[0]})} style={{ width: '100%', padding: '0.75rem', background: 'var(--bg-primary)', borderRadius: '12px', color: 'var(--text-primary)', border: '1px solid var(--border)' }} />
                      </div>
                      {editing && editing.image_url && !form.image && (
-                       <div style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Current banner: <a href={`http://localhost:5000${editing.image_url}`} target="_blank" rel="noreferrer" style={{color: 'var(--accent-secondary)', fontWeight: 700}}>View active image <ArrowUpRight size={12} /></a></div>
+                       <div style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Current banner: <a href={`http://localhost:5000${editing.image_url}`} target="_blank" rel="noreferrer" style={{color: 'var(--accent-secondary)', fontWeight: 700}}>View active image <ExternalLink size={12} /></a></div>
                      )}
                    </div>
 
                    {/* Video Options */}
                    <div style={{ background: 'var(--bg-secondary)', padding: '2.5rem', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.1)' }}>
                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                       <Film size={28} style={{ color: 'var(--accent-primary)' }} />
+                       <Video size={28} style={{ color: 'var(--accent-primary)' }} />
                        <div>
                          <h4 style={{ margin: '0 0 0.25rem 0', color: 'var(--text-primary)', fontSize: '1.25rem', fontWeight: 800 }}>Video Engine</h4>
                          <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>We support either YouTube links or secure raw MP4 uploads. Do not use both simultaneously.</span>
@@ -622,15 +753,230 @@ const CoursesTab = () => {
 
                    {/* PDF Upload */}
                    <div className="form-group" style={{ border: '2px dashed var(--border)', padding: '2.5rem', borderRadius: '24px', background: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                     <FileDown size={40} style={{ marginBottom: '1rem', color: 'var(--accent-primary)' }} />
+                     <FileText size={40} style={{ marginBottom: '1rem', color: 'var(--accent-primary)' }} />
                      <label className="form-label" style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.5rem' }}>Supporting Documentation</label>
                      <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Attach any PDF cheatsheets or study guides associated with this course.</p>
                      <input type="file" accept="application/pdf" onChange={e => setForm({...form, pdf_file: e.target.files[0]})} style={{ width: '100%', maxWidth: '400px', padding: '0.75rem', background: 'var(--bg-primary)', borderRadius: '12px', border: '1px solid var(--border)', color: 'var(--text-primary)' }} />
                      {editing && editing.pdf_url && !form.pdf_file && (
-                       <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>PDF Payload Active: <a href={`http://localhost:5000${editing.pdf_url}`} target="_blank" rel="noreferrer" style={{color: 'var(--accent-primary)', fontWeight: 700}}>Verify PDF <ArrowUpRight size={12} /></a></div>
+                       <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>PDF Payload Active: <a href={`http://localhost:5000${editing.pdf_url}`} target="_blank" rel="noreferrer" style={{color: 'var(--accent-primary)', fontWeight: 700}}>Verify PDF <ExternalLink size={12} /></a></div>
                      )}
                    </div>
 
+                 </div>
+               )}
+
+
+               {activeTab === 'content' && (
+                 <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
+                   {!editing ? (
+                     <div style={{ textAlign: 'center', padding: '3rem 2rem', background: 'var(--bg-secondary)', borderRadius: '24px', border: '1px dashed var(--border-color)' }}>
+                       <BookOpen size={48} style={{ marginBottom: '1rem', color: 'var(--accent-primary)', opacity: 0.6 }} />
+                       <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Save Course First</h3>
+                       <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Please publish the course first, then reopen it to add modules and lessons.</p>
+                     </div>
+                   ) : (
+                     <div>
+                       {/* Header */}
+                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                         <div>
+                           <h3 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)' }}>Course Content</h3>
+                           <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                             {modules.length} module{modules.length !== 1 ? 's' : ''} &middot; {modules.reduce((sum, m) => sum + (m.lessons?.length || 0), 0)} lesson{modules.reduce((sum, m) => sum + (m.lessons?.length || 0), 0) !== 1 ? 's' : ''}
+                           </p>
+                         </div>
+                         <button type="button" onClick={() => { setAddingModule(true); setNewModuleTitle(''); setNewModuleDesc(''); }}
+                           style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.6rem 1.25rem', borderRadius: '99px', background: 'linear-gradient(135deg, var(--accent-secondary), var(--accent-primary))', color: '#fff', fontWeight: 700, fontSize: '0.85rem', border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37,99,235,0.25)' }}>
+                           <Plus size={16} /> Add Module
+                         </button>
+                       </div>
+
+                       {modulesLoading && <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>Loading modules...</div>}
+
+                       {/* Add Module Form */}
+                       {addingModule && (
+                         <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '1.25rem', marginBottom: '1rem', animation: 'fadeIn 0.25s ease-out' }}>
+                           <h4 style={{ margin: '0 0 1rem', fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Layers size={16} /> New Module</h4>
+                           <input className="input" placeholder="Module title..." value={newModuleTitle} onChange={e => setNewModuleTitle(e.target.value)} style={{ marginBottom: '0.75rem' }} />
+                           <textarea className="input" placeholder="Module description (optional)..." value={newModuleDesc} onChange={e => setNewModuleDesc(e.target.value)} rows={2} style={{ marginBottom: '1rem' }} />
+                           <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                             <button type="button" onClick={() => setAddingModule(false)} style={{ padding: '0.5rem 1.25rem', borderRadius: '99px', background: 'var(--bg-tertiary)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', fontWeight: 600, cursor: 'pointer', fontSize: '0.85rem' }}>Cancel</button>
+                             <button type="button" onClick={() => handleAddModule(editing.id)} style={{ padding: '0.5rem 1.25rem', borderRadius: '99px', background: 'var(--accent-primary)', color: '#fff', border: 'none', fontWeight: 700, cursor: 'pointer', fontSize: '0.85rem' }}>Add Module</button>
+                           </div>
+                         </div>
+                       )}
+
+                       {/* Modules List */}
+                       {!modulesLoading && modules.length === 0 && !addingModule && (
+                         <div style={{ textAlign: 'center', padding: '3rem 2rem', background: 'var(--bg-secondary)', borderRadius: '20px', border: '1px dashed var(--border-color)' }}>
+                           <Layers size={40} style={{ marginBottom: '1rem', color: 'var(--text-secondary)', opacity: 0.4 }} />
+                           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>No modules yet. Click "Add Module" to get started.</p>
+                         </div>
+                       )}
+
+                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                         {modules.map((mod, modIndex) => (
+                           <div key={mod.id} style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '16px', overflow: 'hidden', transition: 'box-shadow 0.2s' }}>
+                             {/* Module Header */}
+                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem 1.25rem', cursor: 'pointer', userSelect: 'none' }}
+                               onClick={() => toggleModuleExpand(mod.id)}>
+                               <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.8rem', fontWeight: 800, flexShrink: 0 }}>
+                                 {modIndex + 1}
+                               </div>
+                               <div style={{ flex: 1, minWidth: 0 }}>
+                                 {editingModule === mod.id ? (
+                                   <div onClick={e => e.stopPropagation()}>
+                                     <input className="input" value={editModuleTitle} onChange={e => setEditModuleTitle(e.target.value)} style={{ marginBottom: '0.5rem', fontSize: '0.9rem' }} />
+                                     <textarea className="input" value={editModuleDesc} onChange={e => setEditModuleDesc(e.target.value)} rows={2} style={{ marginBottom: '0.5rem', fontSize: '0.85rem' }} />
+                                     <div style={{ display: 'flex', gap: '0.4rem' }}>
+                                       <button type="button" onClick={() => handleUpdateModule(mod.id)} style={{ padding: '0.35rem 0.75rem', borderRadius: '8px', background: 'var(--accent-primary)', color: '#fff', border: 'none', fontWeight: 600, fontSize: '0.78rem', cursor: 'pointer' }}>Save</button>
+                                       <button type="button" onClick={() => setEditingModule(null)} style={{ padding: '0.35rem 0.75rem', borderRadius: '8px', background: 'var(--bg-tertiary)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', fontWeight: 600, fontSize: '0.78rem', cursor: 'pointer' }}>Cancel</button>
+                                     </div>
+                                   </div>
+                                 ) : (
+                                   <>
+                                     <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{mod.title}</h4>
+                                     {mod.description && <p style={{ margin: '0.15rem 0 0', fontSize: '0.8rem', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{mod.description}</p>}
+                                   </>
+                                 )}
+                               </div>
+                               <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600, flexShrink: 0 }}>
+                                 {(mod.lessons?.length || 0)} lesson{(mod.lessons?.length || 0) !== 1 ? 's' : ''}
+                               </span>
+                               <div style={{ display: 'flex', gap: '0.25rem', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
+                                 <button type="button" onClick={() => { setEditingModule(mod.id); setEditModuleTitle(mod.title); setEditModuleDesc(mod.description || ''); }} style={{ padding: '0.35rem', borderRadius: '8px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center' }} title="Edit module"><Edit3 size={14} /></button>
+                                 <button type="button" onClick={() => handleDeleteModule(mod.id)} style={{ padding: '0.35rem', borderRadius: '8px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center' }} title="Delete module"><Trash2 size={14} /></button>
+                               </div>
+                               <div style={{ color: 'var(--text-secondary)', transition: 'transform 0.2s', transform: expandedModules[mod.id] ? 'rotate(180deg)' : 'rotate(0)' }}>
+                                 <ChevronDown size={16} />
+                               </div>
+                             </div>
+
+                             {/* Expanded: Lessons */}
+                             {expandedModules[mod.id] && (
+                               <div style={{ borderTop: '1px solid var(--border-color)', padding: '0.75rem 1.25rem 1rem', background: 'var(--bg-tertiary)', animation: 'fadeIn 0.2s ease-out' }}>
+                                 {(mod.lessons || []).length === 0 && addingLessonTo !== mod.id && (
+                                   <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.85rem', padding: '1rem 0' }}>No lessons in this module yet.</p>
+                                 )}
+
+                                 {(mod.lessons || []).map((lesson, lessonIdx) => (
+                                   <div key={lesson.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem 0', borderBottom: lessonIdx < (mod.lessons.length - 1) ? '1px solid var(--border-color)' : 'none' }}>
+                                     <div style={{ width: '24px', height: '24px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1rem' }}>
+                                       {lessonIdx + 1}
+                                     </div>
+                                     {editingLesson === lesson.id ? (
+                                       <div style={{ flex: 1 }}>
+                                         <input className="input" value={editLessonTitle} onChange={e => setEditLessonTitle(e.target.value)} placeholder="Lesson title" style={{ marginBottom: '0.5rem', fontSize: '0.85rem' }} />
+                                         <textarea className="input" value={editLessonDesc} onChange={e => setEditLessonDesc(e.target.value)} placeholder="Description (optional)" rows={2} style={{ marginBottom: '0.5rem', fontSize: '0.82rem' }} />
+                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                           <input className="input" value={editLessonVideoUrl} onChange={e => setEditLessonVideoUrl(e.target.value)} placeholder="YouTube/Vimeo URL (optional)" style={{ fontSize: '0.82rem' }} />
+                                           <input className="input" value={editLessonDuration} onChange={e => setEditLessonDuration(e.target.value)} placeholder="Duration (e.g. 15m)" style={{ fontSize: '0.82rem' }} />
+                                         </div>
+                                         {/* File Uploads */}
+                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '0.6rem', padding: '0.6rem', background: 'var(--bg-tertiary)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                             <Video size={13} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
+                                             <div style={{ flex: 1 }}>
+                                               <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.2rem' }}>Upload MP4{lesson.video_file ? ' (has existing)' : ''}</label>
+                                               <input type="file" accept="video/mp4,video/webm" onChange={e => setEditLessonVideoFile(e.target.files[0] || null)} style={{ width: '100%', fontSize: '0.75rem', color: 'var(--text-secondary)' }} />
+                                             </div>
+                                           </div>
+                                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                             <FileText size={13} style={{ color: '#f59e0b', flexShrink: 0 }} />
+                                             <div style={{ flex: 1 }}>
+                                               <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.2rem' }}>PDF Resource{lesson.pdf_url ? ' (has existing)' : ''}</label>
+                                               <input type="file" accept=".pdf,application/pdf" onChange={e => setEditLessonPdfFile(e.target.files[0] || null)} style={{ width: '100%', fontSize: '0.75rem', color: 'var(--text-secondary)' }} />
+                                             </div>
+                                           </div>
+                                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                             <Upload size={13} style={{ color: '#10b981', flexShrink: 0 }} />
+                                             <div style={{ flex: 1 }}>
+                                               <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.2rem' }}>ZIP Resources{lesson.zip_url ? ' (has existing)' : ''}</label>
+                                               <input type="file" accept=".zip,application/zip,application/x-zip-compressed" onChange={e => setEditLessonZipFile(e.target.files[0] || null)} style={{ width: '100%', fontSize: '0.75rem', color: 'var(--text-secondary)' }} />
+                                             </div>
+                                           </div>
+                                         </div>
+                                         <div style={{ display: 'flex', gap: '0.4rem' }}>
+                                           <button type="button" onClick={() => handleUpdateLesson(lesson.id, mod.id)} style={{ padding: '0.35rem 0.75rem', borderRadius: '8px', background: 'var(--accent-primary)', color: '#fff', border: 'none', fontWeight: 600, fontSize: '0.78rem', cursor: 'pointer' }}>Save</button>
+                                           <button type="button" onClick={() => { setEditingLesson(null); setEditLessonVideoFile(null); setEditLessonPdfFile(null); setEditLessonZipFile(null); }} style={{ padding: '0.35rem 0.75rem', borderRadius: '8px', background: 'var(--bg-secondary)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', fontWeight: 600, fontSize: '0.78rem', cursor: 'pointer' }}>Cancel</button>
+                                         </div>
+                                       </div>
+                                     ) : (
+                                       <>
+                                         <div style={{ flex: 1, minWidth: 0 }}>
+                                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                             {(lesson.video_url || lesson.video_file) ? <Video size={13} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} /> : <FileText size={13} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />}
+                                             <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{lesson.title}</span>
+                                           </div>
+                                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.15rem' }}>
+                                             {lesson.duration && <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{lesson.duration}</span>}
+                                             {lesson.video_file && <span style={{ fontSize: '0.65rem', padding: '1px 6px', borderRadius: '4px', background: 'rgba(37,99,235,0.12)', color: 'var(--accent-primary)', fontWeight: 700 }}>MP4</span>}
+                                             {lesson.pdf_url && <span style={{ fontSize: '0.65rem', padding: '1px 6px', borderRadius: '4px', background: 'rgba(245,158,11,0.12)', color: '#f59e0b', fontWeight: 700 }}>PDF</span>}
+                                             {lesson.zip_url && <span style={{ fontSize: '0.65rem', padding: '1px 6px', borderRadius: '4px', background: 'rgba(16,185,129,0.12)', color: '#10b981', fontWeight: 700 }}>ZIP</span>}
+                                           </div>
+                                         </div>
+                                         <div style={{ display: 'flex', gap: '0.25rem', flexShrink: 0 }}>
+                                           <button type="button" onClick={() => { setEditingLesson(lesson.id); setEditLessonTitle(lesson.title); setEditLessonDesc(lesson.description || ''); setEditLessonVideoUrl(lesson.video_url || ''); setEditLessonDuration(lesson.duration || ''); }} style={{ padding: '0.3rem', borderRadius: '6px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex' }} title="Edit lesson"><Edit3 size={13} /></button>
+                                           <button type="button" onClick={() => handleDeleteLesson(lesson.id, mod.id)} style={{ padding: '0.3rem', borderRadius: '6px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', color: '#ef4444', cursor: 'pointer', display: 'flex' }} title="Delete lesson"><Trash2 size={13} /></button>
+                                         </div>
+                                       </>
+                                     )}
+                                   </div>
+                                 ))}
+
+                                 {/* Add Lesson Form */}
+                                 {addingLessonTo === mod.id ? (
+                                   <div style={{ marginTop: '0.75rem', padding: '1rem', background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                                     <h5 style={{ margin: '0 0 0.75rem', fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Video size={14} /> New Lesson</h5>
+                                     <input className="input" placeholder="Lesson title..." value={newLessonTitle} onChange={e => setNewLessonTitle(e.target.value)} style={{ marginBottom: '0.5rem', fontSize: '0.85rem' }} />
+                                     <textarea className="input" placeholder="Lesson description (optional)..." value={newLessonDesc} onChange={e => setNewLessonDesc(e.target.value)} rows={2} style={{ marginBottom: '0.5rem', fontSize: '0.82rem' }} />
+                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                                       <input className="input" placeholder="YouTube/Vimeo URL (optional)" value={newLessonVideoUrl} onChange={e => setNewLessonVideoUrl(e.target.value)} style={{ fontSize: '0.82rem' }} />
+                                       <input className="input" placeholder="Duration (e.g. 15m)" value={newLessonDuration} onChange={e => setNewLessonDuration(e.target.value)} style={{ fontSize: '0.82rem' }} />
+                                     </div>
+                                     {/* File Uploads */}
+                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginBottom: '0.75rem', padding: '0.75rem', background: 'var(--bg-tertiary)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                         <Video size={14} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
+                                         <div style={{ flex: 1 }}>
+                                           <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.25rem' }}>Upload MP4 Video</label>
+                                           <input type="file" accept="video/mp4,video/webm" onChange={e => setNewLessonVideoFile(e.target.files[0] || null)} style={{ width: '100%', fontSize: '0.78rem', color: 'var(--text-secondary)' }} />
+                                         </div>
+                                       </div>
+                                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                         <FileText size={14} style={{ color: '#f59e0b', flexShrink: 0 }} />
+                                         <div style={{ flex: 1 }}>
+                                           <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.25rem' }}>PDF Resource</label>
+                                           <input type="file" accept=".pdf,application/pdf" onChange={e => setNewLessonPdfFile(e.target.files[0] || null)} style={{ width: '100%', fontSize: '0.78rem', color: 'var(--text-secondary)' }} />
+                                         </div>
+                                       </div>
+                                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                         <Upload size={14} style={{ color: '#10b981', flexShrink: 0 }} />
+                                         <div style={{ flex: 1 }}>
+                                           <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.25rem' }}>ZIP Resources</label>
+                                           <input type="file" accept=".zip,application/zip,application/x-zip-compressed" onChange={e => setNewLessonZipFile(e.target.files[0] || null)} style={{ width: '100%', fontSize: '0.78rem', color: 'var(--text-secondary)' }} />
+                                         </div>
+                                       </div>
+                                     </div>
+                                     <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end' }}>
+                                       <button type="button" onClick={() => { setAddingLessonTo(null); setNewLessonVideoFile(null); setNewLessonPdfFile(null); setNewLessonZipFile(null); }} style={{ padding: '0.4rem 1rem', borderRadius: '8px', background: 'var(--bg-tertiary)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer' }}>Cancel</button>
+                                       <button type="button" onClick={() => handleAddLesson(mod.id)} style={{ padding: '0.4rem 1rem', borderRadius: '8px', background: 'var(--accent-primary)', color: '#fff', border: 'none', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer' }}>Add Lesson</button>
+                                     </div>
+                                   </div>
+                                 ) : (
+                                   <button type="button" onClick={() => { setAddingLessonTo(mod.id); setNewLessonTitle(''); setNewLessonDesc(''); setNewLessonVideoUrl(''); setNewLessonDuration(''); setNewLessonVideoFile(null); setNewLessonPdfFile(null); setNewLessonZipFile(null); }}
+                                     style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem', padding: '0.45rem 1rem', borderRadius: '99px', background: 'transparent', color: 'var(--accent-primary)', border: '1px dashed var(--accent-primary)', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer', opacity: 0.8, transition: 'opacity 0.2s' }}
+                                     onMouseOver={e => e.currentTarget.style.opacity = '1'}
+                                     onMouseOut={e => e.currentTarget.style.opacity = '0.8'}>
+                                     <Plus size={14} /> Add Lesson
+                                   </button>
+                                 )}
+                               </div>
+                             )}
+                           </div>
+                         ))}
+                       </div>
+                     </div>
+                   )}
                  </div>
                )}
 

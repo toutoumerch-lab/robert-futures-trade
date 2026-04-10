@@ -122,7 +122,7 @@ const CourseList = () => {
                    }} 
                    className="hover:-translate-y-2 hover:shadow-[0_20px_40px_-10px_rgba(59,130,246,0.15)] hover:border-[var(--accent-primary)]"
                  >
-                   <div style={{ height: '220px', width: '100%', background: course.image_url ? `url(http://localhost:5000${course.image_url}) center/cover` : 'linear-gradient(135deg, var(--bg-tertiary), rgba(255,255,255,0.02))', position: 'relative' }}>
+                   <div style={{ height: '220px', width: '100%', backgroundImage: course.image_url ? `url(http://localhost:5000${course.image_url})` : 'linear-gradient(135deg, var(--bg-tertiary), rgba(255,255,255,0.02))', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', position: 'relative' }}>
                      <div style={{ position: 'absolute', top: '16px', left: '16px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)', padding: '4px 12px', borderRadius: '99px', color: 'white', fontWeight: 700, fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <Bookmark size={12} /> {course.category || 'General'}
                      </div>
