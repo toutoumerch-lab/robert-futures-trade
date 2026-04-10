@@ -284,7 +284,19 @@ const BrandingManager = () => {
 
   // ── Layout & Mode ──
   const handleLayoutChange = (v) => { setNewLayout(v); setIsDirty(true); updateLayout(v); };
-  const handleModeChange = (v) => { setNewThemeMode(v); setIsDirty(true); updateThemeMode(v); };
+  const handleModeChange = (v) => {
+    setNewThemeMode(v);
+    setIsDirty(true);
+    updateThemeMode(v);
+
+    // Actually apply the theme visually via ThemeContext
+    if (v === 'system') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setCurrentTheme(prefersDark ? 'dark' : 'light');
+    } else {
+      setCurrentTheme(v);
+    }
+  };
 
   // ── Submit ──
   const handleSubmit = async (e) => {
