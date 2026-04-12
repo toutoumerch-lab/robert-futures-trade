@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { BrandingProvider } from './context/BrandingContext';
+import { ToastProvider } from './context/ToastContext';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import PromotionBanner from './components/layout/PromotionBanner';
@@ -16,6 +17,7 @@ import BlogList from './pages/BlogList';
 import BlogDetail from './pages/BlogDetail';
 import CourseList from './pages/CourseList';
 import CourseDetail from './pages/CourseDetail';
+import CourseLearn from './pages/CourseLearn';
 import PropFirmList from './pages/PropFirmList';
 
 const AppContent = () => {
@@ -35,6 +37,7 @@ const AppContent = () => {
             <Route path="/blog/:id" element={<BlogDetail />} />
             <Route path="/courses" element={<CourseList />} />
             <Route path="/courses/:id" element={<CourseDetail />} />
+            <Route path="/course/:id/learn" element={<CourseLearn />} />
             <Route path="/prop-firms" element={<PropFirmList />} />
           </Routes>
         </main>
@@ -49,7 +52,9 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <BrandingProvider>
-          <AppContent />
+          <ToastProvider>
+            <AppContent />
+          </ToastProvider>
         </BrandingProvider>
       </AuthProvider>
     </ThemeProvider>

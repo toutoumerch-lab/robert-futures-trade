@@ -14,7 +14,7 @@ import {
   Star, Check, X, Zap, Flame, Turtle,
   Users, FileText, GraduationCap, Briefcase, PartyPopper, Palette,
   Monitor, Smartphone, ChevronDown, ChevronRight, Layers, Upload,
-  Video, BookOpen, Plus, Trash2, Edit3, ChevronUp, ExternalLink
+  Video, BookOpen, Plus, Trash2, Edit3, ChevronUp, ExternalLink, Clock
 } from 'lucide-react';
 
 // ──────────────────── Generic Modal ────────────────────
@@ -455,6 +455,14 @@ const CoursesTab = () => {
     formData.append('is_free', form.is_free);
     formData.append('video_url', form.video_url);
 
+    // Pass existing media URLs back so the backend preserves them if no new file
+    if (editing) {
+      if (editing.image_url) formData.append('image_url', editing.image_url);
+      if (editing.pdf_url) formData.append('pdf_url', editing.pdf_url);
+      if (editing.video_file) formData.append('video_file', editing.video_file);
+    }
+
+    // Override with new files if user uploaded replacements
     if (form.image) formData.append('image', form.image);
     if (form.pdf_file) formData.append('pdf_file', form.pdf_file);
     if (form.video_file) formData.append('video_file', form.video_file);
@@ -494,7 +502,7 @@ const CoursesTab = () => {
       
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '2rem' }}>
         {courses.map(c => (
-          <div key={c.id} style={{ background: 'var(--bg-secondary)', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.15)' }} className="hover:-translate-y-2 hover:shadow-[0_20px_40px_-10px_rgba(59,130,246,0.15)] hover:border-[var(--accent-primary)]">
+          <div key={c.id} style={{ background: 'var(--bg-secondary)', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.15)' }}>
             <div style={{ height: '180px', width: '100%', backgroundImage: c.image_url ? `url(http://localhost:5000${c.image_url})` : 'linear-gradient(135deg, var(--bg-tertiary), rgba(255,255,255,0.02))', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', position: 'relative' }}>
               <div style={{ position: 'absolute', top: '16px', right: '16px', background: c.is_free ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, var(--bg-primary), var(--bg-secondary))', border: c.is_free ? 'none' : '1px solid var(--border)', padding: '6px 16px', borderRadius: '99px', color: c.is_free ? 'white' : 'var(--text-primary)', fontWeight: 800, fontSize: '0.85rem', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }}>
                 {c.is_free ? 'FREE' : `$${c.price}`}
@@ -503,13 +511,13 @@ const CoursesTab = () => {
             <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
               <div style={{ display: 'flex', gap: '8px', marginBottom: '1rem', flexWrap: 'wrap' }}>
                 <span style={{ fontSize: '0.75rem', background: 'var(--bg-primary)', padding: '4px 12px', borderRadius: '99px', color: 'var(--accent-primary)', fontWeight: 800, border: '1px solid var(--border)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{c.level || 'Beginner'}</span>
-                <span style={{ fontSize: '0.75rem', background: 'var(--bg-primary)', padding: '4px 12px', borderRadius: '99px', color: 'var(--text-secondary)', fontWeight: 700, border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '4px' }}>Ã¢ÂÂ± {c.duration || 'N/A'}</span>
+                <span style={{ fontSize: '0.75rem', background: 'var(--bg-primary)', padding: '4px 12px', borderRadius: '99px', color: 'var(--text-secondary)', fontWeight: 700, border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={12} /> {c.duration || 'N/A'}</span>
               </div>
               <h3 style={{ margin: '0 0 1.25rem 0', fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.3, letterSpacing: '-0.5px' }}>{c.title}</h3>
               
               <div style={{ marginTop: 'auto', display: 'flex', gap: '10px' }}>
-                <button onClick={() => openEdit(c)} style={{ flex: 1, background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border)', padding: '0.7rem', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }} className="hover:bg-[var(--accent-primary)] hover:text-white hover:border-transparent">Edit Course</button>
-                <button onClick={() => deleteCourse(c.id)} style={{ padding: '0.7rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s', width: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="hover:bg-red-500 hover:text-white" title="Delete Course">Ã¢Å“–</button>
+                <button onClick={() => openEdit(c)} style={{ flex: 1, background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border)', padding: '0.7rem', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>Edit Course</button>
+                <button onClick={() => deleteCourse(c.id)} style={{ padding: '0.7rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s', width: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="Delete Course"><Trash2 size={16} /></button>
               </div>
             </div>
           </div>
@@ -667,13 +675,8 @@ const CoursesTab = () => {
                            <div
                              key={cat.id || cat.name}
                              style={{
-                               display: 'flex',
-                               alignItems: 'center',
-                               gap: '6px',
-                               padding: '6px 12px 6px 14px',
-                               borderRadius: '99px',
-                               fontSize: '0.85rem',
-                               fontWeight: 600,
+                               display: 'flex', alignItems: 'center', gap: '6px',
+                               padding: '6px 12px 6px 14px', borderRadius: '99px', fontSize: '0.85rem', fontWeight: 600,
                                transition: 'all 0.2s ease',
                                border: isActive ? '1px solid var(--accent-primary)' : '1px solid rgba(255,255,255,0.1)',
                                background: isActive ? 'var(--accent-primary)' : 'rgba(255,255,255,0.03)',
@@ -681,7 +684,9 @@ const CoursesTab = () => {
                                boxShadow: isActive ? '0 0 10px rgba(124, 58, 237, 0.4)' : 'none'
                              }}
                            >
-                             <span onClick={() => setForm({ ...form, category: cat.name })} style={{ cursor: 'pointer' }}>{cat.name}</span>                           {user?.role === 'admin' && (<button type="button" onClick={e => handleDeleteCategory(cat.id, cat.name, e)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: isActive ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.25)', fontSize: '0.75rem', lineHeight: 1, padding: '0 0 0 2px', display: 'flex', alignItems: 'center', transition: 'color 0.15s' }} onMouseOver={e => { e.currentTarget.style.color = '#ef4444'; }} onMouseOut={e => { e.currentTarget.style.color = isActive ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.25)'; }} title={`Delete "${cat.name}"`}><X size={14} /></button>)}                           </div>
+                             <span onClick={() => setForm({ ...form, category: cat.name })} style={{ cursor: 'pointer' }}>{cat.name}</span>
+                             {user?.role === 'admin' && (<button type="button" onClick={e => handleDeleteCategory(cat.id, cat.name, e)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: isActive ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.25)', fontSize: '0.75rem', lineHeight: 1, padding: '0 0 0 2px', display: 'flex', alignItems: 'center', transition: 'color 0.15s' }} title={`Delete "${cat.name}"`}><X size={14} /></button>)}
+                           </div>
                          );
                        })}
                      </div>
@@ -718,12 +723,23 @@ const CoursesTab = () => {
                      <label className="form-label text-center" style={{ fontSize: '1.25rem', marginBottom: '0.5rem', fontWeight: 800 }}>Course Cover Art</label>
                      <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Upload a high-quality 16:9 thumbnail image (JPG/PNG)</p>
                      
+                     {/* Current thumbnail preview */}
+                     {editing && editing.image_url && !form.image && (
+                       <div style={{ marginBottom: '1.5rem' }}>
+                         <img src={`http://localhost:5000${editing.image_url}`} alt="Current cover" style={{ width: '100%', maxWidth: '360px', aspectRatio: '16/9', objectFit: 'cover', borderRadius: '16px', border: '2px solid var(--border)', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }} />
+                         <div style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: '#10b981', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Check size={14} /> Current cover image active</div>
+                       </div>
+                     )}
+                     {form.image && (
+                       <div style={{ marginBottom: '1.5rem' }}>
+                         <img src={URL.createObjectURL(form.image)} alt="New cover preview" style={{ width: '100%', maxWidth: '360px', aspectRatio: '16/9', objectFit: 'cover', borderRadius: '16px', border: '2px solid var(--accent-primary)', boxShadow: '0 10px 25px rgba(37,99,235,0.2)' }} />
+                         <div style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: 'var(--accent-primary)', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Upload size={14} /> New image selected (will replace on save)</div>
+                       </div>
+                     )}
+
                      <div style={{ position: 'relative', width: '100%', maxWidth: '400px', margin: '0 auto' }}>
                        <input type="file" accept="image/*" onChange={e => setForm({...form, image: e.target.files[0]})} style={{ width: '100%', padding: '0.75rem', background: 'var(--bg-primary)', borderRadius: '12px', color: 'var(--text-primary)', border: '1px solid var(--border)' }} />
                      </div>
-                     {editing && editing.image_url && !form.image && (
-                       <div style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Current banner: <a href={`http://localhost:5000${editing.image_url}`} target="_blank" rel="noreferrer" style={{color: 'var(--accent-secondary)', fontWeight: 700}}>View active image <ExternalLink size={12} /></a></div>
-                     )}
                    </div>
 
                    {/* Video Options */}
@@ -739,6 +755,9 @@ const CoursesTab = () => {
                      <div className="form-group" style={{ marginBottom: '2rem', paddingBottom: '2rem', borderBottom: '1px dashed var(--border)' }}>
                        <label className="form-label" style={{ fontWeight: 700, color: 'var(--accent-blue)' }}>A) YouTube / Vimeo URL Path</label>
                        <input className="input" type="text" value={form.video_url} onChange={e => setForm({ ...form, video_url: e.target.value })} placeholder="https://youtube.com/..." />
+                       {editing && editing.video_url && !form.video_url && (
+                         <div style={{ marginTop: '0.75rem', padding: '0.6rem 1rem', background: 'rgba(59,130,246,0.08)', color: '#3b82f6', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}><Check size={14} /> YouTube URL saved</div>
+                       )}
                      </div>
 
                      <div className="form-group">
@@ -746,7 +765,10 @@ const CoursesTab = () => {
                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '-0.25rem 0 1rem 0' }}>Max Size: 500MB payload limit injected directly to Node relay.</p>
                        <input type="file" accept="video/mp4,video/webm" onChange={e => setForm({...form, video_file: e.target.files[0]})} style={{ width: '100%', padding: '0.75rem', background: 'var(--bg-primary)', borderRadius: '12px', border: '1px solid var(--border)', color: 'var(--text-primary)' }} />
                        {editing && editing.video_file && !form.video_file && (
-                         <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'rgba(16,185,129,0.1)', color: '#10b981', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600 }}>Ã¢Å“… Raw MP4 actively streaming from server.</div>
+                         <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'rgba(16,185,129,0.1)', color: '#10b981', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}><Check size={16} /> MP4 file saved: {editing.video_file}</div>
+                       )}
+                       {form.video_file && (
+                         <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'rgba(37,99,235,0.1)', color: 'var(--accent-primary)', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}><Upload size={14} /> New MP4 selected: {form.video_file.name} (will replace on save)</div>
                        )}
                      </div>
                    </div>
@@ -756,15 +778,26 @@ const CoursesTab = () => {
                      <FileText size={40} style={{ marginBottom: '1rem', color: 'var(--accent-primary)' }} />
                      <label className="form-label" style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.5rem' }}>Supporting Documentation</label>
                      <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Attach any PDF cheatsheets or study guides associated with this course.</p>
-                     <input type="file" accept="application/pdf" onChange={e => setForm({...form, pdf_file: e.target.files[0]})} style={{ width: '100%', maxWidth: '400px', padding: '0.75rem', background: 'var(--bg-primary)', borderRadius: '12px', border: '1px solid var(--border)', color: 'var(--text-primary)' }} />
+                     
                      {editing && editing.pdf_url && !form.pdf_file && (
-                       <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>PDF Payload Active: <a href={`http://localhost:5000${editing.pdf_url}`} target="_blank" rel="noreferrer" style={{color: 'var(--accent-primary)', fontWeight: 700}}>Verify PDF <ExternalLink size={12} /></a></div>
+                       <div style={{ marginBottom: '1.25rem', padding: '0.85rem 1.25rem', background: 'rgba(16,185,129,0.08)', borderRadius: '12px', border: '1px solid rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', gap: '10px', width: '100%', maxWidth: '400px' }}>
+                         <Check size={16} style={{ color: '#10b981', flexShrink: 0 }} />
+                         <span style={{ flex: 1, fontSize: '0.85rem', fontWeight: 700, color: '#10b981' }}>PDF uploaded</span>
+                         <a href={`http://localhost:5000${editing.pdf_url}`} target="_blank" rel="noreferrer" style={{ color: 'var(--accent-primary)', fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '4px' }}>View <ExternalLink size={12} /></a>
+                       </div>
                      )}
+                     {form.pdf_file && (
+                       <div style={{ marginBottom: '1.25rem', padding: '0.85rem 1.25rem', background: 'rgba(37,99,235,0.08)', borderRadius: '12px', border: '1px solid rgba(37,99,235,0.2)', display: 'flex', alignItems: 'center', gap: '10px', width: '100%', maxWidth: '400px' }}>
+                         <Upload size={14} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
+                         <span style={{ flex: 1, fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent-primary)' }}>New PDF: {form.pdf_file.name}</span>
+                       </div>
+                     )}
+
+                     <input type="file" accept="application/pdf" onChange={e => setForm({...form, pdf_file: e.target.files[0]})} style={{ width: '100%', maxWidth: '400px', padding: '0.75rem', background: 'var(--bg-primary)', borderRadius: '12px', border: '1px solid var(--border)', color: 'var(--text-primary)' }} />
                    </div>
 
                  </div>
                )}
-
 
                {activeTab === 'content' && (
                  <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
@@ -1488,7 +1521,7 @@ const PropFirmsTab = () => {
                           type="button"
                           onClick={(e) => { e.preventDefault(); setForm({ ...form, imageFile: null, logo_url: '' }) }}
                           style={{ position: 'absolute', top: '-8px', right: '-8px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}
-                        >Ã¢Å“•</button>
+                        ><X size={12} /></button>
                       </div>
                     ) : (
                       <div style={{ margin: '1rem 0', pointerEvents: 'none' }}>
@@ -1961,7 +1994,7 @@ const PromotionsTab = () => {
             </div>
             <Field label="Expiration Date" type="datetime-local" value={form.expires_at} onChange={e => setForm({ ...form, expires_at: e.target.value })} />
 
-            {/* Ã¢”â‚¬Ã¢”â‚¬ Ticker Speed Ã¢”â‚¬Ã¢”â‚¬ */}
+            {/* ── Ticker Speed ── */}
             <div className="form-group">
               <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>Banner Scroll Speed</span>

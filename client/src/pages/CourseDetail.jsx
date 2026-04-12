@@ -2,18 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import Button from '../components/common/Button';
-import { Film, Paperclip, FileDown, Package, Link2, Lock, BookOpen, ChevronUp, ChevronDown, Play, ArrowLeft, Clock } from 'lucide-react';
+import { Film, Paperclip, FileDown, Package, Link2, Lock, BookOpen, ChevronUp, ChevronDown, Play, ArrowLeft, Clock, Loader } from 'lucide-react';
 
 const CourseDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
+  const { showToast } = useToast();
   
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeLesson, setActiveLesson] = useState(null);
   const [expandedModules, setExpandedModules] = useState({});
+
+  // Enrollment state
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [enrolling, setEnrolling] = useState(false);
+  const [checkingEnrollment, setCheckingEnrollment] = useState(false);
 
   useEffect(() => {
     axios.get(`http://localhost:5000/api/courses/${id}`)
@@ -30,6 +37,56 @@ const CourseDetail = () => {
       })
       .finally(() => setLoading(false));
   }, [id, navigate]);
+
+  // Check enrollment status when user is logged in
+  useEffect(() => {
+    if (user && token && id) {
+      setCheckingEnrollment(true);
+      axios.get(`http://localhost:5000/api/enrollments/check/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => {
+          setIsEnrolled(res.data.enrolled);
+        })
+        .catch(() => {
+          setIsEnrolled(false);
+        })
+        .finally(() => setCheckingEnrollment(false));
+    }
+  }, [user, token, id]);
+
+  // Handle enrollment
+  const handleEnroll = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    setEnrolling(true);
+    try {
+      await axios.post(
+        'http://localhost:5000/api/enrollments',
+        { courseId: parseInt(id) },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      showToast('Enrolled successfully! Redirecting to course...', 'success');
+      setIsEnrolled(true);
+      // Short delay so user sees the toast
+      setTimeout(() => {
+        navigate(`/course/${id}/learn`);
+      }, 800);
+    } catch (err) {
+      if (err.response?.status === 409) {
+        // Already enrolled, just redirect
+        setIsEnrolled(true);
+        navigate(`/course/${id}/learn`);
+      } else {
+        showToast('Something went wrong. Please try again.', 'error');
+      }
+    } finally {
+      setEnrolling(false);
+    }
+  };
 
   if (loading) return <div style={{ padding: '6rem', textAlign: 'center', color: 'var(--text-secondary)' }}>Loading Course Environment...</div>;
   if (!course) return null;
@@ -81,6 +138,75 @@ const CourseDetail = () => {
         <Film size={48} style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }} />
         <p style={{ fontWeight: 800 }}>{activeLesson ? 'No Video for This Lesson' : 'Video Content Not Attached'}</p>
       </div>
+    );
+  };
+
+  // Render the enrollment button with proper states
+  const renderEnrollButton = () => {
+    // Not logged in
+    if (!user) {
+      return (
+        <Button 
+          style={{ width: '100%', padding: '1rem', borderRadius: '16px', fontSize: '1.1rem', fontWeight: 800 }} 
+          onClick={() => navigate('/login')}
+        >
+          Login to Enroll
+        </Button>
+      );
+    }
+
+    // Still checking enrollment status
+    if (checkingEnrollment) {
+      return (
+        <Button 
+          style={{ width: '100%', padding: '1rem', borderRadius: '16px', fontSize: '1.1rem', fontWeight: 800, opacity: 0.7 }} 
+          disabled
+        >
+          <Loader size={18} className="spin-animation" style={{ marginRight: '8px' }} /> Checking...
+        </Button>
+      );
+    }
+
+    // Already enrolled → Go to Course
+    if (isEnrolled) {
+      return (
+        <Button 
+          style={{ 
+            width: '100%', padding: '1rem', borderRadius: '16px', fontSize: '1.1rem', fontWeight: 800,
+            background: 'linear-gradient(135deg, #10b981, #059669)',
+            boxShadow: '0 8px 20px rgba(16, 185, 129, 0.3)'
+          }} 
+          onClick={() => navigate(`/course/${id}/learn`)}
+        >
+          <Play size={18} style={{ marginRight: '8px' }} /> Go to Course
+        </Button>
+      );
+    }
+
+    // Enrolling in progress
+    if (enrolling) {
+      return (
+        <Button 
+          style={{ width: '100%', padding: '1rem', borderRadius: '16px', fontSize: '1.1rem', fontWeight: 800, opacity: 0.8 }} 
+          disabled
+        >
+          <Loader size={18} className="spin-animation" style={{ marginRight: '8px' }} /> Processing...
+        </Button>
+      );
+    }
+
+    // Default → Enroll Now
+    return (
+      <Button 
+        style={{ 
+          width: '100%', padding: '1rem', borderRadius: '16px', fontSize: '1.1rem', fontWeight: 800,
+          background: 'linear-gradient(135deg, var(--accent-secondary), var(--accent-primary))',
+          boxShadow: '0 8px 20px rgba(37, 99, 235, 0.3)'
+        }} 
+        onClick={handleEnroll}
+      >
+        Enroll Now
+      </Button>
     );
   };
 
@@ -195,11 +321,7 @@ const CourseDetail = () => {
                   {course.is_free ? 'FREE' : `$${course.price}`}
                 </div>
 
-                {!user && !course.is_free ? (
-                   <Button style={{ width: '100%', padding: '1rem', borderRadius: '16px', fontSize: '1.1rem', fontWeight: 800 }} onClick={() => navigate('/login')}>Login to Enroll</Button>
-                ) : (
-                   <Button style={{ width: '100%', padding: '1rem', borderRadius: '16px', fontSize: '1.1rem', fontWeight: 800, background: 'linear-gradient(135deg, var(--accent-secondary), var(--accent-primary))', boxShadow: '0 8px 20px rgba(37, 99, 235, 0.3)' }} onClick={() => alert("Enrollment processing logic to tie to your Stripe or access tables.")}>Enroll Now</Button>
-                )}
+                {renderEnrollButton()}
              </div>
 
              {/* Course Blueprint */}

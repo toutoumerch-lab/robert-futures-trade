@@ -94,24 +94,29 @@ const createCourse = async (req, res) => {
 
 const updateCourse = async (req, res) => {
   const { id } = req.params;
-  const { title, description, price, image_url, level, duration, category, is_free, video_url } = req.body;
-
-  // Resolve potentially incoming file paths, defaulting to existing body passes if no new file is pushed
-  let finalImageUrl = image_url; 
-  let finalPdfUrl = req.body.pdf_url || null; // Frontend passes back existing URL if not overridden
-  let finalVideoFile = req.body.video_file || null; // same logic
-
-  if (req.files) {
-    if (req.files.image && req.files.image[0]) finalImageUrl = `/uploads/${req.files.image[0].filename}`;
-    if (req.files.pdf_file && req.files.pdf_file[0]) finalPdfUrl = `/uploads/${req.files.pdf_file[0].filename}`;
-    if (req.files.video_file && req.files.video_file[0]) finalVideoFile = `/uploads/${req.files.video_file[0].filename}`;
-  }
-
-  const finalPrice = price ? parseFloat(price) : 0;
-  const targetCategory = category || 'Trading';
+  const { title, description, price, level, duration, category, is_free, video_url } = req.body;
 
   try {
-    // 1. Maintain dynamic persistence logic universally
+    // Fetch current course first to preserve existing media when no new upload
+    const current = await pool.query('SELECT * FROM courses WHERE id = $1', [id]);
+    if (current.rows.length === 0) return res.status(404).json({ message: 'Course not found' });
+    const existing = current.rows[0];
+
+    // Resolve file paths: use new upload > body fallback > existing DB value
+    let finalImageUrl = req.body.image_url || existing.image_url;
+    let finalPdfUrl = req.body.pdf_url || existing.pdf_url;
+    let finalVideoFile = req.body.video_file || existing.video_file;
+
+    if (req.files) {
+      if (req.files.image && req.files.image[0]) finalImageUrl = `/uploads/${req.files.image[0].filename}`;
+      if (req.files.pdf_file && req.files.pdf_file[0]) finalPdfUrl = `/uploads/${req.files.pdf_file[0].filename}`;
+      if (req.files.video_file && req.files.video_file[0]) finalVideoFile = `/uploads/${req.files.video_file[0].filename}`;
+    }
+
+    const finalPrice = price ? parseFloat(price) : 0;
+    const targetCategory = category || 'Trading';
+
+    // Maintain dynamic persistence logic universally
     await pool.query(
       `INSERT INTO categories (name) VALUES ($1) ON CONFLICT (name) DO NOTHING`,
       [targetCategory]
@@ -128,11 +133,10 @@ const updateCourse = async (req, res) => {
         title, description, finalPrice, finalImageUrl,
         level || 'Beginner', duration, targetCategory, 
         is_free === 'true' || is_free === true, 
-        video_url, finalVideoFile, finalPdfUrl, 
+        video_url || existing.video_url, finalVideoFile, finalPdfUrl, 
         id
       ]
     );
-    if (result.rows.length === 0) return res.status(404).json({ message: 'Course not found' });
     res.json(result.rows[0]);
   } catch (error) {
     console.error('Error updating course:', error);

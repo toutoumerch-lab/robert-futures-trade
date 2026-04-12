@@ -24,6 +24,7 @@ app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/promotions', require('./routes/promotionRoutes'));
 app.use('/api/settings', require('./routes/settingsRoutes'));
 app.use('/api', require('./routes/moduleRoutes'));
+app.use('/api/enrollments', require('./routes/enrollmentRoutes'));
 
 // Serve static files
 const path = require('path');
