@@ -23,7 +23,8 @@ const CourseDetail = () => {
   const [checkingEnrollment, setCheckingEnrollment] = useState(false);
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/courses/${id}`)
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    axios.get(`http://localhost:5000/api/courses/${id}`, { headers })
       .then(res => {
         setCourse(res.data);
         // Auto-expand all modules
@@ -96,6 +97,28 @@ const CourseDetail = () => {
 
   // Get video to display: either active lesson video or course intro video
   const renderVideoEngine = () => {
+    if (!isEnrolled && activeLesson && activeLesson.is_locked) {
+      return (
+        <div style={{ width: '100%', height: '100%', position: 'relative', background: '#000', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', inset: 0, backdropFilter: 'blur(8px)', background: 'rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 10, color: 'white' }}>
+            <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '50%', marginBottom: '1rem' }}>
+              <Lock size={40} style={{ color: '#fff' }} />
+            </div>
+            <h3 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '0.5rem' }}>This Lesson is Locked</h3>
+            <p style={{ color: '#cbd5e1', marginBottom: '2rem', fontSize: '1.1rem' }}>Enroll in the course to unlock full access.</p>
+            <Button 
+              style={{ padding: '1rem 2rem', borderRadius: '16px', fontSize: '1.1rem', fontWeight: 800, background: 'linear-gradient(135deg, #3b82f6, #6366f1)', boxShadow: '0 8px 20px rgba(59, 130, 246, 0.4)', border: 'none' }} 
+              onClick={handleEnroll}
+            >
+              {enrolling ? 'Processing...' : 'Enroll Now to Access'}
+            </Button>
+          </div>
+          {/* Dummy blurred background visual */}
+          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #1e293b, #0f172a)' }} />
+        </div>
+      );
+    }
+
     const videoUrl = activeLesson ? activeLesson.video_url : course.video_url;
     const videoFile = activeLesson ? activeLesson.video_file : course.video_file;
 
@@ -392,7 +415,11 @@ const CourseDetail = () => {
                                  >
                                    <span style={{ width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 800, flexShrink: 0, background: isActive ? '#3b82f6' : 'var(--border)', color: isActive ? '#fff' : 'var(--text-secondary)' }}>{lIdx + 1}</span>
                                    <span style={{ flex: 1, fontSize: '0.8rem', fontWeight: isActive ? 700 : 500, color: isActive ? '#3b82f6' : 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{lesson.title}</span>
-                                   {(lesson.video_url || lesson.video_file) && <span style={{ fontSize: '0.65rem', color: '#3b82f6' }}><Play size={10} fill="#3b82f6" /></span>}
+                                   {(!isEnrolled && lesson.is_locked) ? (
+                                      <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}><Lock size={12} /></span>
+                                   ) : (
+                                      (lesson.video_url || lesson.video_file) && <span style={{ fontSize: '0.65rem', color: '#3b82f6' }}><Play size={10} fill="#3b82f6" /></span>
+                                   )}
                                  </button>
                                );
                              })}

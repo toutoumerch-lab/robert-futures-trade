@@ -11,11 +11,21 @@ const getCourses = async (req, res) => {
 
 const getCourse = async (req, res) => {
   const { id } = req.params;
+  const user = req.user;
+
   try {
     const result = await pool.query('SELECT * FROM courses WHERE id = $1', [id]);
     if (result.rows.length === 0) return res.status(404).json({ error: 'Course not found' });
     
     const course = result.rows[0];
+
+    let isEnrolled = false;
+    if (user && user.role === 'admin') {
+      isEnrolled = true;
+    } else if (user) {
+      const enrollCheck = await pool.query('SELECT id FROM enrollments WHERE user_id = $1 AND course_id = $2', [user.id, id]);
+      if (enrollCheck.rows.length > 0) isEnrolled = true;
+    }
 
     // Fetch modules with nested lessons
     const modulesResult = await pool.query(
@@ -24,17 +34,39 @@ const getCourse = async (req, res) => {
     );
 
     const modules = [];
+    let isFirstLesson = true;
+
     for (const mod of modulesResult.rows) {
       const lessonsResult = await pool.query(
         'SELECT * FROM course_lessons WHERE module_id = $1 ORDER BY sort_order ASC, id ASC',
         [mod.id]
       );
-      modules.push({
-        ...mod,
-        lessons: lessonsResult.rows.map(l => ({
+      
+      const lessons = [];
+      for (const l of lessonsResult.rows) {
+        let lessonObj = {
           ...l,
           resources: typeof l.resources === 'string' ? JSON.parse(l.resources) : (l.resources || [])
-        }))
+        };
+
+        if (!isEnrolled && !isFirstLesson) {
+          lessonObj.video_url = null;
+          lessonObj.video_file = null;
+          lessonObj.pdf_url = null;
+          lessonObj.zip_url = null;
+          lessonObj.resources = [];
+          lessonObj.is_locked = true;
+        } else {
+          lessonObj.is_locked = false;
+        }
+
+        isFirstLesson = false;
+        lessons.push(lessonObj);
+      }
+
+      modules.push({
+        ...mod,
+        lessons
       });
     }
 

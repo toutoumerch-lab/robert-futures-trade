@@ -45,7 +45,9 @@ const CourseLearn = () => {
         }
 
         // Step 2: Fetch course data
-        const res = await axios.get(`http://localhost:5000/api/courses/${id}`);
+        const res = await axios.get(`http://localhost:5000/api/courses/${id}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
         setCourse(res.data);
 
         // Auto-expand all modules

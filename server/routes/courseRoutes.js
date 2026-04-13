@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const { getCourses, getCourse, createCourse, updateCourse, deleteCourse } = require('../controllers/courseController');
-const { authenticateToken, isAdmin } = require('../middleware/auth');
+const { authenticateToken, isAdmin, optionalAuth } = require('../middleware/auth');
 
 // Setup multer for courses multi-file uploading
 const storage = multer.diskStorage({
@@ -29,7 +29,7 @@ const courseUploadFields = upload.fields([
 ]);
 
 router.get('/', getCourses);
-router.get('/:id', getCourse);
+router.get('/:id', optionalAuth, getCourse);
 router.post('/', authenticateToken, isAdmin, courseUploadFields, createCourse);
 router.put('/:id', authenticateToken, isAdmin, courseUploadFields, updateCourse);
 router.delete('/:id', authenticateToken, isAdmin, deleteCourse);
