@@ -689,7 +689,11 @@ const CoursesTab = () => {
                            </div>
                          );
                        })}
-                     </div>
+            <Card style={{ textAlign: 'center', cursor: 'pointer', background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.2)' }} onClick={() => navigate('/admin/revenue')}>
+                <div style={{ fontSize: '1.5rem', marginBottom: '0.25rem', display: 'flex', justifyContent: 'center' }}><DollarSign size={24} style={{ color: '#10b981' }} /></div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 800 }}>Revenue ✨</div>
+            </Card>
+          </div>
                    </div>
                  </div>
                )}
@@ -2125,10 +2129,17 @@ const AdminDashboard = () => {
               </button>
               );
             })}
+              <button
+                className="admin-tab"
+                onClick={() => navigate('/admin/revenue')}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                <DollarSign size={18} style={{ color: '#10b981' }} /> Revenue
+              </button>
+            </div>
           </div>
-        </div>
 
-        <div className="admin-workspace flex-1">
+          <div className="admin-workspace flex-1">
           {/* Stats Row */}
           <div className="admin-stats-row mb-8">
             {TABS.map(t => {

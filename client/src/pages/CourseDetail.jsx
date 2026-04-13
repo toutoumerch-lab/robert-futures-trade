@@ -56,7 +56,7 @@ const CourseDetail = () => {
     }
   }, [user, token, id]);
 
-  // Handle enrollment
+  // Handle enrollment / Checkout payment
   const handleEnroll = async () => {
     if (!user) {
       navigate('/login');
@@ -65,27 +65,38 @@ const CourseDetail = () => {
 
     setEnrolling(true);
     try {
-      await axios.post(
-        'http://localhost:5000/api/enrollments',
+      const res = await axios.post(
+        'http://localhost:5000/api/checkouts/create-session',
         { courseId: parseInt(id) },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      showToast('Enrolled successfully! Redirecting to course...', 'success');
-      setIsEnrolled(true);
-      // Short delay so user sees the toast
-      setTimeout(() => {
-        navigate(`/course/${id}/learn`);
-      }, 800);
+
+      // Backend bypasses Stripe if course is free
+      if (res.data.freeBypass) {
+        // Execute manual direct-enrollment because price <= 0
+        await axios.post(
+          'http://localhost:5000/api/enrollments',
+          { courseId: parseInt(id) },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        showToast('Enrolled successfully for Free! Redirecting...', 'success');
+        setIsEnrolled(true);
+        setTimeout(() => {
+          navigate(`/course/${id}/learn`);
+        }, 800);
+      } else if (res.data.url) {
+        // Redirect to standard Stripe Session
+        window.location.href = res.data.url;
+      }
     } catch (err) {
+      // It considers 409 naturally if backend was structured to throw it, but currently create-session might not.
       if (err.response?.status === 409) {
-        // Already enrolled, just redirect
         setIsEnrolled(true);
         navigate(`/course/${id}/learn`);
       } else {
-        showToast('Something went wrong. Please try again.', 'error');
+        showToast('Something went wrong preparing checkout. Please try again.', 'error');
+        setEnrolling(false);
       }
-    } finally {
-      setEnrolling(false);
     }
   };
 

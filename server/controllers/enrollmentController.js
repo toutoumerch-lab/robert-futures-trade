@@ -32,6 +32,12 @@ const enrollInCourse = async (req, res) => {
       [userId, courseId]
     );
 
+    // Log $0 revenue transaction safely to track conversion and enrollments natively
+    await pool.query(
+      'INSERT INTO payments (user_id, course_id, amount, status) VALUES ($1, $2, $3, $4)',
+      [userId, courseId, 0, 'paid']
+    );
+
     res.status(201).json({ message: 'Enrolled successfully.', enrollment: result.rows[0] });
   } catch (error) {
     console.error('Enrollment error:', error);

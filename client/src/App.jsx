@@ -13,12 +13,14 @@ import Home from './pages/Home';
 import { Login, Register } from './pages/AuthPages';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminRevenue from './pages/AdminRevenue';
 import BlogList from './pages/BlogList';
 import BlogDetail from './pages/BlogDetail';
 import CourseList from './pages/CourseList';
 import CourseDetail from './pages/CourseDetail';
 import CourseLearn from './pages/CourseLearn';
 import PropFirmList from './pages/PropFirmList';
+import PaymentSuccess from './pages/PaymentSuccess';
 
 const AppContent = () => {
   return (
@@ -33,12 +35,14 @@ const AppContent = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/revenue" element={<AdminRevenue />} />
             <Route path="/blog" element={<BlogList />} />
             <Route path="/blog/:id" element={<BlogDetail />} />
             <Route path="/courses" element={<CourseList />} />
             <Route path="/courses/:id" element={<CourseDetail />} />
             <Route path="/course/:id/learn" element={<CourseLearn />} />
             <Route path="/prop-firms" element={<PropFirmList />} />
+            <Route path="/payment/success" element={<PaymentSuccess />} />
           </Routes>
         </main>
         <Footer />
