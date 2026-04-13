@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { Film, Paperclip, FileDown, Package, Link2, BookOpen, ChevronUp, ChevronDown, Play, ArrowLeft, Clock, Loader, Shield } from 'lucide-react';
+import { Film, Paperclip, FileDown, Package, Link2, BookOpen, ChevronUp, ChevronDown, Play, ArrowLeft, Clock, Loader, Shield, CheckCircle, Check } from 'lucide-react';
 
 const CourseLearn = () => {
   const { id } = useParams();
@@ -16,6 +16,8 @@ const CourseLearn = () => {
   const [accessDenied, setAccessDenied] = useState(false);
   const [activeLesson, setActiveLesson] = useState(null);
   const [expandedModules, setExpandedModules] = useState({});
+  const [completedLessons, setCompletedLessons] = useState([]);
+  const [togglingProgress, setTogglingProgress] = useState(false);
 
   useEffect(() => {
     const loadCourse = async () => {
@@ -36,6 +38,10 @@ const CourseLearn = () => {
           setAccessDenied(true);
           setLoading(false);
           return;
+        } else {
+          let cl = enrollCheck.data.enrollment?.completed_lessons || [];
+          if (typeof cl === 'string') cl = JSON.parse(cl);
+          setCompletedLessons(cl);
         }
 
         // Step 2: Fetch course data
@@ -142,6 +148,27 @@ const CourseLearn = () => {
     );
   };
 
+  const toggleLessonStatus = async () => {
+    if (!activeLesson) return;
+    setTogglingProgress(true);
+    const isCompleted = completedLessons.includes(activeLesson.id);
+    try {
+      const res = await axios.post(`http://localhost:5000/api/enrollments/progress`, {
+        courseId: parseInt(id),
+        lessonId: activeLesson.id,
+        completed: !isCompleted
+      }, { headers: { Authorization: `Bearer ${token}` } });
+      let cl = res.data.completed_lessons || [];
+      if (typeof cl === 'string') cl = JSON.parse(cl);
+      setCompletedLessons(cl);
+    } catch (err) {
+      console.error(err);
+      showToast('Error updating progress', 'error');
+    } finally {
+      setTogglingProgress(false);
+    }
+  };
+
   // Flattened lesson list for prev/next navigation
   const allLessons = hasModules
     ? course.modules.flatMap(m => m.lessons || [])
@@ -156,12 +183,16 @@ const CourseLearn = () => {
           <ArrowLeft size={16} /> Back to Course
         </button>
         <h3 className="learn-topbar__title">{course.title}</h3>
-        <div className="learn-topbar__progress">
+        <div className="learn-topbar__progress" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           {currentIdx >= 0 && (
-            <span className="learn-topbar__counter">
+            <span className="learn-topbar__counter" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
               Lesson {currentIdx + 1} of {allLessons.length}
             </span>
           )}
+          <div style={{ width: '150px', height: '8px', background: 'var(--bg-primary)', borderRadius: '4px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+            <div style={{ height: '100%', width: `${Math.round((completedLessons.length / Math.max(allLessons.length, 1)) * 100)}%`, background: '#10b981', transition: 'width 0.3s ease' }}></div>
+          </div>
+          <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#10b981' }}>{Math.round((completedLessons.length / Math.max(allLessons.length, 1)) * 100)}%</span>
         </div>
       </div>
 
@@ -216,21 +247,38 @@ const CourseLearn = () => {
               )}
 
               {/* Prev / Next Navigation */}
-              <div className="learn-nav-buttons">
-                <button
-                  className="learn-nav-btn"
-                  disabled={currentIdx <= 0}
-                  onClick={() => setActiveLesson(allLessons[currentIdx - 1])}
+              <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border)', paddingTop: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                <button 
+                  onClick={toggleLessonStatus}
+                  disabled={togglingProgress}
+                  style={{ 
+                    display: 'flex', alignItems: 'center', gap: '8px', padding: '0.85rem 1.5rem', borderRadius: '12px', fontWeight: 700,
+                    background: completedLessons.includes(activeLesson.id) ? 'rgba(16, 185, 129, 0.1)' : 'var(--bg-primary)',
+                    color: completedLessons.includes(activeLesson.id) ? '#10b981' : 'var(--text-primary)',
+                    border: `1px solid ${completedLessons.includes(activeLesson.id) ? '#10b981' : 'var(--border)'}`,
+                    cursor: togglingProgress ? 'not-allowed' : 'pointer', transition: 'all 0.2s', opacity: togglingProgress ? 0.7 : 1
+                  }}
                 >
-                  <ArrowLeft size={14} /> Previous Lesson
+                  {togglingProgress ? <Loader size={16} className="spin-animation" /> : <CheckCircle size={18} fill={completedLessons.includes(activeLesson.id) ? '#10b981' : 'none'} color={completedLessons.includes(activeLesson.id) ? '#fff' : 'currentColor'} />}
+                  {completedLessons.includes(activeLesson.id) ? 'Completed' : 'Mark as Complete'}
                 </button>
-                <button
-                  className="learn-nav-btn learn-nav-btn--next"
-                  disabled={currentIdx >= allLessons.length - 1}
-                  onClick={() => setActiveLesson(allLessons[currentIdx + 1])}
-                >
-                  Next Lesson <Play size={14} />
-                </button>
+  
+                <div className="learn-nav-buttons" style={{ margin: 0, padding: 0, border: 'none' }}>
+                  <button
+                    className="learn-nav-btn"
+                    disabled={currentIdx <= 0}
+                    onClick={() => setActiveLesson(allLessons[currentIdx - 1])}
+                  >
+                    <ArrowLeft size={14} /> Previous
+                  </button>
+                  <button
+                    className="learn-nav-btn learn-nav-btn--next"
+                    disabled={currentIdx >= allLessons.length - 1}
+                    onClick={() => setActiveLesson(allLessons[currentIdx + 1])}
+                  >
+                    Next <Play size={14} />
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -261,16 +309,21 @@ const CourseLearn = () => {
                     <div className="learn-module__lessons">
                       {mod.lessons.map((lesson, lIdx) => {
                         const isActive = activeLesson?.id === lesson.id;
+                        const isCompleted = completedLessons.includes(lesson.id);
                         return (
                           <button
                             key={lesson.id}
                             className={`learn-lesson-item ${isActive ? 'learn-lesson-item--active' : ''}`}
                             onClick={() => setActiveLesson(lesson)}
                           >
-                            <span className={`learn-lesson-item__number ${isActive ? 'learn-lesson-item__number--active' : ''}`}>{lIdx + 1}</span>
-                            <span className="learn-lesson-item__title">{lesson.title}</span>
+                            {isCompleted ? (
+                               <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#10b981', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><Check size={12} strokeWidth={4} /></span>
+                            ) : (
+                               <span className={`learn-lesson-item__number ${isActive ? 'learn-lesson-item__number--active' : ''}`}>{lIdx + 1}</span>
+                            )}
+                            <span className="learn-lesson-item__title" style={{ color: isCompleted ? 'var(--text-primary)' : 'inherit' }}>{lesson.title}</span>
                             {(lesson.video_url || lesson.video_file) && (
-                              <Play size={10} className="learn-lesson-item__play" />
+                              <Play size={10} className="learn-lesson-item__play" style={{ color: isCompleted ? '#10b981' : 'inherit' }} />
                             )}
                           </button>
                         );
