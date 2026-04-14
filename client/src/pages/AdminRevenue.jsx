@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
 import { ArrowLeft, DollarSign, BarChart3, Users, TrendingUp, Loader, Info } from 'lucide-react';
 
@@ -39,7 +40,12 @@ const AdminRevenue = () => {
   if (!data) return <div style={{ padding: '4rem', textAlign: 'center', color: '#ef4444' }}>Error loading data.</div>;
 
   return (
-    <div style={{ padding: '2rem 5%', maxWidth: '1400px', margin: '0 auto' }}>
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      style={{ padding: '2rem 5%', maxWidth: '1400px', margin: '0 auto' }}
+    >
       
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
@@ -201,7 +207,7 @@ const AdminRevenue = () => {
         </div>
       </div>
       
-    </div>
+    </motion.div>
   );
 };
 

@@ -1,5 +1,6 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { BrandingProvider } from './context/BrandingContext';
@@ -22,32 +23,44 @@ import CourseLearn from './pages/CourseLearn';
 import PropFirmList from './pages/PropFirmList';
 import PaymentSuccess from './pages/PaymentSuccess';
 
+const PageWrapper = ({ children }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -6 }}
+    transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+  >
+    {children}
+  </motion.div>
+);
+
 const AppContent = () => {
+  const location = useLocation();
   return (
-    <Router>
-      <div className="app-container">
-        <Navbar />
-        <PromotionBanner />
-        <main className="main-content">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/revenue" element={<AdminRevenue />} />
-            <Route path="/blog" element={<BlogList />} />
-            <Route path="/blog/:id" element={<BlogDetail />} />
-            <Route path="/courses" element={<CourseList />} />
-            <Route path="/courses/:id" element={<CourseDetail />} />
-            <Route path="/course/:id/learn" element={<CourseLearn />} />
-            <Route path="/prop-firms" element={<PropFirmList />} />
-            <Route path="/payment/success" element={<PaymentSuccess />} />
+    <div className="app-container">
+      <Navbar />
+      <PromotionBanner />
+      <main className="main-content">
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/"               element={<PageWrapper><Home /></PageWrapper>} />
+            <Route path="/login"          element={<PageWrapper><Login /></PageWrapper>} />
+            <Route path="/register"       element={<PageWrapper><Register /></PageWrapper>} />
+            <Route path="/dashboard"      element={<PageWrapper><Dashboard /></PageWrapper>} />
+            <Route path="/admin"          element={<PageWrapper><AdminDashboard /></PageWrapper>} />
+            <Route path="/admin/revenue"  element={<PageWrapper><AdminRevenue /></PageWrapper>} />
+            <Route path="/blog"           element={<PageWrapper><BlogList /></PageWrapper>} />
+            <Route path="/blog/:id"       element={<PageWrapper><BlogDetail /></PageWrapper>} />
+            <Route path="/courses"        element={<PageWrapper><CourseList /></PageWrapper>} />
+            <Route path="/courses/:id"    element={<PageWrapper><CourseDetail /></PageWrapper>} />
+            <Route path="/course/:id/learn" element={<PageWrapper><CourseLearn /></PageWrapper>} />
+            <Route path="/prop-firms"     element={<PageWrapper><PropFirmList /></PageWrapper>} />
+            <Route path="/payment/success" element={<PageWrapper><PaymentSuccess /></PageWrapper>} />
           </Routes>
-        </main>
-        <Footer />
-      </div>
-    </Router>
+        </AnimatePresence>
+      </main>
+      <Footer />
+    </div>
   );
 };
 
@@ -57,7 +70,9 @@ function App() {
       <AuthProvider>
         <BrandingProvider>
           <ToastProvider>
-            <AppContent />
+            <Router>
+              <AppContent />
+            </Router>
           </ToastProvider>
         </BrandingProvider>
       </AuthProvider>
