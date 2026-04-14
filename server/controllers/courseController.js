@@ -186,4 +186,20 @@ const deleteCourse = async (req, res) => {
   }
 };
 
-module.exports = { getCourses, getCourse, createCourse, updateCourse, deleteCourse };
+const searchCourses = async (req, res) => {
+  const { q } = req.query;
+  try {
+    if (!q) return res.json([]);
+    const searchQuery = `%${q}%`;
+    const result = await pool.query(
+      'SELECT id, title, description, category, price, is_free, image_url, level, duration FROM courses WHERE title ILIKE $1 OR description ILIKE $1 OR category ILIKE $1 ORDER BY created_at DESC LIMIT 5',
+      [searchQuery]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Search error:', error);
+    res.status(500).json({ error: 'Server error during search' });
+  }
+};
+
+module.exports = { getCourses, getCourse, createCourse, updateCourse, deleteCourse, searchCourses };

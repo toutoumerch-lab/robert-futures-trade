@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const { getCourses, getCourse, createCourse, updateCourse, deleteCourse } = require('../controllers/courseController');
+const { getCourses, getCourse, createCourse, updateCourse, deleteCourse, searchCourses } = require('../controllers/courseController');
 const { authenticateToken, isAdmin, optionalAuth } = require('../middleware/auth');
 
 // Setup multer for courses multi-file uploading
@@ -29,6 +29,7 @@ const courseUploadFields = upload.fields([
 ]);
 
 router.get('/', getCourses);
+router.get('/search', searchCourses);
 router.get('/:id', optionalAuth, getCourse);
 router.post('/', authenticateToken, isAdmin, courseUploadFields, createCourse);
 router.put('/:id', authenticateToken, isAdmin, courseUploadFields, updateCourse);
