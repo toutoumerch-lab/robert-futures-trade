@@ -130,10 +130,6 @@ const UsersTab = () => {
 };
 
 // ──────────────────── Posts Tab (Blog Management) ────────────────────
-const BLOG_CATEGORIES = [
-  'General', 'Market Analysis', 'Trading Psychology',
-  'Futures', 'Risk Management', 'Strategy', 'Macroeconomics',
-];
 
 const PostsTab = ({ adminUser }) => {
   const [posts, setPosts]             = useState([]);
@@ -146,6 +142,16 @@ const PostsTab = ({ adminUser }) => {
   const [commentsModal, setCommModal] = useState(null);
   const [comments, setComments]       = useState([]);
   const [comLoading, setComLoad]      = useState(false);
+
+  // ── Category state ──
+  const [categories, setCategories]         = useState([]);
+  const [catLoading, setCatLoading]         = useState(false);
+  const [newCatName, setNewCatName]         = useState('');
+  const [addingCat, setAddingCat]           = useState(false);
+  const [catSaving, setCatSaving]           = useState(false);
+  const [editingCatId, setEditingCatId]     = useState(null);
+  const [editingCatName, setEditingCatName] = useState('');
+  const [showCatPanel, setShowCatPanel]     = useState(false);
 
   const [form, setForm] = useState({
     title: '', content: '', excerpt: '',
@@ -161,7 +167,72 @@ const PostsTab = ({ adminUser }) => {
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(fetchPosts, [fetchPosts]);
+  const fetchCategories = useCallback(() => {
+    setCatLoading(true);
+    axios.get('http://localhost:5000/api/categories')
+      .then(res => setCategories(res.data || []))
+      .catch(console.error)
+      .finally(() => setCatLoading(false));
+  }, []);
+
+  useEffect(() => { fetchPosts(); fetchCategories(); }, [fetchPosts, fetchCategories]);
+
+  // ── Category actions ──
+  const handleAddCategory = async () => {
+    const name = newCatName.trim();
+    if (!name || catSaving) return;
+    setCatSaving(true);
+    try {
+      const res = await axios.post('http://localhost:5000/api/categories', { name });
+      const created = res.data;
+      setCategories(prev => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)));
+      setForm(f => ({ ...f, category: created.name }));
+      setNewCatName('');
+      setAddingCat(false);
+    } catch (err) {
+      if (err.response?.status === 409) {
+        const existing = err.response.data.category;
+        if (existing) {
+          setCategories(prev =>
+            prev.find(c => c.id === existing.id)
+              ? prev
+              : [...prev, existing].sort((a, b) => a.name.localeCompare(b.name))
+          );
+          setForm(f => ({ ...f, category: existing.name }));
+        }
+        setNewCatName('');
+        setAddingCat(false);
+      } else {
+        alert(err.response?.data?.message || 'Error creating category');
+      }
+    } finally { setCatSaving(false); }
+  };
+
+  const handleRenameCategory = async (id) => {
+    const name = editingCatName.trim();
+    if (!name) return;
+    try {
+      const res = await axios.patch(`http://localhost:5000/api/categories/${id}`, { name });
+      const updated = res.data;
+      setCategories(prev => prev.map(c => c.id === id ? updated : c).sort((a, b) => a.name.localeCompare(b.name)));
+      // If the form currently has the old name selected, update it
+      setForm(f => f.category === categories.find(c => c.id === id)?.name ? { ...f, category: updated.name } : f);
+    } catch (err) {
+      alert(err.response?.data?.message || 'Error renaming category');
+    } finally { setEditingCatId(null); setEditingCatName(''); }
+  };
+
+  const handleDeleteCategory = async (cat) => {
+    if (!window.confirm(`Delete "${cat.name}"? Posts using it will fall back to General.`)) return;
+    try {
+      await axios.delete(`http://localhost:5000/api/categories/${cat.id}`);
+      setCategories(prev => prev.filter(c => c.id !== cat.id));
+      if (form.category === cat.name) setForm(f => ({ ...f, category: 'General' }));
+    } catch (err) {
+      alert(err.response?.data?.message || 'Error deleting category');
+    }
+  };
+
 
   const openCreate = () => {
     setEditing(null);
@@ -364,12 +435,43 @@ const PostsTab = ({ adminUser }) => {
               )}
               {activeTab === 'settings' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', animation: 'fadeIn 0.25s ease' }}>
+
+                  {/* ── Category field with inline Add ── */}
                   <div className="form-group">
-                    <label className="form-label">Category</label>
-                    <select className="input" value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>
-                      {BLOG_CATEGORIES.map(c => <option key={c}>{c}</option>)}
-                    </select>
+                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span>Category</span>
+                      <button type="button" onClick={() => { setAddingCat(v => !v); setNewCatName(''); }}
+                        style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--accent-primary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                        {addingCat ? '✕ Cancel' : '+ New Category'}
+                      </button>
+                    </label>
+
+                    {addingCat ? (
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <input
+                          className="input" autoFocus placeholder="e.g. Options Trading"
+                          value={newCatName} onChange={e => setNewCatName(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddCategory(); } if (e.key === 'Escape') { setAddingCat(false); setNewCatName(''); } }}
+                          style={{ flex: 1 }} disabled={catSaving}
+                        />
+                        <button type="button" onClick={handleAddCategory}
+                          disabled={!newCatName.trim() || catSaving}
+                          style={{ padding: '0 1.25rem', borderRadius: '10px', fontWeight: 700, border: 'none', background: 'var(--accent-primary)', color: '#fff', cursor: 'pointer', opacity: (!newCatName.trim() || catSaving) ? 0.5 : 1, transition: 'opacity 0.2s' }}>
+                          {catSaving ? '…' : 'Add'}
+                        </button>
+                      </div>
+                    ) : (
+                      <select className="input" value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>
+                        {catLoading && <option value="">Loading…</option>}
+                        {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                        {/* Preserve current value even if not in the fetched list yet */}
+                        {form.category && !categories.find(c => c.name === form.category) && (
+                          <option value={form.category}>{form.category}</option>
+                        )}
+                      </select>
+                    )}
                   </div>
+
                   <div className="form-group">
                     <label className="form-label">Read Time</label>
                     <input className="input" value={form.read_time} onChange={e => setForm(f => ({ ...f, read_time: e.target.value }))} placeholder="e.g. 5 min read (auto-calculated if blank)" />
@@ -393,6 +495,80 @@ const PostsTab = ({ adminUser }) => {
           </div>
         </Modal>
       )}
+
+      {/* ─── Manage Blog Categories Panel ──────────────────────────────────────── */}
+      <div style={{ marginTop: '3rem', background: 'var(--bg-secondary)', borderRadius: '20px', border: '1px solid var(--border)', overflow: 'hidden' }}>
+        <button type="button" onClick={() => setShowCatPanel(v => !v)}
+          style={{ width: '100%', padding: '1.25rem 1.5rem', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Layers size={18} style={{ color: 'var(--accent-primary)' }} />
+            Manage Blog Categories
+            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)', background: 'var(--bg-primary)', padding: '2px 10px', borderRadius: '99px', border: '1px solid var(--border)' }}>
+              {categories.length}
+            </span>
+          </span>
+          {showCatPanel ? <ChevronUp size={18} style={{ color: 'var(--text-secondary)' }} /> : <ChevronDown size={18} style={{ color: 'var(--text-secondary)' }} />}
+        </button>
+
+        {showCatPanel && (
+          <div style={{ padding: '0 1.5rem 1.5rem' }}>
+            {/* Add new category */}
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '1.25rem' }}>
+              <input
+                className="input" placeholder="New category name…"
+                value={newCatName} onChange={e => setNewCatName(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddCategory(); } }}
+                style={{ flex: 1 }} disabled={catSaving}
+              />
+              <button type="button" onClick={handleAddCategory}
+                disabled={!newCatName.trim() || catSaving}
+                style={{ padding: '0 1.25rem', borderRadius: '10px', fontWeight: 700, border: 'none', background: 'var(--accent-primary)', color: '#fff', cursor: 'pointer', whiteSpace: 'nowrap', opacity: (!newCatName.trim() || catSaving) ? 0.5 : 1 }}>
+                {catSaving ? '…' : '+ Add'}
+              </button>
+            </div>
+
+            {catLoading ? (
+              <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '1rem' }}>Loading…</p>
+            ) : categories.length === 0 ? (
+              <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '1rem' }}>No categories yet. Add one above.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {categories.map(cat => (
+                  <div key={cat.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0.6rem 1rem', background: 'var(--bg-primary)', borderRadius: '12px', border: '1px solid var(--border)', transition: 'all 0.2s' }}>
+                    {editingCatId === cat.id ? (
+                      <>
+                        <input autoFocus className="input"
+                          value={editingCatName} onChange={e => setEditingCatName(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleRenameCategory(cat.id); } if (e.key === 'Escape') setEditingCatId(null); }}
+                          style={{ flex: 1, padding: '0.35rem 0.6rem', fontSize: '0.9rem' }}
+                        />
+                        <button type="button" onClick={() => handleRenameCategory(cat.id)}
+                          style={{ padding: '4px 12px', borderRadius: '8px', background: 'var(--accent-primary)', color: '#fff', border: 'none', fontWeight: 700, cursor: 'pointer', fontSize: '0.8rem' }}>Save</button>
+                        <button type="button" onClick={() => setEditingCatId(null)}
+                          style={{ padding: '4px 10px', borderRadius: '8px', background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border)', cursor: 'pointer', fontSize: '0.8rem' }}>✕</button>
+                      </>
+                    ) : (
+                      <>
+                        <span style={{ flex: 1, fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.9rem' }}>{cat.name}</span>
+                        <button type="button" title="Rename"
+                          onClick={() => { setEditingCatId(cat.id); setEditingCatName(cat.name); }}
+                          style={{ padding: '4px 8px', borderRadius: '8px', background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                          <Edit3 size={13} />
+                        </button>
+                        <button type="button" title="Delete"
+                          onClick={() => handleDeleteCategory(cat)}
+                          style={{ padding: '4px 8px', borderRadius: '8px', background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                          <Trash2 size={13} />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {commentsModal && (
         <Modal title={`Comments — ${commentsModal.title}`} onClose={() => { setCommModal(null); setComments([]); }} style={{ maxWidth: '640px', width: '95%' }}>
