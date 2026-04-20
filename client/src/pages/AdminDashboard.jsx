@@ -194,6 +194,7 @@ const PostsTab = ({ adminUser }) => {
   const handleSave = async (e) => {
     e.preventDefault();
     if (!form.title.trim()) { alert('Title is required'); return; }
+    const token = localStorage.getItem('token');
     const fd = new FormData();
     fd.append('title',        form.title);
     fd.append('content',      form.content);
@@ -203,15 +204,25 @@ const PostsTab = ({ adminUser }) => {
     fd.append('is_published', form.is_published);
     if (form.image) fd.append('image', form.image);
     try {
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      };
       if (editing) {
-        await axios.put(`http://localhost:5000/api/posts/${editing.id}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await axios.put(`http://localhost:5000/api/posts/${editing.id}`, fd, config);
       } else {
-        await axios.post('http://localhost:5000/api/posts', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await axios.post('http://localhost:5000/api/posts', fd, config);
       }
       setShowModal(false);
       fetchPosts();
     } catch (err) {
-      alert(err.response?.data?.error || 'Error saving post');
+      const msg = err.response?.data?.error
+                || err.response?.data?.message
+                || err.message
+                || 'Error saving post';
+      alert(`Save failed: ${msg}`);
     }
   };
 
@@ -341,7 +352,7 @@ const PostsTab = ({ adminUser }) => {
                   <div style={{ border: '2px dashed var(--border)', borderRadius: '20px', padding: '2.5rem', textAlign: 'center', background: 'var(--bg-secondary)' }}>
                     <Upload size={40} style={{ color: 'var(--accent-primary)', marginBottom: '1rem' }} />
                     <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--text-primary)', fontWeight: 800 }}>Cover Image</h4>
-                    <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>JPG, PNG or WebP — max 10 MB</p>
+                    <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>JPG, PNG, WebP, GIF or SVG — max 10 MB</p>
                     {imagePreview && (
                       <div style={{ marginBottom: '1.5rem' }}>
                         <img src={imagePreview} alt="preview" style={{ width: '100%', maxWidth: '420px', aspectRatio: '16/9', objectFit: 'cover', borderRadius: '16px', border: '2px solid var(--accent-primary)', boxShadow: '0 10px 30px rgba(37,99,235,0.2)' }} />

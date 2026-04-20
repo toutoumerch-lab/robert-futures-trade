@@ -1,6 +1,7 @@
 const express    = require('express');
 const router     = express.Router();
 const uploadBlog = require('../middleware/uploadBlog');
+const { handleUploadError } = require('../middleware/uploadBlog');
 const { authenticateToken, isAdmin, optionalAuth } = require('../middleware/auth');
 const {
   getPosts, getPost,
@@ -14,8 +15,8 @@ router.get('/',    optionalAuth, getPosts);
 router.get('/:id', optionalAuth, getPost);
 
 // Admin — manage posts
-router.post('/',                  authenticateToken, isAdmin, uploadBlog.single('image'), createPost);
-router.put('/:id',                authenticateToken, isAdmin, uploadBlog.single('image'), updatePost);
+router.post('/',   authenticateToken, isAdmin, uploadBlog.single('image'), handleUploadError, createPost);
+router.put('/:id', authenticateToken, isAdmin, uploadBlog.single('image'), handleUploadError, updatePost);
 router.patch('/:id/publish',      authenticateToken, isAdmin, togglePublish);
 router.delete('/:id',             authenticateToken, isAdmin, deletePost);
 
