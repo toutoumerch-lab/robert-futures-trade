@@ -1,174 +1,126 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import axios from 'axios';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link }                                     from 'react-router-dom';
+import { motion, AnimatePresence }                  from 'framer-motion';
+import axios                                        from 'axios';
 import {
-  Search, Clock, MessageSquare, ArrowRight, BookOpen,
-  TrendingUp, Zap, X, Tag,
+  Search, Clock, MessageSquare, ArrowUpRight,
+  BookOpen, X, Tag,
 } from 'lucide-react';
 
-/* ─── Animation variants ──────────────────────────────────────────────────── */
-const ease = [0.16, 1, 0.3, 1];
-
-const stagger = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.09, delayChildren: 0.1 } },
-};
+/* ─── Framer variants ──────────────────────────────────────── */
+const easing = [0.16, 1, 0.3, 1];
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 28 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.6, ease } },
+  hidden: { opacity: 0, y: 16 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.45, ease: easing } },
 };
 
-const fadeScale = {
-  hidden: { opacity: 0, scale: 0.94, y: 20 },
-  show:   { opacity: 1, scale: 1,    y: 0,  transition: { duration: 0.5, ease } },
+const staggerGrid = {
+  hidden: {},
+  show:   { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
 };
 
-/* ─── Skeleton ───────────────────────────────────────────────────────────── */
-const Skeleton = () => (
-  <div className="blog-sk-card">
-    <div className="blog-sk-img" />
-    <div className="blog-sk-body">
-      <div className="blog-sk-line w-1/3" />
-      <div className="blog-sk-line w-full" />
-      <div className="blog-sk-line w-2/3" />
+/* ─── Skeleton ──────────────────────────────────────────────── */
+const CardSkeleton = () => (
+  <div className="blg-sk">
+    <div className="blg-sk-img" />
+    <div className="blg-sk-body">
+      <div className="blg-sk-line" style={{ width: '30%' }} />
+      <div className="blg-sk-line" style={{ width: '85%' }} />
+      <div className="blg-sk-line" style={{ width: '65%' }} />
     </div>
   </div>
 );
 
-/* ─── Category badge color map ───────────────────────────────────────────── */
-const CAT_COLORS = {
-  'Market Analysis':     '#3b82f6',
-  'Trading Psychology':  '#8b5cf6',
-  'Futures':             '#10b981',
-  'Risk Management':     '#ef4444',
-  'Strategy':            '#f59e0b',
-  'Macroeconomics':      '#06b6d4',
-  'General':             '#6b7280',
+/* ─── Category color map ─────────────────────────────────────── */
+const CAT_HUE = {
+  'Market Analysis':    '213',
+  'Trading Psychology': '265',
+  'Futures':            '160',
+  'Risk Management':    '0',
+  'Strategy':           '38',
+  'Macroeconomics':     '188',
+  'Trading':            '225',
+  'General':            '220',
 };
-const catColor = (cat) => CAT_COLORS[cat] || '#2563eb';
+const getCatStyle = (cat) => {
+  const h = CAT_HUE[cat] ?? '213';
+  return {
+    '--ch': h,
+    background: `hsla(${h},80%,60%,0.12)`,
+    color:      `hsl(${h},80%,72%)`,
+    border:     `1px solid hsla(${h},80%,60%,0.22)`,
+  };
+};
 
-/* ─── Post Card ──────────────────────────────────────────────────────────── */
-const PostCard = ({ post }) => (
-  <motion.div variants={fadeScale} layout className="blog-card" id={`post-card-${post.id}`}>
-    <Link to={`/blog/${post.id}`} className="blog-card-inner">
-      {/* Image */}
-      <div className="blog-card-img-box">
+/* ─── Post Card ─────────────────────────────────────────────── */
+const PostCard = ({ post, featured = false }) => (
+  <motion.article
+    variants={fadeUp}
+    layout
+    className={`blg-card${featured ? ' blg-card--featured' : ''}`}
+    id={`post-card-${post.id}`}
+  >
+    <Link to={`/blog/${post.id}`} className="blg-card-link">
+      {/* Image thumbnail */}
+      <div className="blg-card-thumb">
         {post.image_url
-          ? <img src={`http://localhost:5000${post.image_url}`} alt={post.title} className="blog-card-img" loading="lazy" />
-          : <div className="blog-card-img-empty"><BookOpen size={32} /></div>
+          ? <img src={`http://localhost:5000${post.image_url}`} alt={post.title} loading="lazy" className="blg-card-thumb-img" />
+          : <div className="blg-card-thumb-empty"><BookOpen size={28} /></div>
         }
-        <div className="blog-card-img-sheen" />
+        {featured && (
+          <span className="blg-featured-label">Featured</span>
+        )}
+      </div>
+
+      {/* Text */}
+      <div className="blg-card-text">
         {post.category && (
-          <span className="blog-card-cat" style={{ '--cat-color': catColor(post.category) }}>
-            {post.category}
+          <span className="blg-cat-badge" style={getCatStyle(post.category)}>
+            <Tag size={9} /> {post.category}
           </span>
         )}
-      </div>
-
-      {/* Body */}
-      <div className="blog-card-body">
-        <h3 className="blog-card-title">{post.title}</h3>
-        {post.excerpt && <p className="blog-card-excerpt">{post.excerpt}</p>}
-
-        <div className="blog-card-footer">
-          <div className="blog-card-author">
-            <div className="blog-card-avatar">{(post.author_name || 'A')[0]}</div>
+        <h2 className="blg-card-title">{post.title}</h2>
+        {post.excerpt && (
+          <p className="blg-card-excerpt">
+            {featured && post.excerpt.length > 200
+              ? post.excerpt.slice(0, 200) + '…'
+              : post.excerpt.length > 120
+              ? post.excerpt.slice(0, 120) + '…'
+              : post.excerpt}
+          </p>
+        )}
+        <div className="blg-card-meta">
+          <div className="blg-card-author">
+            <span className="blg-card-avatar">{(post.author_name || 'A')[0]}</span>
             <span>{post.author_name}</span>
+            <span className="blg-card-dot">·</span>
+            <span>
+              {new Date(post.created_at).toLocaleDateString('en-US', {
+                month: 'short', day: 'numeric', year: 'numeric',
+              })}
+            </span>
           </div>
-          <div className="blog-card-meta">
-            {post.read_time && <span><Clock size={11} />{post.read_time}</span>}
-            {post.comment_count > 0 && <span><MessageSquare size={11} />{post.comment_count}</span>}
+          <div className="blg-card-stats">
+            {post.read_time && (
+              <span><Clock size={11} /> {post.read_time}</span>
+            )}
+            {post.comment_count > 0 && (
+              <span><MessageSquare size={11} /> {post.comment_count}</span>
+            )}
           </div>
-        </div>
-
-        <div className="blog-card-cta">
-          Read more <ArrowRight size={13} />
         </div>
       </div>
+
+      {/* Hover arrow */}
+      <div className="blg-card-arrow"><ArrowUpRight size={16} /></div>
     </Link>
-  </motion.div>
+  </motion.article>
 );
 
-/* ─── Hero (full-bleed featured post) ───────────────────────────────────── */
-const Hero = ({ post }) => {
-  const heroRef = useRef(null);
-  const { scrollY } = useScroll();
-  const yImg = useTransform(scrollY, [0, 500], [0, 80]);
-
-  if (!post) return null;
-
-  return (
-    <Link to={`/blog/${post.id}`} className="blog-hero" id={`post-featured-${post.id}`} ref={heroRef}>
-      {/* Parallax image */}
-      <motion.div className="blog-hero-img-wrap" style={{ y: yImg }}>
-        {post.image_url
-          ? <img src={`http://localhost:5000${post.image_url}`} alt={post.title} className="blog-hero-img" />
-          : <div className="blog-hero-img-fallback" />
-        }
-      </motion.div>
-
-      {/* Gradient overlays */}
-      <div className="blog-hero-overlay-t" />
-      <div className="blog-hero-overlay-b" />
-      <div className="blog-hero-noise" />
-
-      {/* Content */}
-      <motion.div
-        className="blog-hero-content container"
-        initial="hidden"
-        animate="show"
-        variants={stagger}
-      >
-        {/* Badges */}
-        <motion.div variants={fadeUp} className="blog-hero-badges">
-          <span className="blog-hero-badge-featured"><Zap size={11} /> Featured</span>
-          {post.category && (
-            <span className="blog-hero-badge-cat" style={{ '--cat-color': catColor(post.category) }}>
-              <Tag size={11} /> {post.category}
-            </span>
-          )}
-        </motion.div>
-
-        {/* Title */}
-        <motion.h1 variants={fadeUp} className="blog-hero-title">
-          {post.title}
-        </motion.h1>
-
-        {/* Excerpt */}
-        {post.excerpt && (
-          <motion.p variants={fadeUp} className="blog-hero-excerpt">
-            {post.excerpt.length > 160 ? post.excerpt.slice(0, 160) + '…' : post.excerpt}
-          </motion.p>
-        )}
-
-        {/* Meta + CTA */}
-        <motion.div variants={fadeUp} className="blog-hero-bottom">
-          <div className="blog-hero-author">
-            <div className="blog-hero-avatar">{(post.author_name || 'A')[0]}</div>
-            <div>
-              <div className="blog-hero-author-name">{post.author_name}</div>
-              <div className="blog-hero-author-date">
-                {new Date(post.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-              </div>
-            </div>
-          </div>
-          <div className="blog-hero-actions">
-            {post.read_time && (
-              <span className="blog-hero-read-time"><Clock size={13} /> {post.read_time}</span>
-            )}
-            <span className="blog-hero-cta">Read Article <ArrowRight size={14} /></span>
-          </div>
-        </motion.div>
-      </motion.div>
-    </Link>
-  );
-};
-
-/* ═════════════════════════════════════════════════════════════════════════ */
-/* Main Page                                                                  */
-/* ═════════════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   Main Page
+   ═══════════════════════════════════════════════════════════════ */
 const BlogList = () => {
   const [posts, setPosts]           = useState([]);
   const [categories, setCategories] = useState([]);
@@ -196,143 +148,160 @@ const BlogList = () => {
     return matchQ && matchC;
   });
 
-  const showHero = !search && active === 'All' && filtered.length > 0;
-  const featured = showHero ? filtered[0] : null;
-  const gridPosts = showHero ? filtered.slice(1) : filtered;
-
-  const clearAll = useCallback(() => { setSearch(''); setActive('All'); }, []);
+  const isDefault  = !search && active === 'All';
+  const featured   = isDefault && filtered.length > 0 ? filtered[0] : null;
+  const gridPosts  = featured ? filtered.slice(1) : filtered;
+  const clearAll   = useCallback(() => { setSearch(''); setActive('All'); }, []);
 
   return (
-    <div className="blog-page-v2">
+    <div className="blg-page">
+      <div className="container">
 
-      {/* ── HERO ─────────────────────────────────────────────────────────── */}
-      <AnimatePresence mode="wait">
-        {!loading && featured && (
-          <motion.div
-            key="hero"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
-          >
-            <Hero post={featured} />
+        {/* ── PAGE HEADER ──────────────────────────────────────── */}
+        <motion.header
+          className="blg-header"
+          initial="hidden"
+          animate="show"
+          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.1 } } }}
+        >
+          <motion.div variants={fadeUp} className="blg-eyebrow">Blog</motion.div>
+          <motion.h1 variants={fadeUp} className="blg-page-title">
+            Market Intelligence
+          </motion.h1>
+          <motion.p variants={fadeUp} className="blg-page-sub">
+            Trade setups, macro analysis, psychology breakdowns,<br className="blg-br" />
+            and strategy — written by expert traders.
+          </motion.p>
+
+          {/* Search */}
+          <motion.div variants={fadeUp} className="blg-search-wrap">
+            <Search size={16} className="blg-search-ico" />
+            <input
+              id="blog-search"
+              type="text"
+              className="blg-search"
+              placeholder="Search articles, topics, authors…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+            <AnimatePresence>
+              {search && (
+                <motion.button
+                  className="blg-search-clear"
+                  onClick={() => setSearch('')}
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.5 }}
+                  transition={{ duration: 0.15 }}
+                  aria-label="Clear"
+                >
+                  <X size={12} />
+                </motion.button>
+              )}
+            </AnimatePresence>
           </motion.div>
+
+          {/* Category pills */}
+          <motion.div variants={fadeUp} className="blg-pills">
+            {categories.map((cat, i) => (
+              <motion.button
+                key={cat.id}
+                className={`blg-pill${active === cat.name ? ' is-active' : ''}`}
+                onClick={() => setActive(cat.name)}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.18 + i * 0.03, duration: 0.28 }}
+                whileTap={{ scale: 0.94 }}
+              >
+                {cat.name}
+              </motion.button>
+            ))}
+          </motion.div>
+        </motion.header>
+
+        {/* Divider */}
+        <div className="blg-divider" />
+
+        {/* ── LOADING ──────────────────────────────────────────── */}
+        {loading && (
+          <div className="blg-grid">
+            {[1,2,3,4,5,6].map(i => <CardSkeleton key={i} />)}
+          </div>
         )}
-      </AnimatePresence>
 
-      {/* ── BELOW HERO CONTENT ──────────────────────────────────────────── */}
-      <div className="blog-below-hero">
-        <div className="container">
-
-          {/* Search + Filter bar */}
+        {/* ── EMPTY ────────────────────────────────────────────── */}
+        {!loading && filtered.length === 0 && (
           <motion.div
-            className="blog-filter-bar"
+            className="blg-empty"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, duration: 0.55, ease }}
+            transition={{ duration: 0.35 }}
           >
-            {/* Search input */}
-            <div className="blog-search-box">
-              <Search size={16} className="blog-search-icon-v2" />
-              <input
-                id="blog-search"
-                type="text"
-                className="blog-search-v2"
-                placeholder="Search articles…"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-              />
-              <AnimatePresence>
-                {search && (
-                  <motion.button
-                    className="blog-search-x"
-                    onClick={() => setSearch('')}
-                    initial={{ opacity: 0, scale: 0.6 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.6 }}
-                    transition={{ duration: 0.18 }}
-                  >
-                    <X size={13} />
-                  </motion.button>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Category pills */}
-            <div className="blog-pills">
-              {categories.map((cat, i) => (
-                <motion.button
-                  key={cat.id}
-                  className={`blog-pill${active === cat.name ? ' active' : ''}`}
-                  onClick={() => setActive(cat.name)}
-                  initial={{ opacity: 0, scale: 0.85 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.05 + i * 0.035, duration: 0.3, ease }}
-                  whileHover={{ scale: 1.06 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {cat.name}
-                </motion.button>
-              ))}
-            </div>
+            <BookOpen size={32} />
+            <h3>No posts found</h3>
+            <p>{search ? `No results for "${search}"` : 'Nothing in this category yet.'}</p>
+            {(search || active !== 'All') && (
+              <button className="blg-empty-btn" onClick={clearAll}>
+                Clear filters
+              </button>
+            )}
           </motion.div>
+        )}
 
-          {/* "Latest Posts" label */}
-          {!loading && gridPosts.length > 0 && (
+        {/* ── CONTENT ──────────────────────────────────────────── */}
+        {!loading && filtered.length > 0 && (
+          <AnimatePresence mode="wait">
             <motion.div
-              className="blog-section-header"
+              key={`${active}-${search}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.25, duration: 0.4 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
             >
-              <TrendingUp size={15} />
-              <span>{search || active !== 'All' ? 'Results' : 'Latest Posts'}</span>
-              <span className="blog-section-count">{gridPosts.length}</span>
-              <div className="blog-section-rule" />
-            </motion.div>
-          )}
+              {/* Featured post */}
+              {featured && (
+                <motion.div
+                  variants={staggerGrid}
+                  initial="hidden"
+                  animate="show"
+                  className="blg-featured-wrap"
+                >
+                  <PostCard post={featured} featured />
+                </motion.div>
+              )}
 
-          {/* Loading skeletons */}
-          {loading && (
-            <div className="blog-grid-v2">
-              {[1,2,3,4,5,6].map(i => <Skeleton key={i} />)}
-            </div>
-          )}
+              {/* Section label */}
+              {gridPosts.length > 0 && (
+                <motion.div
+                  className="blg-section-label"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2, duration: 0.3 }}
+                >
+                  <span>{featured ? 'Latest Posts' : (search || active !== 'All') ? 'Results' : 'All Posts'}</span>
+                  <span className="blg-section-ct">{gridPosts.length}</span>
+                </motion.div>
+              )}
 
-          {/* Empty state */}
-          {!loading && filtered.length === 0 && (
-            <motion.div
-              className="blog-empty-v2"
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-            >
-              <div className="blog-empty-icon-v2"><BookOpen size={36} /></div>
-              <h3>No posts found</h3>
-              <p>{search ? `No results for "${search}"` : 'Nothing in this category yet.'}</p>
-              {(search || active !== 'All') && (
-                <button className="blog-empty-btn" onClick={clearAll}>
-                  <X size={13} /> Clear filters
-                </button>
+              {/* Grid */}
+              {gridPosts.length > 0 && (
+                <motion.div
+                  className="blg-grid"
+                  variants={staggerGrid}
+                  initial="hidden"
+                  animate="show"
+                >
+                  <AnimatePresence mode="popLayout">
+                    {gridPosts.map(post => <PostCard key={post.id} post={post} />)}
+                  </AnimatePresence>
+                </motion.div>
               )}
             </motion.div>
-          )}
+          </AnimatePresence>
+        )}
 
-          {/* Grid */}
-          {!loading && gridPosts.length > 0 && (
-            <motion.div
-              className="blog-grid-v2"
-              variants={stagger}
-              initial="hidden"
-              animate="show"
-              key={`${active}-${search}`}
-            >
-              <AnimatePresence mode="popLayout">
-                {gridPosts.map(post => <PostCard key={post.id} post={post} />)}
-              </AnimatePresence>
-            </motion.div>
-          )}
-
-        </div>
+        {/* Bottom pad */}
+        <div style={{ height: '6rem' }} />
       </div>
     </div>
   );
