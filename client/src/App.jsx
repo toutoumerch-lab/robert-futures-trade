@@ -22,6 +22,8 @@ import CourseDetail from './pages/CourseDetail';
 import CourseLearn from './pages/CourseLearn';
 import PropFirmList from './pages/PropFirmList';
 import PaymentSuccess from './pages/PaymentSuccess';
+import About from './pages/About';
+import Contact from './pages/Contact';
 
 const PageWrapper = ({ children }) => (
   <motion.div
@@ -55,6 +57,8 @@ const AppContent = () => {
             <Route path="/courses/:id"    element={<PageWrapper><CourseDetail /></PageWrapper>} />
             <Route path="/course/:id/learn" element={<PageWrapper><CourseLearn /></PageWrapper>} />
             <Route path="/prop-firms"     element={<PageWrapper><PropFirmList /></PageWrapper>} />
+            <Route path="/about"           element={<PageWrapper><About /></PageWrapper>} />
+            <Route path="/contact"         element={<PageWrapper><Contact /></PageWrapper>} />
             <Route path="/payment/success" element={<PageWrapper><PaymentSuccess /></PageWrapper>} />
           </Routes>
         </AnimatePresence>

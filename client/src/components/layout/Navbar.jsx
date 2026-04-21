@@ -85,6 +85,8 @@ const Navbar = () => {
             { to: '/courses',   label: 'Courses' },
             { to: '/prop-firms',label: 'Prop Firms' },
             { to: '/blog',      label: 'Blog' },
+            { to: '/about',     label: 'About' },
+            { to: '/contact',   label: 'Contact' },
           ].map(({ to, label }) => (
             <Link key={to} to={to} className={`nav-item ${isActive(to)}`}>
               {label}

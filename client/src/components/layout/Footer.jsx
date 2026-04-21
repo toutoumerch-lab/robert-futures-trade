@@ -23,7 +23,8 @@ const Footer = () => {
           </div>
           <div className="flex-col gap-2">
             <h4 className="mb-4">Company</h4>
-            <a href="#">About</a>
+            <a href="/about">About Us</a>
+            <a href="/contact">Contact Us</a>
             <a href="#">Terms</a>
             <a href="#">Privacy</a>
           </div>
