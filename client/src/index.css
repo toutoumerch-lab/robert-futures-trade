@@ -3580,7 +3580,7 @@ select:focus {
   margin-bottom: 3rem;
 }
 
-/* Card base */
+/* Card base — horizontal row layout */
 .blg-card {
   background: rgba(255,255,255,0.025);
   border: 1px solid rgba(255,255,255,0.07);
@@ -3592,24 +3592,19 @@ select:focus {
     border-color 0.2s;
 }
 .blg-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px -8px rgba(0,0,0,0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 36px -8px rgba(0,0,0,0.35);
   border-color: rgba(255,255,255,0.12);
 }
 
-/* Featured card */
-.blg-card--featured {
-  display: flex;
-  flex-direction: row;
-  min-height: 260px;
-}
+/* Featured card — larger thumbnail */
 .blg-card--featured .blg-card-thumb {
-  width: 42%;
+  width: 38%;
+  min-width: 260px;
   height: auto;
-  flex-shrink: 0;
 }
 .blg-card--featured .blg-card-text {
-  padding: 2rem 2rem 2rem 2rem;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -3622,16 +3617,17 @@ select:focus {
   -webkit-line-clamp: 3;
 }
 @media (max-width: 640px) {
-  .blg-card--featured { flex-direction: column; }
-  .blg-card--featured .blg-card-thumb { width: 100%; height: 220px; }
+  .blg-card--featured .blg-card-thumb { width: 100%; min-width: unset; height: 200px; }
   .blg-card--featured .blg-card-text { padding: 1.25rem; }
   .blg-card--featured .blg-card-title { font-size: 1.15rem; }
 }
 
-/* Thumbnail */
+/* Thumbnail — fixed width sidebar in row layout */
 .blg-card-thumb {
   position: relative;
-  height: 200px;
+  width: 220px;
+  min-width: 220px;
+  height: auto;
   overflow: hidden;
   background: rgba(15,20,40,0.8);
   flex-shrink: 0;
@@ -3650,6 +3646,13 @@ select:focus {
   position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
   color: rgba(37,99,235,0.25);
+}
+@media (max-width: 640px) {
+  .blg-card-thumb {
+    width: 100%;
+    min-width: unset;
+    height: 180px;
+  }
 }
 
 /* Featured label */
@@ -3759,14 +3762,12 @@ select:focus {
   color: #60a5fa;
 }
 
-/* ── Grid ─────────────────────────────────────────────────── */
+/* ── Grid — vertical single-column list ──────────────────── */
 .blg-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
-@media (max-width: 1024px) { .blg-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width:  640px)  { .blg-grid { grid-template-columns: 1fr; } }
 
 /* ── Skeletons ────────────────────────────────────────────── */
 .blg-sk {
@@ -3833,21 +3834,34 @@ select:focus {
   color: #f87171;
 }
 
-/* ── Link card (for router Link inside article) ───────────── */
+/* ── Link card ────────────────────────────────────────────── */
+/* List mode: horizontal row (default) */
 .blg-card-link {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   height: 100%;
   text-decoration: none;
   position: relative;
+  min-height: 140px;
 }
+/* Grid mode: column (applied via inline style in JSX) */
 .blg-card--featured .blg-card-link {
   flex-direction: row;
-  min-height: 260px;
+  min-height: 220px;
 }
 @media (max-width: 640px) {
+  .blg-card-link           { flex-direction: column; }
   .blg-card--featured .blg-card-link { flex-direction: column; }
 }
+
+/* ── Blog grid view — responsive breakpoints ─────────────── */
+.blg-grid-view {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+@media (max-width: 1024px) { .blg-grid-view { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width:  640px) { .blg-grid-view { grid-template-columns: 1fr; } }
 
 
 
@@ -5559,6 +5573,22 @@ select:focus {
   animation: shimmer 1.4s infinite;
   margin: 1rem 0;
 }
+
+/* ── Courses grid view — responsive ─────────────────────────── */
+@media (max-width: 1024px) {
+  .crs-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+@media (max-width: 640px) {
+  .crs-grid { grid-template-columns: 1fr !important; }
+  /* List card collapses to column on mobile */
+  .crs-list-card { flex-direction: column !important; }
+  .crs-list-thumb { width: 100% !important; min-width: unset !important; height: 180px !important; }
+}
+
+/* ── Scrollbar hide utility ─────────────────────────────────── */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
 
 /* ============================================================
    END BLOG SYSTEM STYLES
