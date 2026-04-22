@@ -714,7 +714,9 @@ const FirmGridCard = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTo
 
     <div style={{ marginTop: 'auto', paddingTop: '0.5rem', display: 'flex', gap: '0.5rem' }}>
       {firm.website && (
-        <a href={firm.website} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className="btn-visit-firm" style={{ flex: 1, textAlign: 'center' }}>
+        <a href={firm.website} target="_blank" rel="noreferrer"
+          onClick={e => { e.stopPropagation(); onTrackWebsite?.(firm.id); }}
+          className="btn-visit-firm" style={{ flex: 1, textAlign: 'center' }}>
           Visit Website <ExternalLink size={13} />
         </a>
       )}
@@ -780,7 +782,9 @@ const FirmListRow = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTog
     </div>
 
     {firm.website && (
-      <a href={firm.website} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className="btn-visit-firm-sm">
+      <a href={firm.website} target="_blank" rel="noreferrer"
+        onClick={e => { e.stopPropagation(); onTrackWebsite?.(firm.id); }}
+        className="btn-visit-firm-sm">
         Visit <ExternalLink size={12} />
       </a>
     )}
@@ -849,6 +853,13 @@ const PropFirmList = () => {
       if (prev.length >= 4) return prev;
       return [...prev, id];
     });
+  }, []);
+
+  // ── Click tracking (fire-and-forget, no auth needed) ─────────
+  const sessionId = useRef(Math.random().toString(36).slice(2));
+  const trackClick = useCallback((firmId, type = 'view') => {
+    axios.post(`${API}/api/prop-firms/${firmId}/click`, { type, session_id: sessionId.current })
+      .catch(() => {}); // silent — never block the user
   }, []);
 
   const getPrice = (f) => Number(f.discount_usd || f.activation_fee || f.fifty_k_initial_cost || 0);
@@ -1155,10 +1166,11 @@ const PropFirmList = () => {
                       {firmsList.map((firm, i) => (
                         <div key={firm.id} style={{ animationDelay: `${(startIdx + i) * 0.05}s` }}>
                           <FirmGridCard
-                            firm={firm} onClick={() => setViewingFirm(firm)}
+                            firm={firm} onClick={() => { setViewingFirm(firm); trackClick(firm.id, 'view'); }}
                             isComparing={compareIds.includes(firm.id)} onToggleCompare={toggleCompare}
                             isFav={favorites.includes(firm.id)} onToggleFav={toggleFav}
                             compareDisabled={compareIds.length >= 4}
+                            onTrackWebsite={(id) => trackClick(id, 'website')}
                           />
                         </div>
                       ))}
@@ -1168,10 +1180,11 @@ const PropFirmList = () => {
                       {firmsList.map((firm, i) => (
                         <div key={firm.id} style={{ animationDelay: `${(startIdx + i) * 0.04}s` }}>
                           <FirmListRow
-                            firm={firm} onClick={() => setViewingFirm(firm)}
+                            firm={firm} onClick={() => { setViewingFirm(firm); trackClick(firm.id, 'view'); }}
                             isComparing={compareIds.includes(firm.id)} onToggleCompare={toggleCompare}
                             isFav={favorites.includes(firm.id)} onToggleFav={toggleFav}
                             compareDisabled={compareIds.length >= 4}
+                            onTrackWebsite={(id) => trackClick(id, 'website')}
                           />
                         </div>
                       ))}

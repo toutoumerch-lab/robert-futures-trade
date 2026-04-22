@@ -14,7 +14,7 @@ import {
   Star, Check, X, Zap, Flame, Turtle,
   Users, FileText, GraduationCap, Briefcase, PartyPopper, Palette,
   Monitor, Smartphone, ChevronDown, ChevronRight, Layers, Upload,
-  Video, BookOpen, Plus, Trash2, Edit3, ChevronUp, ExternalLink, Clock, MessageSquare
+  Video, BookOpen, Plus, Trash2, Edit3, ChevronUp, ExternalLink, Clock, MessageSquare, BarChart3
 } from 'lucide-react';
 
 // ──────────────────── Generic Modal ────────────────────
@@ -2524,6 +2524,13 @@ const AdminDashboard = () => {
                 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
               >
                 <DollarSign size={18} style={{ color: '#10b981' }} /> Revenue
+              </button>
+              <button
+                className="admin-tab"
+                onClick={() => navigate('/admin/analytics')}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                <BarChart3 size={18} style={{ color: '#3b82f6' }} /> Analytics
               </button>
             </div>
           </div>

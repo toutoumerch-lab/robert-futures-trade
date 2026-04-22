@@ -15,6 +15,7 @@ import { Login, Register } from './pages/AuthPages';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminRevenue from './pages/AdminRevenue';
+import AdminAnalytics from './pages/AdminAnalytics';
 import BlogList from './pages/BlogList';
 import BlogDetail from './pages/BlogDetail';
 import CourseList from './pages/CourseList';
@@ -49,8 +50,9 @@ const AppContent = () => {
             <Route path="/login"          element={<PageWrapper><Login /></PageWrapper>} />
             <Route path="/register"       element={<PageWrapper><Register /></PageWrapper>} />
             <Route path="/dashboard"      element={<PageWrapper><Dashboard /></PageWrapper>} />
-            <Route path="/admin"          element={<PageWrapper><AdminDashboard /></PageWrapper>} />
-            <Route path="/admin/revenue"  element={<PageWrapper><AdminRevenue /></PageWrapper>} />
+            <Route path="/admin"              element={<PageWrapper><AdminDashboard /></PageWrapper>} />
+            <Route path="/admin/revenue"      element={<PageWrapper><AdminRevenue /></PageWrapper>} />
+            <Route path="/admin/analytics"    element={<PageWrapper><AdminAnalytics /></PageWrapper>} />
             <Route path="/blog"           element={<PageWrapper><BlogList /></PageWrapper>} />
             <Route path="/blog/:id"       element={<PageWrapper><BlogDetail /></PageWrapper>} />
             <Route path="/courses"        element={<PageWrapper><CourseList /></PageWrapper>} />
