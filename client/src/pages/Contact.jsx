@@ -2,8 +2,8 @@ import React, { useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import {
   Mail, MessageSquare, Clock, Send, CheckCircle,
-  Twitter, Youtube, Instagram, Discord,
-  ChevronDown, ChevronUp, MapPin, Phone,
+  Share2, Video, AtSign, MessageCircle,
+  ChevronDown, ChevronUp,
   BookOpen, TrendingUp, AlertCircle,
 } from 'lucide-react';
 
@@ -54,10 +54,10 @@ const CONTACT_CARDS = [
 ];
 
 const SOCIALS = [
-  { icon: Twitter,   label: 'Twitter / X',   href: '#', color: '#1d9bf0' },
-  { icon: Youtube,   label: 'YouTube',        href: '#', color: '#ff0000' },
-  { icon: Instagram, label: 'Instagram',      href: '#', color: '#e1306c' },
-  { icon: Discord,   label: 'Discord',        href: '#', color: '#5865f2' },
+  { icon: Share2,        label: 'Twitter / X',   href: '#', color: '#1d9bf0' },
+  { icon: Video,         label: 'YouTube',        href: '#', color: '#ff0000' },
+  { icon: AtSign,        label: 'Instagram',      href: '#', color: '#e1306c' },
+  { icon: MessageCircle, label: 'Discord',        href: '#', color: '#5865f2' },
 ];
 
 const FAQS = [

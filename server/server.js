@@ -27,6 +27,7 @@ app.use('/api', require('./routes/moduleRoutes'));
 app.use('/api/enrollments', require('./routes/enrollmentRoutes'));
 app.use('/api/checkouts', require('./routes/checkoutRoutes'));
 app.use('/api/admin/revenue', require('./routes/revenueRoutes'));
+app.use('/webhook',          require('./routes/tawkRoutes'));
 
 // Serve static files
 const path = require('path');
