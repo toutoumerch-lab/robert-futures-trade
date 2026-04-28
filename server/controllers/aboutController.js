@@ -32,31 +32,42 @@ const getAboutStats = async (req, res) => {
       ? null
       : Math.round(((avgRating - 1) / 4) * 100);
 
-    // 4. Admin-configurable: student offset + countries
+    // 4. Admin-configurable: student offset + countries fallback
     const settingsRes = await pool.query(
       `SELECT key, value FROM settings WHERE key IN ('about_student_offset', 'about_countries')`
     );
     const cfg = {};
     settingsRes.rows.forEach(r => { cfg[r.key] = r.value; });
 
-    const offset    = parseInt(cfg.about_student_offset || '0', 10);
-    const countries = parseInt(cfg.about_countries      || '60', 10);
+    const offset = parseInt(cfg.about_student_offset || '0', 10);
+
+    // 5. Live countries — count distinct country codes recorded at login/register
+    const countriesRes = await pool.query(
+      `SELECT COUNT(DISTINCT country_code) AS cnt FROM users WHERE country_code IS NOT NULL`
+    );
+    const liveCountries = parseInt(countriesRes.rows[0].cnt, 10) || 0;
+    // Fall back to admin-set value if no geo data collected yet
+    const countriesFallback = parseInt(cfg.about_countries || '60', 10);
+    const countries = liveCountries > 0 ? liveCountries : countriesFallback;
 
     const activeStudents = rawStudents + offset;
 
     res.json({
       active_students:   activeStudents,
       courses_modules:   totalCourses,
-      satisfaction_rate: satisfactionRate, // null until first reviews come in
+      satisfaction_rate: satisfactionRate,
       countries:         countries,
       _raw: {
-        enrolled_users: rawStudents,
-        student_offset: offset,
-        total_courses:  totalCourses,
-        total_reviews:  totalReviews,
-        avg_rating:     Math.round(avgRating * 10) / 10,
+        enrolled_users:   rawStudents,
+        student_offset:   offset,
+        total_courses:    totalCourses,
+        total_reviews:    totalReviews,
+        avg_rating:       Math.round(avgRating * 10) / 10,
+        live_countries:   liveCountries,
+        country_fallback: countriesFallback,
       }
     });
+
   } catch (error) {
     console.error('[About stats] Error:', error);
     res.status(500).json({ error: 'Server error fetching about stats' });
