@@ -52,38 +52,6 @@ const Modal = ({ title, onClose, hideHeader, style, children }) => {
     document.body
   );
 };
-    // Lock body scroll and prevent layout shift from scrollbar disappearing
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    const originalOverflow = window.getComputedStyle(document.body).overflow;
-    const originalPaddingRight = window.getComputedStyle(document.body).paddingRight;
-    
-    document.body.style.overflow = 'hidden';
-    document.body.style.paddingRight = `calc(${originalPaddingRight} + ${scrollbarWidth}px)`;
-
-    return () => {
-      document.body.style.overflow = originalOverflow;
-      document.body.style.paddingRight = originalPaddingRight;
-    };
-  }, []);
-
-  return createPortal(
-    <div className="modal-overlay" onClick={onClose} style={{ zIndex: 999999, pointerEvents: 'auto' }}>
-      <div className="modal-box" onClick={e => e.stopPropagation()} style={{ position: 'relative', cursor: 'auto', ...style }}>
-        {!hideHeader && (
-          <div className="modal-header">
-            <h3>{title}</h3>
-            <button className="modal-close" onClick={onClose}><X size={16} /></button>
-          </div>
-        )}
-        {hideHeader && (
-          <button className="modal-close" onClick={onClose} style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 100, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(4px)', width: '36px', height: '36px', borderRadius: '50%', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}><X size={16} /></button>
-        )}
-        <div className="modal-body" style={{ padding: hideHeader ? '0' : '1.5rem' }}>{children}</div>
-      </div>
-    </div>,
-    document.body
-  );
-};
 
 // ──────────────────── FormField helper ────────────────────
 const Field = ({ label, type = 'text', value, onChange, placeholder, as, ...rest }) => (
