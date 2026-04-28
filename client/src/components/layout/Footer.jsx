@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useBranding } from '../../context/BrandingContext';
-import { Youtube, Twitter, Instagram, TrendingUp, BookOpen, Building2, FileText, Info, Mail, Shield, ChevronRight } from 'lucide-react';
+import { Youtube, Twitter, TrendingUp, BookOpen, Building2, FileText, Info, Mail, Shield, ChevronRight } from 'lucide-react';
 
 const FooterLink = ({ to, href, children }) => {
   const base = {
@@ -115,7 +115,13 @@ const Footer = () => {
           <div style={{ display: 'flex', gap: '8px' }}>
             <SocialBtn href="https://www.youtube.com/@RobertFuturesTrades" icon={Youtube}   label="YouTube"   color="#ff0000" />
             <SocialBtn href="https://twitter.com/"   icon={Twitter}   label="Twitter"   color="#1d9bf0" />
-            <SocialBtn href="https://instagram.com/" icon={Instagram} label="Instagram" color="linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" />
+            <a href="https://instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"
+              style={{ width: "38px", height: "38px", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "var(--text-secondary)", textDecoration: "none", transition: "all 0.22s" }}
+              onMouseEnter={e => { e.currentTarget.style.background = "#e1306c"; e.currentTarget.style.borderColor = "transparent"; e.currentTarget.style.color = "#fff"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "var(--text-secondary)"; e.currentTarget.style.transform = "translateY(0)"; }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+            </a>
           </div>
         </div>
 
