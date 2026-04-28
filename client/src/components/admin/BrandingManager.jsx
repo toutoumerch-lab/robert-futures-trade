@@ -6,8 +6,9 @@ import Card from '../common/Card';
 import {
   Upload, Check, AlertCircle, Pipette, RotateCcw, Globe,
   Palette, Layout, Sun, Moon, Monitor, Sparkles, Eye,
-  Share2, Video, AtSign, MessageCircle, Link
+  Share2, Video, AtSign, MessageCircle, Link, ChevronDown
 } from 'lucide-react';
+
 import FacebookIcon from '../icons/FacebookIcon';
 
 const HEX_REGEX = /^#[0-9A-Fa-f]{6}$/;
