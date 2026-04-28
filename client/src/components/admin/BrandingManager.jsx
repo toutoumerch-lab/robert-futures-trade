@@ -6,8 +6,9 @@ import Card from '../common/Card';
 import {
   Upload, Check, AlertCircle, Pipette, RotateCcw, Globe,
   Palette, Layout, Sun, Moon, Monitor, Sparkles, Eye,
-  Share2, Video, AtSign, MessageCircle, Link, Facebook
+  Share2, Video, AtSign, MessageCircle, Link
 } from 'lucide-react';
+import FacebookIcon from '../icons/FacebookIcon';
 
 const HEX_REGEX = /^#[0-9A-Fa-f]{6}$/;
 const API_BASE = 'http://localhost:5000';
@@ -704,7 +705,7 @@ const BrandingManager = () => {
                 { key: 'youtube',   label: 'YouTube',       icon: <Video size={16} />,         color: '#ff0000', placeholder: 'https://youtube.com/@yourchannel',  val: newYoutube,   set: (v) => { setNewYoutube(v);   setIsDirty(true); } },
                 { key: 'instagram', label: 'Instagram',     icon: <AtSign size={16} />,        color: '#e1306c', placeholder: 'https://instagram.com/yourhandle',   val: newInstagram, set: (v) => { setNewInstagram(v); setIsDirty(true); } },
                 { key: 'discord',   label: 'Discord',       icon: <MessageCircle size={16} />, color: '#5865f2', placeholder: 'https://discord.gg/yourserver',      val: newDiscord,   set: (v) => { setNewDiscord(v);   setIsDirty(true); } },
-                { key: 'facebook',  label: 'Facebook',      icon: <Facebook size={16} />,      color: '#1877f2', placeholder: 'https://facebook.com/yourpage',      val: newFacebook,  set: (v) => { setNewFacebook(v);  setIsDirty(true); } },
+                { key: 'facebook',  label: 'Facebook',      icon: <FacebookIcon size={16} />,   color: '#1877f2', placeholder: 'https://facebook.com/yourpage',      val: newFacebook,  set: (v) => { setNewFacebook(v);  setIsDirty(true); } },
               ].map(({ key, label, icon, color, placeholder, val, set }) => (
                 <div className="form-group" key={key} style={{ marginBottom: '1rem' }}>
                   <label className="mb-2 block font-medium" style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>

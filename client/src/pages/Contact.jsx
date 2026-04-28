@@ -3,10 +3,11 @@ import { motion, useInView } from 'framer-motion';
 import { useBranding } from '../context/BrandingContext';
 import {
   Mail, MessageSquare, Clock, Send, CheckCircle,
-  Share2, Video, AtSign, MessageCircle, Facebook,
+  Share2, Video, AtSign, MessageCircle,
   ChevronDown, ChevronUp,
   BookOpen, TrendingUp, AlertCircle,
 } from 'lucide-react';
+import FacebookIcon from '../components/icons/FacebookIcon';
 
 /* ─── helpers ─────────────────────────────────────────────── */
 const easing = [0.16, 1, 0.3, 1];
@@ -146,7 +147,7 @@ export default function Contact() {
     { icon: Video,         label: 'YouTube',      href: socialYoutube,   color: '#ff0000' },
     { icon: AtSign,        label: 'Instagram',    href: socialInstagram, color: '#e1306c' },
     { icon: MessageCircle, label: 'Discord',      href: socialDiscord,   color: '#5865f2' },
-    { icon: Facebook,      label: 'Facebook',     href: socialFacebook,  color: '#1877f2' },
+    { icon: FacebookIcon,   label: 'Facebook',     href: socialFacebook,  color: '#1877f2' },
   ].filter(s => s.href && s.href.trim() !== '');
 
   // Inject discord link into the Discord contact card dynamically
