@@ -8,15 +8,19 @@ const {
   getSatisfactionRate,
   getAdminReviews,
   deleteReview,
+  getCourseRatings,
+  getMyAllReviews,
 } = require('../controllers/reviewController');
 
 // ── Public
 router.get('/satisfaction',         getSatisfactionRate);
+router.get('/course-ratings',       getCourseRatings);
 router.get('/lesson/:lessonId',     getLessonReviews);
 
 // ── Authenticated users
 router.post('/',                    auth, submitReview);
 router.get('/my/:lessonId',         auth, getMyReview);
+router.get('/my-all',               auth, getMyAllReviews);
 
 // ── Admin only
 router.get('/admin',                auth, isAdmin, getAdminReviews);

@@ -5,7 +5,7 @@ import Button from '../components/common/Button';
 import {
   BookOpen, SearchX, Bookmark, Clock, ArrowRight,
   Search, X, Loader, LayoutGrid, List,
-  ChevronLeft, ChevronRight,
+  ChevronLeft, ChevronRight, Star,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -49,8 +49,21 @@ const PageBtn = ({ active, disabled, onClick, children }) => (
   </button>
 );
 
+/* ─── Star rating badge ─────────────────────────────────────────── */
+const StarBadge = ({ ratings, courseId }) => {
+  const r = ratings?.[courseId];
+  if (!r) return null;
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.72rem', fontWeight: 800, color: '#f59e0b' }}>
+      <Star size={11} fill="#f59e0b" />
+      <span>{r.avg.toFixed(1)}</span>
+      <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>({r.count})</span>
+    </div>
+  );
+};
+
 /* ─── Course card — GRID mode ───────────────────────────────────── */
-const GridCard = ({ course, navigate }) => (
+const GridCard = ({ course, navigate, ratings }) => (
   <div
     onClick={() => navigate(`/courses/${course.id}`)}
     style={{
@@ -88,9 +101,10 @@ const GridCard = ({ course, navigate }) => (
     </div>
     {/* Body */}
     <div style={{ padding:'1.5rem', flex:1, display:'flex', flexDirection:'column', gap:'0.5rem' }}>
-      <div style={{ display:'flex', gap:'6px', flexWrap:'wrap' }}>
+      <div style={{ display:'flex', gap:'6px', flexWrap:'wrap', alignItems:'center' }}>
         <span style={{ fontSize:'0.68rem', background:'var(--bg-primary)', padding:'3px 10px', borderRadius:'99px', color:'var(--accent-primary)', fontWeight:800, border:'1px solid var(--border)', textTransform:'uppercase', letterSpacing:'0.5px' }}>{course.level || 'Beginner'}</span>
         <span style={{ fontSize:'0.68rem', background:'var(--bg-primary)', padding:'3px 10px', borderRadius:'99px', color:'var(--text-secondary)', fontWeight:700, border:'1px solid var(--border)', display:'flex', alignItems:'center', gap:'4px' }}><Clock size={10}/> {course.duration || 'N/A'}</span>
+        <StarBadge ratings={ratings} courseId={course.id} />
       </div>
       <h3 style={{ margin:0, fontSize:'1.15rem', fontWeight:900, color:'var(--text-primary)', lineHeight:1.3, letterSpacing:'-0.3px' }}>{course.title}</h3>
       <p style={{ color:'var(--text-secondary)', fontSize:'0.85rem', lineHeight:1.6, margin:0, flex:1 }}>{course.description && course.description.length > 110 ? course.description.substring(0,110)+'...' : course.description}</p>
@@ -104,7 +118,7 @@ const GridCard = ({ course, navigate }) => (
 );
 
 /* ─── Course card — LIST mode ───────────────────────────────────── */
-const ListCard = ({ course, navigate }) => (
+const ListCard = ({ course, navigate, ratings }) => (
   <div
     onClick={() => navigate(`/courses/${course.id}`)}
     style={{
@@ -142,9 +156,10 @@ const ListCard = ({ course, navigate }) => (
     </div>
     {/* Content */}
     <div style={{ padding:'1.25rem 1.75rem', flex:1, display:'flex', flexDirection:'column', justifyContent:'center', gap:'0.4rem' }}>
-      <div style={{ display:'flex', gap:'6px', flexWrap:'wrap' }}>
+      <div style={{ display:'flex', gap:'6px', flexWrap:'wrap', alignItems:'center' }}>
         <span style={{ fontSize:'0.65rem', background:'var(--bg-primary)', padding:'3px 10px', borderRadius:'99px', color:'var(--accent-primary)', fontWeight:800, border:'1px solid var(--border)', textTransform:'uppercase', letterSpacing:'0.5px' }}>{course.level || 'Beginner'}</span>
         <span style={{ fontSize:'0.65rem', background:'var(--bg-primary)', padding:'3px 10px', borderRadius:'99px', color:'var(--text-secondary)', fontWeight:700, border:'1px solid var(--border)', display:'flex', alignItems:'center', gap:'3px' }}><Clock size={10}/> {course.duration || 'N/A'}</span>
+        <StarBadge ratings={ratings} courseId={course.id} />
       </div>
       <h3 style={{ margin:0, fontSize:'1.2rem', fontWeight:900, color:'var(--text-primary)', lineHeight:1.3, letterSpacing:'-0.3px' }}>{course.title}</h3>
       <p style={{ color:'var(--text-secondary)', fontSize:'0.875rem', lineHeight:1.6, margin:0 }}>{course.description && course.description.length > 160 ? course.description.substring(0,160)+'...' : course.description}</p>
@@ -163,6 +178,7 @@ const ListCard = ({ course, navigate }) => (
 const CourseList = () => {
   const [courses, setCourses]               = useState([]);
   const [categories, setCategories]         = useState([]);
+  const [ratings, setRatings]               = useState({});
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [loading, setLoading]               = useState(true);
   const [viewMode, setViewMode]             = useState('list');   // 'list' | 'grid'
@@ -183,9 +199,11 @@ const CourseList = () => {
     Promise.all([
       axios.get('http://localhost:5000/api/courses'),
       axios.get('http://localhost:5000/api/categories'),
-    ]).then(([coursesRes, categoriesRes]) => {
+      axios.get('http://localhost:5000/api/reviews/course-ratings'),
+    ]).then(([coursesRes, categoriesRes, ratingsRes]) => {
       setCourses(coursesRes.data);
       setCategories(categoriesRes.data || []);
+      setRatings(ratingsRes.data || {});
     }).catch(console.error).finally(() => setLoading(false));
   }, []);
 
@@ -379,13 +397,13 @@ const CourseList = () => {
             {viewMode === 'list' ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {pageCourses.map(course => (
-                  <ListCard key={course.id} course={course} navigate={navigate}/>
+                  <ListCard key={course.id} course={course} navigate={navigate} ratings={ratings}/>
                 ))}
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem' }}>
                 {pageCourses.map(course => (
-                  <GridCard key={course.id} course={course} navigate={navigate}/>
+                  <GridCard key={course.id} course={course} navigate={navigate} ratings={ratings}/>
                 ))}
               </div>
             )}

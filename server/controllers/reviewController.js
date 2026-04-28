@@ -176,6 +176,60 @@ const deleteReview = async (req, res) => {
   }
 };
 
+/* ─────────────────────────────────────────────────────────────────
+   GET /api/reviews/course-ratings
+   Public: avg rating + count for every course (used by course cards)
+───────────────────────────────────────────────────────────────── */
+const getCourseRatings = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT course_id,
+             ROUND(AVG(rating)::numeric, 1) AS avg_rating,
+             COUNT(*)                        AS review_count
+      FROM lesson_reviews
+      GROUP BY course_id
+    `);
+    // Return as a map { courseId: { avg, count } } for O(1) lookup
+    const map = {};
+    result.rows.forEach(r => {
+      map[r.course_id] = {
+        avg:   parseFloat(r.avg_rating),
+        count: parseInt(r.review_count, 10),
+      };
+    });
+    res.json(map);
+  } catch (error) {
+    console.error('[Review] getCourseRatings error:', error);
+    res.status(500).json({ error: 'Server error.' });
+  }
+};
+
+/* ─────────────────────────────────────────────────────────────────
+   GET /api/reviews/my-all
+   All reviews written by the logged-in user with lesson + course titles
+───────────────────────────────────────────────────────────────── */
+const getMyAllReviews = async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const result = await pool.query(`
+      SELECT lr.id, lr.rating, lr.comment, lr.created_at,
+             cl.title AS lesson_title,
+             c.title  AS course_title,
+             c.id     AS course_id,
+             cl.id    AS lesson_id
+      FROM lesson_reviews lr
+      JOIN course_lessons cl ON cl.id = lr.lesson_id
+      JOIN courses        c  ON c.id  = lr.course_id
+      WHERE lr.user_id = $1
+      ORDER BY lr.created_at DESC
+    `, [userId]);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('[Review] getMyAllReviews error:', error);
+    res.status(500).json({ error: 'Server error.' });
+  }
+};
+
 module.exports = {
   submitReview,
   getLessonReviews,
@@ -183,4 +237,6 @@ module.exports = {
   getSatisfactionRate,
   getAdminReviews,
   deleteReview,
+  getCourseRatings,
+  getMyAllReviews,
 };

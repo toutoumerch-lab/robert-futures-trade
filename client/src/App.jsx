@@ -25,6 +25,7 @@ import PropFirmList from './pages/PropFirmList';
 import PaymentSuccess from './pages/PaymentSuccess';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import Profile from './pages/Profile';
 
 const PageWrapper = ({ children }) => (
   <motion.div
@@ -50,6 +51,7 @@ const AppContent = () => {
             <Route path="/login"          element={<PageWrapper><Login /></PageWrapper>} />
             <Route path="/register"       element={<PageWrapper><Register /></PageWrapper>} />
             <Route path="/dashboard"      element={<PageWrapper><Dashboard /></PageWrapper>} />
+            <Route path="/profile"        element={<PageWrapper><Profile /></PageWrapper>} />
             <Route path="/admin"              element={<PageWrapper><AdminDashboard /></PageWrapper>} />
             <Route path="/admin/revenue"      element={<PageWrapper><AdminRevenue /></PageWrapper>} />
             <Route path="/admin/analytics"    element={<PageWrapper><AdminAnalytics /></PageWrapper>} />
