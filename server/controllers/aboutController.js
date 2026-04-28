@@ -17,12 +17,9 @@ const getAboutStats = async (req, res) => {
     );
     const rawStudents = parseInt(studentsRes.rows[0].cnt, 10) || 0;
 
-    // 2. Courses + modules combined
+    // 2. Courses only
     const coursesRes = await pool.query('SELECT COUNT(*) AS cnt FROM courses');
-    const modulesRes = await pool.query('SELECT COUNT(*) AS cnt FROM course_modules');
     const totalCourses = parseInt(coursesRes.rows[0].cnt, 10) || 0;
-    const totalModules = parseInt(modulesRes.rows[0].cnt, 10) || 0;
-    const coursesModules = totalCourses + totalModules;
 
     // 3. Pull admin-configurable values from settings
     const settingsRes = await pool.query(
@@ -41,7 +38,7 @@ const getAboutStats = async (req, res) => {
 
     res.json({
       active_students:  activeStudents,
-      courses_modules:  coursesModules,
+      courses_modules:  totalCourses,
       pass_rate:        passRate,
       countries:        countries,
       // raw breakdown for debugging
@@ -49,7 +46,6 @@ const getAboutStats = async (req, res) => {
         enrolled_users: rawStudents,
         student_offset: offset,
         total_courses:  totalCourses,
-        total_modules:  totalModules,
       }
     });
   } catch (error) {

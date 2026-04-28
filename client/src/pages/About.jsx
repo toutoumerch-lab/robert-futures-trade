@@ -64,7 +64,7 @@ const Reveal = ({ children, delay = 0, className = '', style = {} }) => {
 /* ─── static data ─────────────────────────────────────────── */
 const STATS_DEFAULTS = [
   { icon: Users,    key: 'active_students', suffix: '+', label: 'Active Students',   fallback: 2400 },
-  { icon: BookOpen, key: 'courses_modules', suffix: '+', label: 'Courses & Modules', fallback: 40   },
+  { icon: BookOpen, key: 'courses_modules', suffix: '+', label: 'Courses',         fallback: 12   },
   { icon: BarChart2,key: 'pass_rate',       suffix: '%', label: 'Pass Rate',         fallback: 87   },
   { icon: Globe,    key: 'countries',       suffix: '+', label: 'Countries Reached', fallback: 60   },
 ];
