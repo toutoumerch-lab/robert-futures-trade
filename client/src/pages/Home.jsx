@@ -13,26 +13,12 @@ const YoutubeSVG = ({ size = 36, color = 'currentColor' }) => (
 );
 
 
-/* ── Scroll-triggered section wrapper ───────────────────── */
-const SectionMotion = ({ children, style={}, className='' }) => (
-  <motion.div
-    initial="hidden"
-    whileInView="visible"
-    viewport={{ once: true, margin: '-80px' }}
-    className={className}
-    style={style}
-  >
-    {children}
-  </motion.div>
-);
-
-/* ── Shared animation variants ──────────────────────────── */
-const vFadeUp   = { hidden:{opacity:0,y:60},   visible:{opacity:1,y:0,   transition:{duration:0.75,ease:[0.16,1,0.3,1]}} };
-const vFadeLeft = { hidden:{opacity:0,x:-70},  visible:{opacity:1,x:0,   transition:{duration:0.75,ease:[0.16,1,0.3,1]}} };
-const vFadeRight= { hidden:{opacity:0,x:70},   visible:{opacity:1,x:0,   transition:{duration:0.75,ease:[0.16,1,0.3,1]}} };
-const vScale    = { hidden:{opacity:0,scale:0.8},visible:{opacity:1,scale:1,transition:{duration:0.6,ease:[0.16,1,0.3,1]}} };
-const vStagger  = { visible:{ transition:{ staggerChildren:0.13 }} };
-const vPop      = { hidden:{opacity:0,scale:0.5,y:20}, visible:{opacity:1,scale:1,y:0,transition:{type:'spring',stiffness:300,damping:20}} };
+/* ── Animation variants ─────────────────────────────────── */
+const vFadeLeft  = { hidden:{opacity:0,x:-70},  visible:{opacity:1,x:0,  transition:{duration:0.75,ease:[0.16,1,0.3,1]}} };
+const vFadeRight = { hidden:{opacity:0,x:70},   visible:{opacity:1,x:0,  transition:{duration:0.75,ease:[0.16,1,0.3,1]}} };
+const vFadeUp2   = { hidden:{opacity:0,y:60},   visible:{opacity:1,y:0,  transition:{duration:0.75,ease:[0.16,1,0.3,1]}} };
+const vStagger   = { visible:{ transition:{ staggerChildren:0.13 }} };
+const vPop       = { hidden:{opacity:0,scale:0.5,y:20}, visible:{opacity:1,scale:1,y:0,transition:{type:'spring',stiffness:300,damping:20}} };
 
 /* ── Floating glow orb ──────────────────────────────────── */
 const FloatOrb = ({ color, size='400px', style={} }) => (
@@ -57,6 +43,39 @@ const ShimmerDiv = () => (
     />
   </div>
 );
+
+
+/* ── Animation variants ─────────────────────────────────── */
+const vFadeLeft  = { hidden:{opacity:0,x:-70},  visible:{opacity:1,x:0,  transition:{duration:0.75,ease:[0.16,1,0.3,1]}} };
+const vFadeRight = { hidden:{opacity:0,x:70},   visible:{opacity:1,x:0,  transition:{duration:0.75,ease:[0.16,1,0.3,1]}} };
+const vFadeUp2   = { hidden:{opacity:0,y:60},   visible:{opacity:1,y:0,  transition:{duration:0.75,ease:[0.16,1,0.3,1]}} };
+const vStagger   = { visible:{ transition:{ staggerChildren:0.13 }} };
+const vPop       = { hidden:{opacity:0,scale:0.5,y:20}, visible:{opacity:1,scale:1,y:0,transition:{type:'spring',stiffness:300,damping:20}} };
+
+/* ── Floating glow orb ──────────────────────────────────── */
+const FloatOrb = ({ color, size='400px', style={} }) => (
+  <motion.div
+    animate={{ y:[0,-22,0], scale:[1,1.07,1] }}
+    transition={{ duration:6, repeat:Infinity, ease:'easeInOut' }}
+    style={{ position:'absolute', width:size, height:size, borderRadius:'50%',
+      background:`radial-gradient(circle, ${color}, transparent 70%)`,
+      filter:'blur(60px)', pointerEvents:'none', zIndex:0, ...style }}
+  />
+);
+
+/* ── Shimmer divider ────────────────────────────────────── */
+const ShimmerDiv = () => (
+  <div style={{ position:'relative', height:'1px', margin:'0 5%', overflow:'hidden' }}>
+    <div style={{ position:'absolute', inset:0, background:'linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent)' }}/>
+    <motion.div
+      animate={{ x:['-100%','200%'] }}
+      transition={{ duration:2.8, repeat:Infinity, ease:'linear', repeatDelay:1.5 }}
+      style={{ position:'absolute', top:0, left:0, width:'35%', height:'100%',
+        background:'linear-gradient(90deg,transparent,rgba(37,99,235,0.55),transparent)' }}
+    />
+  </div>
+);
+
 /* ── Animated background blob ──────────────────────────── */
 const AnimatedBlob = ({ color1, color2, delay = 0, style = {} }) => (
   <motion.div
@@ -399,11 +418,11 @@ const Home = () => {
       <section style={{ padding: '8rem 0', position: 'relative', overflow: 'hidden' }}>
         {/* Red glow blob */}
         <div style={{ position: 'absolute', top: '10%', left: '-5%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,0,0,0.08), transparent 70%)', pointerEvents: 'none' }} />
-        <div className="container">
+        <div className="container" style={{ position:'relative', zIndex:1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5rem', flexWrap: 'wrap' }}>
 
             {/* Left — YouTube preview card */}
-            <Reveal direction="left" style={{ flex: '1 1 340px' }}>
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once:true, margin:'-60px' }} variants={vFadeLeft} style={{ flex:'1 1 340px' }}>
               <div style={{ position: 'relative', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 32px 80px rgba(255,0,0,0.15)', border: '1px solid rgba(255,0,0,0.15)' }}>
                 <div style={{ background: 'linear-gradient(135deg, #1a0000, #0d0d0d)', padding: '3rem 2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '260px', gap: '1.25rem' }}>
                   <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg, #ff0000, #cc0000)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 40px rgba(255,0,0,0.4)', animation: 'pulse 2s infinite' }}>
@@ -421,7 +440,7 @@ const Home = () => {
             </motion.div>
 
             {/* Right — text */}
-            <Reveal direction="right" style={{ flex: '1 1 340px' }}>
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once:true, margin:'-60px' }} variants={vFadeRight} style={{ flex:'1 1 340px' }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255,0,0,0.08)', border: '1px solid rgba(255,0,0,0.2)', padding: '5px 16px', borderRadius: '99px', color: '#ff6666', fontWeight: 700, fontSize: '0.82rem', marginBottom: '1.5rem' }}>
                 <YoutubeSVG size={14} color="currentColor" /> YouTube Community
               </div>
@@ -456,32 +475,36 @@ const Home = () => {
 
       {/* ── SECTION 2 — Courses ──────────────────────────── */}
       <section style={{ padding: '8rem 0', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '20%', right: '-5%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(37,99,235,0.1), transparent 70%)', pointerEvents: 'none' }} />
-        <div className="container">
+        <FloatOrb color="rgba(37,99,235,0.12)" size="500px" style={{ top:'10%', right:'-6%' }} />
+        <FloatOrb color="rgba(139,92,246,0.08)" size="300px" style={{ bottom:'0%', left:'20%' }} />
+        <div className="container" style={{ position:'relative', zIndex:1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5rem', flexWrap: 'wrap', flexDirection: 'row-reverse' }}>
 
             {/* Right — visual */}
-            <Reveal direction="right" style={{ flex: '1 1 340px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once:true, margin:'-60px' }} variants={vFadeRight} style={{ flex:'1 1 340px' }}>
+              <motion.div initial="hidden" whileInView="visible" viewport={{ once:true, margin:'-60px' }} variants={vStagger}
+                style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}
+              >
                 {[
                   { icon: '📈', label: 'Market Structure', color: 'rgba(37,99,235,0.15)' },
                   { icon: '⚡', label: 'Scalping Mastery', color: 'rgba(139,92,246,0.15)' },
                   { icon: '🎯', label: 'Entry & Exit', color: 'rgba(16,185,129,0.15)' },
                   { icon: '🛡️', label: 'Risk Management', color: 'rgba(245,158,11,0.15)' },
                 ].map(({ icon, label, color }) => (
-                  <div key={label} style={{ background: color, border: '1px solid rgba(255,255,255,0.07)', borderRadius: '18px', padding: '1.5rem', textAlign: 'center', transition: 'transform 0.25s' }}
-                    onMouseEnter={e => e.currentTarget.style.transform='translateY(-4px)'}
-                    onMouseLeave={e => e.currentTarget.style.transform='translateY(0)'}
+                  <motion.div key={label} variants={vPop} whileHover={{ y:-6, scale:1.05, boxShadow:'0 14px 32px rgba(0,0,0,0.2)' }}
+                    style={{ background: color, border: '1px solid rgba(255,255,255,0.07)', borderRadius: '18px', padding: '1.5rem', textAlign: 'center', cursor:'default' }}
                   >
-                    <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{icon}</div>
+                    <motion.div animate={{ rotate:[0,10,-10,0] }} transition={{ duration:3, repeat:Infinity, repeatDelay:2 }}
+                      style={{ fontSize: '2rem', marginBottom: '0.5rem' }}
+                    >{icon}</motion.div>
                     <div style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--text-primary)' }}>{label}</div>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </motion.div>
 
             {/* Left — text */}
-            <Reveal direction="left" style={{ flex: '1 1 340px' }}>
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once:true, margin:'-60px' }} variants={vFadeLeft} style={{ flex:'1 1 340px' }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(37,99,235,0.1)', border: '1px solid rgba(37,99,235,0.25)', padding: '5px 16px', borderRadius: '99px', color: 'var(--accent-primary)', fontWeight: 700, fontSize: '0.82rem', marginBottom: '1.5rem' }}>
                 <BookOpen size={14} /> Trading Education
               </div>
@@ -505,34 +528,38 @@ const Home = () => {
 
       {/* ── SECTION 3 — Prop Firms ───────────────────────── */}
       <section style={{ padding: '8rem 0', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', bottom: '0', left: '30%', width: '600px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.07), transparent 70%)', pointerEvents: 'none' }} />
-        <div className="container">
+        <FloatOrb color="rgba(16,185,129,0.1)" size="500px" style={{ bottom:'-10%', left:'25%' }} />
+        <div className="container" style={{ position:'relative', zIndex:1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5rem', flexWrap: 'wrap' }}>
 
             {/* Left — visual steps */}
-            <Reveal direction="left" style={{ flex: '1 1 340px' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once:true, margin:'-60px' }} variants={vFadeLeft} style={{ flex:'1 1 340px' }}>
+              <motion.div initial="hidden" whileInView="visible" viewport={{ once:true, margin:'-60px' }} variants={vStagger}
+                style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
+              >
                 {[
                   { step: '01', title: 'Browse Firms', desc: 'Compare rules, fees, and payout structures side by side.' },
                   { step: '02', title: 'Pick Your Eval', desc: 'Choose the challenge that fits your trading style.' },
                   { step: '03', title: 'Get Funded', desc: 'Pass the eval and start trading with real capital.' },
                 ].map(({ step, title, desc }) => (
-                  <div key={step} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', padding: '1.25rem 1.5rem', transition: 'border-color 0.2s' }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor='rgba(16,185,129,0.3)'}
-                    onMouseLeave={e => e.currentTarget.style.borderColor='rgba(255,255,255,0.07)'}
+                  <motion.div key={step} variants={vFadeLeft}
+                    whileHover={{ x:6, boxShadow:'0 8px 28px rgba(16,185,129,0.12)' }}
+                    style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', padding: '1.25rem 1.5rem' }}
                   >
-                    <div style={{ flexShrink: 0, width: '38px', height: '38px', borderRadius: '10px', background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.78rem', color: '#10b981' }}>{step}</div>
+                    <motion.div whileHover={{ rotate:360 }} transition={{ duration:0.5 }}
+                      style={{ flexShrink: 0, width: '38px', height: '38px', borderRadius: '10px', background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.78rem', color: '#10b981' }}
+                    >{step}</motion.div>
                     <div>
                       <div style={{ fontWeight: 800, color: 'var(--text-primary)', marginBottom: '2px' }}>{title}</div>
                       <div style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', lineHeight: 1.5 }}>{desc}</div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </motion.div>
 
             {/* Right — text */}
-            <Reveal direction="right" style={{ flex: '1 1 340px' }}>
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once:true, margin:'-60px' }} variants={vFadeRight} style={{ flex:'1 1 340px' }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', padding: '5px 16px', borderRadius: '99px', color: '#10b981', fontWeight: 700, fontSize: '0.82rem', marginBottom: '1.5rem' }}>
                 <Trophy size={14} /> Prop Firm Marketplace
               </div>
@@ -556,9 +583,9 @@ const Home = () => {
 
       {/* ── SECTION 4 — Blog ─────────────────────────────── */}
       <section style={{ padding: '8rem 0', position: 'relative', overflow: 'hidden', textAlign: 'center' }}>
-        <div style={{ position: 'absolute', top: '0', left: '50%', transform: 'translateX(-50%)', width: '700px', height: '400px', background: 'radial-gradient(ellipse at center top, rgba(99,102,241,0.07), transparent 70%)', pointerEvents: 'none' }} />
+        <FloatOrb color="rgba(99,102,241,0.1)" size="600px" style={{ top:'-20%', left:'50%', transform:'translateX(-50%)' }} />
         <div className="container" style={{ maxWidth: '860px', position: 'relative', zIndex: 1 }}>
-          <Reveal direction="up">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once:true, margin:'-60px' }} variants={vFadeUp2}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', padding: '5px 16px', borderRadius: '99px', color: '#818cf8', fontWeight: 700, fontSize: '0.82rem', marginBottom: '1.5rem' }}>
               <Rss size={14} /> Daily Market Posts
             </div>
@@ -570,11 +597,15 @@ const Home = () => {
             </p>
 
             {/* 3 preview pills */}
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '3rem' }}>
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once:true, margin:'-40px' }} variants={vStagger}
+              style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '3rem' }}
+            >
               {['📊 Market Structure', '📰 Economic Calendar', '🎯 Trade Ideas', '⚡ Scalping Setups', '🌍 Global Macro'].map(tag => (
-                <span key={tag} style={{ padding: '6px 18px', borderRadius: '99px', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', color: '#a5b4fc', fontWeight: 700, fontSize: '0.82rem' }}>{tag}</span>
+                <motion.span key={tag} variants={vPop} whileHover={{ scale:1.12, y:-3, background:'rgba(99,102,241,0.22)' }}
+                  style={{ padding: '6px 18px', borderRadius: '99px', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', color: '#a5b4fc', fontWeight: 700, fontSize: '0.82rem', cursor:'default', display:'inline-block' }}
+                >{tag}</motion.span>
               ))}
-            </div>
+            </motion.div>
 
             <Link to="/blog"
               style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.9rem 2.25rem', borderRadius: '12px', background: 'linear-gradient(135deg,#4f46e5,#6366f1)', color: '#fff', fontWeight: 800, fontSize: '0.95rem', textDecoration: 'none', boxShadow: '0 8px 24px rgba(99,102,241,0.3)' }}
