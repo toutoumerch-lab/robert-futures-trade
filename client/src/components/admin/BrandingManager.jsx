@@ -6,7 +6,7 @@ import Card from '../common/Card';
 import {
   Upload, Check, AlertCircle, Pipette, RotateCcw, Globe,
   Palette, Layout, Sun, Moon, Monitor, Sparkles, Eye,
-  Share2, Video, AtSign, MessageCircle, Link
+  Share2, Video, AtSign, MessageCircle, Link, Facebook
 } from 'lucide-react';
 
 const HEX_REGEX = /^#[0-9A-Fa-f]{6}$/;
@@ -175,7 +175,7 @@ const BrandingManager = () => {
   const {
     siteLogo, siteName, logoSize, siteNameColor, siteFavicon,
     primaryColor, secondaryColor, accentColor, layout, themeMode,
-    socialTwitter, socialYoutube, socialInstagram, socialDiscord,
+    socialTwitter, socialYoutube, socialInstagram, socialDiscord, socialFacebook,
     refreshBranding, updateBranding, updateSiteNameColor, updateFavicon,
     updateThemeColors, updateLayout, updateThemeMode, resetThemeColors,
     THEME_DEFAULTS,
@@ -208,6 +208,7 @@ const BrandingManager = () => {
   const [newYoutube, setNewYoutube]     = useState(socialYoutube || '');
   const [newInstagram, setNewInstagram] = useState(socialInstagram || '');
   const [newDiscord, setNewDiscord]     = useState(socialDiscord || '');
+  const [newFacebook, setNewFacebook]   = useState(socialFacebook || '');
 
   // ── Form state
   const [status, setStatus] = useState({ type: '', message: '' });
@@ -232,6 +233,7 @@ const BrandingManager = () => {
   useEffect(() => { setNewYoutube(socialYoutube); },   [socialYoutube]);
   useEffect(() => { setNewInstagram(socialInstagram); }, [socialInstagram]);
   useEffect(() => { setNewDiscord(socialDiscord); },   [socialDiscord]);
+  useEffect(() => { setNewFacebook(socialFacebook); }, [socialFacebook]);
 
   useEffect(() => {
     if (!isDirty) {
@@ -340,6 +342,7 @@ const BrandingManager = () => {
         social_youtube:   newYoutube   || '',
         social_instagram: newInstagram || '',
         social_discord:   newDiscord   || '',
+        social_facebook:  newFacebook  || '',
       }, config);
 
       // Upload logo
@@ -697,10 +700,11 @@ const BrandingManager = () => {
               </p>
 
               {[
-                { key: 'twitter',   label: 'Twitter / X',  icon: <Share2 size={16} />,        color: '#1d9bf0', placeholder: 'https://twitter.com/yourhandle',    val: newTwitter,   set: (v) => { setNewTwitter(v);   setIsDirty(true); } },
-                { key: 'youtube',   label: 'YouTube',       icon: <Video size={16} />,         color: '#ff0000', placeholder: 'https://youtube.com/@yourchannel', val: newYoutube,   set: (v) => { setNewYoutube(v);   setIsDirty(true); } },
-                { key: 'instagram', label: 'Instagram',     icon: <AtSign size={16} />,        color: '#e1306c', placeholder: 'https://instagram.com/yourhandle',  val: newInstagram, set: (v) => { setNewInstagram(v); setIsDirty(true); } },
-                { key: 'discord',   label: 'Discord',       icon: <MessageCircle size={16} />, color: '#5865f2', placeholder: 'https://discord.gg/yourserver',     val: newDiscord,   set: (v) => { setNewDiscord(v);   setIsDirty(true); } },
+                { key: 'twitter',   label: 'Twitter / X',  icon: <Share2 size={16} />,        color: '#1d9bf0', placeholder: 'https://twitter.com/yourhandle',     val: newTwitter,   set: (v) => { setNewTwitter(v);   setIsDirty(true); } },
+                { key: 'youtube',   label: 'YouTube',       icon: <Video size={16} />,         color: '#ff0000', placeholder: 'https://youtube.com/@yourchannel',  val: newYoutube,   set: (v) => { setNewYoutube(v);   setIsDirty(true); } },
+                { key: 'instagram', label: 'Instagram',     icon: <AtSign size={16} />,        color: '#e1306c', placeholder: 'https://instagram.com/yourhandle',   val: newInstagram, set: (v) => { setNewInstagram(v); setIsDirty(true); } },
+                { key: 'discord',   label: 'Discord',       icon: <MessageCircle size={16} />, color: '#5865f2', placeholder: 'https://discord.gg/yourserver',      val: newDiscord,   set: (v) => { setNewDiscord(v);   setIsDirty(true); } },
+                { key: 'facebook',  label: 'Facebook',      icon: <Facebook size={16} />,      color: '#1877f2', placeholder: 'https://facebook.com/yourpage',      val: newFacebook,  set: (v) => { setNewFacebook(v);  setIsDirty(true); } },
               ].map(({ key, label, icon, color, placeholder, val, set }) => (
                 <div className="form-group" key={key} style={{ marginBottom: '1rem' }}>
                   <label className="mb-2 block font-medium" style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>

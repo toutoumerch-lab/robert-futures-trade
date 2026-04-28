@@ -115,6 +115,7 @@ export const BrandingProvider = ({ children }) => {
   const [socialYoutube, setSocialYoutube] = useState(() => localStorage.getItem('branding_social_youtube') || '');
   const [socialInstagram, setSocialInstagram] = useState(() => localStorage.getItem('branding_social_instagram') || '');
   const [socialDiscord, setSocialDiscord] = useState(() => localStorage.getItem('branding_social_discord') || '');
+  const [socialFacebook, setSocialFacebook] = useState(() => localStorage.getItem('branding_social_facebook') || '');
 
   const [loading, setLoading] = useState(true);
 
@@ -186,6 +187,7 @@ export const BrandingProvider = ({ children }) => {
       setAndCache(setSocialYoutube,   'branding_social_youtube',   d.social_youtube   || '');
       setAndCache(setSocialInstagram, 'branding_social_instagram', d.social_instagram || '');
       setAndCache(setSocialDiscord,   'branding_social_discord',   d.social_discord   || '');
+      setAndCache(setSocialFacebook,  'branding_social_facebook',  d.social_facebook  || '');
 
     } catch (error) {
       console.error('Error fetching branding settings:', error);
@@ -305,7 +307,7 @@ export const BrandingProvider = ({ children }) => {
       resetThemeColors,
       THEME_DEFAULTS,
       // Social Media
-      socialTwitter, socialYoutube, socialInstagram, socialDiscord,
+      socialTwitter, socialYoutube, socialInstagram, socialDiscord, socialFacebook,
     }}>
       {children}
     </BrandingContext.Provider>

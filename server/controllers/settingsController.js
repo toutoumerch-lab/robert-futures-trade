@@ -89,7 +89,7 @@ const updateSettings = async (req, res) => {
     }
 
     // — Social Media Links (clearable URL strings)
-    const socialKeys = ['social_twitter', 'social_youtube', 'social_instagram', 'social_discord'];
+    const socialKeys = ['social_twitter', 'social_youtube', 'social_instagram', 'social_discord', 'social_facebook'];
     for (const key of socialKeys) {
       if (req.body[key] !== undefined) {
         const val = req.body[key];

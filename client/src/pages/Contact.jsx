@@ -3,7 +3,7 @@ import { motion, useInView } from 'framer-motion';
 import { useBranding } from '../context/BrandingContext';
 import {
   Mail, MessageSquare, Clock, Send, CheckCircle,
-  Share2, Video, AtSign, MessageCircle,
+  Share2, Video, AtSign, MessageCircle, Facebook,
   ChevronDown, ChevronUp,
   BookOpen, TrendingUp, AlertCircle,
 } from 'lucide-react';
@@ -138,7 +138,7 @@ const FaqItem = ({ q, a, index }) => {
    Page
    ═══════════════════════════════════════════════════════════════ */
 export default function Contact() {
-  const { socialTwitter, socialYoutube, socialInstagram, socialDiscord } = useBranding();
+  const { socialTwitter, socialYoutube, socialInstagram, socialDiscord, socialFacebook } = useBranding();
 
   // Build dynamic social list — hide platforms with no URL set
   const SOCIALS = [
@@ -146,6 +146,7 @@ export default function Contact() {
     { icon: Video,         label: 'YouTube',      href: socialYoutube,   color: '#ff0000' },
     { icon: AtSign,        label: 'Instagram',    href: socialInstagram, color: '#e1306c' },
     { icon: MessageCircle, label: 'Discord',      href: socialDiscord,   color: '#5865f2' },
+    { icon: Facebook,      label: 'Facebook',     href: socialFacebook,  color: '#1877f2' },
   ].filter(s => s.href && s.href.trim() !== '');
 
   // Inject discord link into the Discord contact card dynamically
