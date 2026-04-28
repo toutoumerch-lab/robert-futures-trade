@@ -28,6 +28,7 @@ app.use('/api/enrollments', require('./routes/enrollmentRoutes'));
 app.use('/api/checkouts', require('./routes/checkoutRoutes'));
 app.use('/api/admin/revenue',    require('./routes/revenueRoutes'));
 app.use('/api/admin/analytics', require('./routes/analyticsRoutes'));
+app.use('/api/about',           require('./routes/aboutRoutes'));
 app.use('/webhook',             require('./routes/tawkRoutes'));
 
 // Serve static files

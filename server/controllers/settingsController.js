@@ -101,6 +101,23 @@ const updateSettings = async (req, res) => {
       }
     }
 
+    // \u2014 About Page Stats (numeric strings)
+    const aboutKeys = ['about_student_offset', 'about_pass_rate', 'about_countries'];
+    for (const key of aboutKeys) {
+      if (req.body[key] !== undefined) {
+        const val = req.body[key];
+        if (val === '' || val === null) {
+          await remove(key);
+        } else {
+          const num = parseInt(val, 10);
+          if (isNaN(num) || num < 0) {
+            return res.status(400).json({ error: `Invalid ${key}. Must be a non-negative integer.` });
+          }
+          await upsert(key, num.toString());
+        }
+      }
+    }
+
     res.json({ message: 'Settings updated successfully' });
   } catch (error) {
     console.error('Error updating settings:', error);

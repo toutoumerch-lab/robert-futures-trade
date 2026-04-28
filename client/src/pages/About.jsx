@@ -1,10 +1,13 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
+import axios from 'axios';
 import {
   TrendingUp, Target, ShieldCheck, Users, BookOpen,
   BarChart2, Award, ArrowRight, Quote, Zap, Globe, Clock,
 } from 'lucide-react';
+
+const API_BASE = 'http://localhost:5000';
 
 /* ─── helpers ─────────────────────────────────────────────── */
 const easing = [0.16, 1, 0.3, 1];
@@ -58,13 +61,15 @@ const Reveal = ({ children, delay = 0, className = '', style = {} }) => {
   );
 };
 
-/* ─── data ────────────────────────────────────────────────── */
-const STATS = [
-  { icon: Users,    value: 2400,  suffix: '+', label: 'Active Students' },
-  { icon: BookOpen, value: 40,    suffix: '+', label: 'Courses & Modules' },
-  { icon: BarChart2,value: 87,    suffix: '%', label: 'Pass Rate' },
-  { icon: Globe,    value: 60,    suffix: '+', label: 'Countries Reached' },
+/* ─── static data ─────────────────────────────────────────── */
+const STATS_DEFAULTS = [
+  { icon: Users,    key: 'active_students', suffix: '+', label: 'Active Students',   fallback: 2400 },
+  { icon: BookOpen, key: 'courses_modules', suffix: '+', label: 'Courses & Modules', fallback: 40   },
+  { icon: BarChart2,key: 'pass_rate',       suffix: '%', label: 'Pass Rate',         fallback: 87   },
+  { icon: Globe,    key: 'countries',       suffix: '+', label: 'Countries Reached', fallback: 60   },
 ];
+
+
 
 const VALUES = [
   {
@@ -135,6 +140,21 @@ const TESTIMONIALS = [
    Page
    ═══════════════════════════════════════════════════════════════ */
 export default function About() {
+  // ── Live stats fetched from API
+  const [apiStats, setApiStats] = useState(null);
+
+  useEffect(() => {
+    axios.get(`${API_BASE}/api/about/stats`)
+      .then(res => setApiStats(res.data))
+      .catch(() => setApiStats(null)); // silently fall back to defaults
+  }, []);
+
+  // Merge API data into STATS_DEFAULTS (fallback to hardcoded values if API unavailable)
+  const STATS = STATS_DEFAULTS.map(s => ({
+    ...s,
+    value: apiStats ? (apiStats[s.key] ?? s.fallback) : s.fallback,
+  }));
+
   return (
     <div style={{ background: 'var(--bg-primary)', minHeight: '100vh', overflowX: 'hidden' }}>
 
