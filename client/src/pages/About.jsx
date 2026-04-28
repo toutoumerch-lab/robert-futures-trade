@@ -4,7 +4,7 @@ import { motion, useInView } from 'framer-motion';
 import axios from 'axios';
 import {
   TrendingUp, Target, ShieldCheck, Users, BookOpen,
-  BarChart2, Award, ArrowRight, Quote, Zap, Globe, Clock, ThumbsUp,
+  BarChart2, Award, ArrowRight, Quote, Zap, Globe, Clock, ThumbsUp, Info,
 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:5000';
@@ -58,6 +58,92 @@ const Reveal = ({ children, delay = 0, className = '', style = {} }) => {
     >
       {children}
     </motion.div>
+  );
+};
+
+/* ─── Satisfaction tooltip ────────────────────────────────── */
+const SatisfactionTooltip = () => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div
+      style={{ position: 'relative', display: 'inline-flex' }}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      {/* Info trigger */}
+      <button
+        type="button"
+        aria-label="How satisfaction is calculated"
+        style={{
+          background: 'none', border: 'none', padding: '2px', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', color: 'rgba(255,255,255,0.3)',
+          transition: 'color 0.2s',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.color = '#60a5fa'; }}
+        onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.3)'; }}
+      >
+        <Info size={14} />
+      </button>
+
+      {/* Tooltip popover */}
+      {open && (
+        <div style={{
+          position: 'absolute', top: 'calc(100% + 10px)', right: 0,
+          width: '260px', zIndex: 999,
+          background: 'rgba(15,23,42,0.97)', backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(37,99,235,0.25)', borderRadius: '14px',
+          padding: '1rem 1.1rem', boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+          textAlign: 'left',
+          animation: 'fadeIn 0.15s ease',
+        }}>
+          {/* Arrow */}
+          <div style={{
+            position: 'absolute', top: '-6px', right: '12px',
+            width: '12px', height: '12px',
+            background: 'rgba(15,23,42,0.97)',
+            border: '1px solid rgba(37,99,235,0.25)',
+            borderRight: 'none', borderBottom: 'none',
+            transform: 'rotate(45deg)',
+          }} />
+
+          <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#60a5fa', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            How it's calculated
+          </div>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.6, margin: '0 0 0.75rem' }}>
+            Students rate each lesson <strong style={{ color: 'var(--text-primary)' }}>1–5 stars</strong>. The average is mapped to a 0–100% scale:
+          </p>
+          <div style={{
+            background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.15)',
+            borderRadius: '8px', padding: '0.6rem 0.8rem', fontFamily: 'monospace',
+            fontSize: '0.78rem', color: '#93c5fd', marginBottom: '0.75rem', lineHeight: 1.8,
+          }}>
+            (avg_rating − 1) ÷ 4 × 100
+          </div>
+          <table style={{ width: '100%', fontSize: '0.78rem', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                <th style={{ color: 'var(--text-secondary)', fontWeight: 700, textAlign: 'left', paddingBottom: '4px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>Stars</th>
+                <th style={{ color: 'var(--text-secondary)', fontWeight: 700, textAlign: 'right', paddingBottom: '4px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>Satisfaction</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ['⭐⭐⭐⭐⭐  5.0', '100%'],
+                ['⭐⭐⭐⭐     4.0', '75%'],
+                ['⭐⭐⭐         3.0', '50%'],
+                ['⭐⭐             2.0', '25%'],
+                ['⭐                 1.0', '0%'],
+              ].map(([s, p]) => (
+                <tr key={s}>
+                  <td style={{ padding: '3px 0', color: 'var(--text-secondary)' }}>{s}</td>
+                  <td style={{ padding: '3px 0', textAlign: 'right', color: 'var(--text-primary)', fontWeight: 700 }}>{p}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -198,12 +284,21 @@ export default function About() {
       <section style={{ padding: '0 0 5rem' }}>
         <div className="container">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.25rem' }} className="about-stats-grid">
-            {STATS.map(({ icon: Icon, value, suffix, label }, i) => (
+            {STATS.map(({ icon: Icon, value, suffix, label, key }, i) => {
+              const isSatisfaction = key === 'satisfaction_rate';
+              return (
               <Reveal key={label} delay={i * 0.08}>
-                <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '2rem 1.5rem', textAlign: 'center', transition: 'border-color 0.3s, transform 0.3s', cursor: 'default' }}
+                <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '2rem 1.5rem', textAlign: 'center', transition: 'border-color 0.3s, transform 0.3s', cursor: 'default', position: 'relative' }}
                   onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(37,99,235,0.3)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; e.currentTarget.style.transform = 'translateY(0)'; }}
                 >
+                  {/* Tooltip info icon — only on satisfaction card */}
+                  {isSatisfaction && (
+                    <div style={{ position: 'absolute', top: '14px', right: '14px' }}>
+                      <SatisfactionTooltip />
+                    </div>
+                  )}
+
                   <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(37,99,235,0.1)', border: '1px solid rgba(37,99,235,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem', color: '#60a5fa' }}>
                     <Icon size={22} />
                   </div>
@@ -219,7 +314,8 @@ export default function About() {
                   )}
                 </div>
               </Reveal>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
