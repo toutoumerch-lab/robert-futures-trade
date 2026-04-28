@@ -101,6 +101,20 @@ const updateSettings = async (req, res) => {
       }
     }
 
+    // — Home Page YouTube Button URLs (clearable URL strings)
+    const ytKeys = ['youtube_watch_url', 'youtube_subscribe_url'];
+    for (const key of ytKeys) {
+      if (req.body[key] !== undefined) {
+        const val = req.body[key];
+        if (val === '' || val === null) {
+          await remove(key);
+        } else {
+          await upsert(key, val);
+        }
+      }
+    }
+
+
     // \u2014 About Page Stats (numeric strings)
     const aboutKeys = ['about_student_offset', 'about_pass_rate', 'about_countries'];
     for (const key of aboutKeys) {

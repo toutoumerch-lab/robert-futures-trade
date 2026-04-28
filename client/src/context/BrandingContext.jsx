@@ -116,6 +116,9 @@ export const BrandingProvider = ({ children }) => {
   const [socialInstagram, setSocialInstagram] = useState(() => localStorage.getItem('branding_social_instagram') || '');
   const [socialDiscord, setSocialDiscord] = useState(() => localStorage.getItem('branding_social_discord') || '');
   const [socialFacebook, setSocialFacebook] = useState(() => localStorage.getItem('branding_social_facebook') || '');
+  // Home page YouTube button links
+  const [youtubeWatchUrl, setYoutubeWatchUrl] = useState(() => localStorage.getItem('branding_yt_watch') || 'https://www.youtube.com/@RobertFuturesTrades');
+  const [youtubeSubscribeUrl, setYoutubeSubscribeUrl] = useState(() => localStorage.getItem('branding_yt_subscribe') || 'https://www.youtube.com/@RobertFuturesTrades?sub_confirmation=1');
 
   const [loading, setLoading] = useState(true);
 
@@ -188,6 +191,8 @@ export const BrandingProvider = ({ children }) => {
       setAndCache(setSocialInstagram, 'branding_social_instagram', d.social_instagram || '');
       setAndCache(setSocialDiscord,   'branding_social_discord',   d.social_discord   || '');
       setAndCache(setSocialFacebook,  'branding_social_facebook',  d.social_facebook  || '');
+      setAndCache(setYoutubeWatchUrl,     'branding_yt_watch',     d.youtube_watch_url     || 'https://www.youtube.com/@RobertFuturesTrades');
+      setAndCache(setYoutubeSubscribeUrl, 'branding_yt_subscribe', d.youtube_subscribe_url || 'https://www.youtube.com/@RobertFuturesTrades?sub_confirmation=1');
 
     } catch (error) {
       console.error('Error fetching branding settings:', error);
@@ -308,6 +313,8 @@ export const BrandingProvider = ({ children }) => {
       THEME_DEFAULTS,
       // Social Media
       socialTwitter, socialYoutube, socialInstagram, socialDiscord, socialFacebook,
+      // Home YouTube buttons
+      youtubeWatchUrl, youtubeSubscribeUrl,
     }}>
       {children}
     </BrandingContext.Provider>

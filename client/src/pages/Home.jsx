@@ -175,7 +175,7 @@ const Step = ({ num, title, desc, delay = 0 }) => (
 
 /* ── Main Component ─────────────────────────────────────── */
 const Home = () => {
-  const { siteLogo } = useBranding();
+  const { siteLogo, youtubeWatchUrl, youtubeSubscribeUrl } = useBranding();
   const parallaxOffset = useParallax(0.08);
   const [liveStats, setLiveStats] = useState({ courses: '...', members: '2.5K+', posts: '...', countries: '10+' });
 
@@ -419,14 +419,14 @@ const Home = () => {
                 Join our live YouTube sessions every morning. We break down the market structure, call key levels, and trade in real time — completely free, no strings attached.
               </p>
               <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                <a href="https://www.youtube.com/@RobertFuturesTrades" target="_blank" rel="noopener noreferrer"
+                <a href={youtubeWatchUrl} target="_blank" rel="noopener noreferrer"
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.85rem 2rem', borderRadius: '12px', background: 'linear-gradient(135deg,#ff0000,#cc0000)', color: '#fff', fontWeight: 800, fontSize: '0.95rem', textDecoration: 'none', boxShadow: '0 8px 24px rgba(255,0,0,0.35)', transition: 'opacity 0.2s' }}
                   onMouseEnter={e => e.currentTarget.style.opacity='0.88'}
                   onMouseLeave={e => e.currentTarget.style.opacity='1'}
                 >
                   <YoutubeSVG size={18} color="currentColor" /> Watch Live Now
                 </a>
-                <a href="https://www.youtube.com/@RobertFuturesTrades" target="_blank" rel="noopener noreferrer"
+                <a href={youtubeSubscribeUrl} target="_blank" rel="noopener noreferrer"
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.85rem 2rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'var(--text-secondary)', fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none', transition: 'all 0.2s' }}
                   onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(255,0,0,0.4)'; e.currentTarget.style.color='#ff6666'; }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(255,255,255,0.1)'; e.currentTarget.style.color='var(--text-secondary)'; }}

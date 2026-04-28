@@ -211,6 +211,11 @@ const BrandingManager = () => {
   const [newDiscord, setNewDiscord]     = useState(socialDiscord || '');
   const [newFacebook, setNewFacebook]   = useState(socialFacebook || '');
 
+  // YouTube home page button URLs
+  const { youtubeWatchUrl, youtubeSubscribeUrl } = useBranding();
+  const [newYtWatch, setNewYtWatch]         = useState(youtubeWatchUrl || '');
+  const [newYtSubscribe, setNewYtSubscribe] = useState(youtubeSubscribeUrl || '');
+
   // ── Form state
   const [status, setStatus] = useState({ type: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -235,6 +240,8 @@ const BrandingManager = () => {
   useEffect(() => { setNewInstagram(socialInstagram); }, [socialInstagram]);
   useEffect(() => { setNewDiscord(socialDiscord); },   [socialDiscord]);
   useEffect(() => { setNewFacebook(socialFacebook); }, [socialFacebook]);
+  useEffect(() => { setNewYtWatch(youtubeWatchUrl); },     [youtubeWatchUrl]);
+  useEffect(() => { setNewYtSubscribe(youtubeSubscribeUrl); }, [youtubeSubscribeUrl]);
 
   useEffect(() => {
     if (!isDirty) {
@@ -344,6 +351,8 @@ const BrandingManager = () => {
         social_instagram: newInstagram || '',
         social_discord:   newDiscord   || '',
         social_facebook:  newFacebook  || '',
+        youtube_watch_url:     newYtWatch     || '',
+        youtube_subscribe_url: newYtSubscribe || '',
       }, config);
 
       // Upload logo
@@ -734,6 +743,79 @@ const BrandingManager = () => {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+        </div>
+
+        {/* ── Home Page YouTube Links Section ── */}
+        <div className="branding-section">
+          <button
+            type="button"
+            className={`branding-section-header ${openSection === 'youtube_links' ? 'active' : ''}`}
+            onClick={() => setOpenSection(openSection === 'youtube_links' ? null : 'youtube_links')}
+          >
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+              <span style={{ color: '#ff0000', display: 'flex' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.5 31.5 0 0 0 0 12a31.5 31.5 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.5 31.5 0 0 0 24 12a31.5 31.5 0 0 0-.5-5.8zM9.75 15.5v-7l6.5 3.5-6.5 3.5z"/></svg>
+              </span>
+              Home Page — YouTube Buttons
+            </span>
+            <ChevronDown size={16} style={{ transform: openSection === 'youtube_links' ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+          </button>
+
+          {openSection === 'youtube_links' && (
+            <div className="branding-section-body">
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '1.25rem', lineHeight: 1.6 }}>
+                Control the URLs behind the <strong style={{ color: '#ff4444' }}>Watch Live Now</strong> and <strong style={{ color: 'var(--text-primary)' }}>Subscribe Free</strong> buttons on the Home page YouTube section.
+              </p>
+
+              <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                <label className="mb-2 block font-medium" style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                  <span style={{ color: '#ff0000', display: 'flex' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.5 31.5 0 0 0 0 12a31.5 31.5 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.5 31.5 0 0 0 24 12a31.5 31.5 0 0 0-.5-5.8zM9.75 15.5v-7l6.5 3.5-6.5 3.5z"/></svg>
+                  </span>
+                  "Watch Live Now" Button URL
+                </label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                  <span style={{ color: 'var(--text-secondary)', flexShrink: 0 }}><Link size={14} /></span>
+                  <input
+                    type="url"
+                    className="form-input"
+                    placeholder="https://youtube.com/live/..."
+                    value={newYtWatch}
+                    onChange={e => { setNewYtWatch(e.target.value); setIsDirty(true); }}
+                    style={{ flex: 1 }}
+                  />
+                  {newYtWatch && (
+                    <a href={newYtWatch} target="_blank" rel="noopener noreferrer"
+                      style={{ flexShrink: 0, color: '#ff4444', fontSize: '0.8rem', fontWeight: 700, textDecoration: 'none' }}
+                    >Test ↗</a>
+                  )}
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="mb-2 block font-medium" style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                  <span style={{ color: 'var(--text-secondary)', display: 'flex' }}><Link size={14} /></span>
+                  "Subscribe Free" Button URL
+                </label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                  <span style={{ color: 'var(--text-secondary)', flexShrink: 0 }}><Link size={14} /></span>
+                  <input
+                    type="url"
+                    className="form-input"
+                    placeholder="https://youtube.com/@channel?sub_confirmation=1"
+                    value={newYtSubscribe}
+                    onChange={e => { setNewYtSubscribe(e.target.value); setIsDirty(true); }}
+                    style={{ flex: 1 }}
+                  />
+                  {newYtSubscribe && (
+                    <a href={newYtSubscribe} target="_blank" rel="noopener noreferrer"
+                      style={{ flexShrink: 0, color: 'var(--accent-primary)', fontSize: '0.8rem', fontWeight: 700, textDecoration: 'none' }}
+                    >Test ↗</a>
+                  )}
+                </div>
+              </div>
             </div>
           )}
         </div>
