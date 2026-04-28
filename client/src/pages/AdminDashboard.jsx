@@ -14,7 +14,7 @@ import {
   Star, Check, X, Zap, Flame, Turtle,
   Users, FileText, GraduationCap, Briefcase, PartyPopper, Palette,
   Monitor, Smartphone, ChevronDown, ChevronRight, Layers, Upload,
-  Video, BookOpen, Plus, Trash2, Edit3, ChevronUp, ExternalLink, Clock, MessageSquare, BarChart3
+  Video, BookOpen, Plus, Trash2, Edit3, ChevronUp, ExternalLink, Clock, MessageSquare, BarChart3, ThumbsUp
 } from 'lucide-react';
 
 // ──────────────────── Generic Modal ────────────────────
@@ -2445,6 +2445,159 @@ const PromotionsTab = () => {
   );
 };
 
+// ──────────────────── Reviews Tab ────────────────────
+const ReviewsTab = () => {
+  const [reviews, setReviews]   = useState([]);
+  const [courses, setCourses]   = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [courseFilter, setCourseFilter] = useState('');
+  const [stats, setStats]       = useState(null);
+
+  const fetchReviews = useCallback((cid = '') => {
+    setLoading(true);
+    const url = cid
+      ? `http://localhost:5000/api/reviews/admin?course_id=${cid}&limit=200`
+      : 'http://localhost:5000/api/reviews/admin?limit=200';
+    const token = localStorage.getItem('token');
+    Promise.all([
+      axios.get(url, { headers: { Authorization: `Bearer ${token}` } }),
+      axios.get('http://localhost:5000/api/reviews/satisfaction'),
+    ])
+      .then(([rRes, sRes]) => {
+        setReviews(rRes.data.reviews || []);
+        setStats(sRes.data);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const fetchCourses = useCallback(() => {
+    axios.get('http://localhost:5000/api/courses')
+      .then(res => setCourses(res.data || []))
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => { fetchReviews(); fetchCourses(); }, [fetchReviews, fetchCourses]);
+
+  const handleFilterChange = (e) => {
+    const val = e.target.value;
+    setCourseFilter(val);
+    fetchReviews(val);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this review?')) return;
+    const token = localStorage.getItem('token');
+    await axios.delete(`http://localhost:5000/api/reviews/admin/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+    fetchReviews(courseFilter);
+  };
+
+  const StarRow = ({ rating }) => (
+    <div style={{ display: 'flex', gap: '2px' }}>
+      {[1,2,3,4,5].map(n => (
+        <Star key={n} size={13}
+          fill={n <= rating ? '#f59e0b' : 'none'}
+          color={n <= rating ? '#f59e0b' : 'rgba(255,255,255,0.2)'}
+          strokeWidth={1.5}
+        />
+      ))}
+    </div>
+  );
+
+  return (
+    <div>
+      {/* Header + Satisfaction summary */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <h2 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)' }}>Lesson Reviews</h2>
+        {stats && (
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: '12px', padding: '0.6rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Star size={16} fill="#f59e0b" color="#f59e0b" />
+              <span style={{ fontWeight: 800, color: 'var(--text-primary)' }}>{stats.avg_rating ?? '—'}</span>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>avg rating</span>
+            </div>
+            <div style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '12px', padding: '0.6rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <ThumbsUp size={16} color="#10b981" />
+              <span style={{ fontWeight: 800, color: 'var(--text-primary)' }}>{stats.satisfaction_rate !== null ? `${stats.satisfaction_rate}%` : '—'}</span>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>satisfaction</span>
+            </div>
+            <div style={{ background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.2)', borderRadius: '12px', padding: '0.6rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <MessageSquare size={16} color="#60a5fa" />
+              <span style={{ fontWeight: 800, color: 'var(--text-primary)' }}>{stats.total_reviews}</span>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>total reviews</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Filter */}
+      <div style={{ marginBottom: '1.25rem' }}>
+        <select
+          className="input"
+          value={courseFilter}
+          onChange={handleFilterChange}
+          style={{ maxWidth: '320px' }}
+        >
+          <option value="">All Courses</option>
+          {courses.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
+        </select>
+      </div>
+
+      {/* Table */}
+      {loading ? (
+        <div className="tab-loading">Loading reviews…</div>
+      ) : reviews.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '4rem 2rem', background: 'var(--bg-secondary)', borderRadius: '20px', border: '1px dashed var(--border)' }}>
+          <MessageSquare size={40} style={{ color: 'var(--accent-primary)', marginBottom: '1rem' }} />
+          <p style={{ color: 'var(--text-secondary)' }}>No reviews yet.</p>
+        </div>
+      ) : (
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Course</th>
+                <th>Lesson</th>
+                <th>Rating</th>
+                <th>Comment</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reviews.map(r => (
+                <tr key={r.id}>
+                  <td>
+                    <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.875rem' }}>{r.user_name}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{r.user_email}</div>
+                  </td>
+                  <td style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.course_title}</td>
+                  <td style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.lesson_title}</td>
+                  <td><StarRow rating={r.rating} /></td>
+                  <td style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: '220px' }}>
+                    {r.comment ? (
+                      <span style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{r.comment}</span>
+                    ) : (
+                      <span style={{ opacity: 0.4, fontStyle: 'italic' }}>No comment</span>
+                    )}
+                  </td>
+                  <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
+                    {new Date(r.created_at).toLocaleDateString()}
+                  </td>
+                  <td className="table-actions">
+                    <button className="action-btn danger" onClick={() => handleDelete(r.id)}>Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ──────────────────── Main Admin Dashboard ────────────────────
 const TABS = [
   { id: 'users',      label: 'Users',      Icon: Users,         color: '#8b5cf6' },
@@ -2453,6 +2606,7 @@ const TABS = [
   { id: 'prop-firms', label: 'Prop Firms',  Icon: Briefcase,     color: '#f59e0b' },
   { id: 'promos',     label: 'Promotions',  Icon: PartyPopper,   color: '#3b82f6' },
   { id: 'branding',   label: 'Branding',    Icon: Palette,       color: '#06b6d4' },
+  { id: 'reviews',    label: 'Reviews',     Icon: Star,          color: '#f59e0b' },
 ];
 
 const AdminDashboard = () => {
@@ -2557,6 +2711,7 @@ const AdminDashboard = () => {
             {activeTab === 'prop-firms' && <PropFirmsTab />}
             {activeTab === 'promos'     && <PromotionsTab />}
             {activeTab === 'branding'   && <BrandingManager />}
+            {activeTab === 'reviews'    && <ReviewsTab />}
           </Card>
         </div>
       </div>

@@ -4,7 +4,7 @@ import { motion, useInView } from 'framer-motion';
 import axios from 'axios';
 import {
   TrendingUp, Target, ShieldCheck, Users, BookOpen,
-  BarChart2, Award, ArrowRight, Quote, Zap, Globe, Clock,
+  BarChart2, Award, ArrowRight, Quote, Zap, Globe, Clock, ThumbsUp,
 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:5000';
@@ -65,7 +65,7 @@ const Reveal = ({ children, delay = 0, className = '', style = {} }) => {
 const STATS_DEFAULTS = [
   { icon: Users,    key: 'active_students', suffix: '+', label: 'Active Students',   fallback: 2400 },
   { icon: BookOpen, key: 'courses_modules', suffix: '+', label: 'Courses',         fallback: 12   },
-  { icon: BarChart2,key: 'pass_rate',       suffix: '%', label: 'Pass Rate',         fallback: 87   },
+  { icon: ThumbsUp,  key: 'satisfaction_rate', suffix: '%', label: 'Student Satisfaction', fallback: null },
   { icon: Globe,    key: 'countries',       suffix: '+', label: 'Countries Reached', fallback: 60   },
 ];
 
@@ -208,9 +208,15 @@ export default function About() {
                     <Icon size={22} />
                   </div>
                   <div style={{ fontSize: '2.4rem', fontWeight: 900, letterSpacing: '-1.5px', color: 'var(--text-primary)', lineHeight: 1 }}>
-                    <Counter to={value} suffix={suffix} />
+                    {value === null
+                      ? <span style={{ fontSize: '1.8rem', color: 'var(--text-secondary)' }}>—</span>
+                      : <Counter to={value} suffix={suffix} />
+                    }
                   </div>
                   <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.5rem', fontWeight: 600 }}>{label}</div>
+                  {value === null && (
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '0.3rem', opacity: 0.6 }}>No reviews yet</div>
+                  )}
                 </div>
               </Reveal>
             ))}

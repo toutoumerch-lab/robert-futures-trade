@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { Film, Paperclip, FileDown, Package, Link2, BookOpen, ChevronUp, ChevronDown, Play, ArrowLeft, Clock, Loader, Shield, CheckCircle, Check } from 'lucide-react';
+import LessonReview from '../components/course/LessonReview';
 
 const CourseLearn = () => {
   const { id } = useParams();
@@ -282,6 +283,14 @@ const CourseLearn = () => {
                   </button>
                 </div>
               </div>
+
+              {/* ── Reviews & Comments ── */}
+              <LessonReview
+                key={activeLesson.id}
+                lessonId={activeLesson.id}
+                courseId={parseInt(id)}
+                token={token}
+              />
             </div>
           )}
         </div>
