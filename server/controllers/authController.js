@@ -14,21 +14,36 @@ const getClientIp = (req) => {
   return req.headers['x-real-ip'] || req.socket?.remoteAddress || null;
 };
 
+/** Fetch the server's own public IP from ipify (used as fallback on localhost) */
+const getServerPublicIp = () => new Promise((resolve) => {
+  https.get('https://api.ipify.org?format=json', { timeout: 3000 }, (res) => {
+    let d = '';
+    res.on('data', c => d += c);
+    res.on('end', () => {
+      try { resolve(JSON.parse(d).ip || null); } catch { resolve(null); }
+    });
+  }).on('error', () => resolve(null)).on('timeout', () => resolve(null));
+});
+
 /**
  * Lookup country from IP using ipwho.is (free, no key, HTTPS).
  * Returns { country, country_code } or null on any failure.
  * Never throws — geo detection is best-effort only.
+ * On localhost: falls back to the server's own public IP.
  */
-const lookupCountry = (ip) =>
-  new Promise((resolve) => {
-    // Skip loopback / private IPs (localhost dev)
-    if (!ip || ip === '::1' || ip.startsWith('127.') || ip.startsWith('192.168.') || ip.startsWith('10.')) {
-      return resolve(null);
-    }
+const lookupCountry = async (ip) => {
+  // Detect localhost / loopback / private IPs
+  const isLocal = !ip || ip === '::1' || ip.startsWith('127.') ||
+                  ip.startsWith('192.168.') || ip.startsWith('10.');
 
-    // Strip IPv6-mapped IPv4 prefix (::ffff:x.x.x.x)
-    const cleanIp = ip.replace(/^::ffff:/, '');
+  // Use server's own public IP as a fallback during local development
+  const resolvedIp = isLocal ? await getServerPublicIp() : ip;
+  if (!resolvedIp) return null;
 
+  // Strip IPv6-mapped IPv4 prefix (::ffff:x.x.x.x)
+  const cleanIp = resolvedIp.replace(/^::ffff:/, '');
+
+  return new Promise((resolve) => {
     const url = `https://ipwho.is/${cleanIp}`;
     https.get(url, { timeout: 3000 }, (res) => {
       let data = '';
@@ -48,6 +63,7 @@ const lookupCountry = (ip) =>
     }).on('error', () => resolve(null))
       .on('timeout', () => resolve(null));
   });
+};
 
 /* ─────────────────────────────────────────────────────────────────
    POST /api/auth/register
@@ -149,4 +165,60 @@ const me = async (req, res) => {
   }
 };
 
-module.exports = { register, login, me };
+/* ─────────────────────────────────────────────────────────────────
+   POST /api/auth/backfill-countries  (admin only)
+   Detects the server's public IP → geolocates it → applies to all
+   users with missing country. Useful for localhost dev.
+───────────────────────────────────────────────────────────────── */
+const backfillCountries = async (req, res) => {
+  try {
+    // Use server's public IP (or the requester's if it's a real IP)
+    const reqIp = getClientIp(req);
+    const geo   = await lookupCountry(reqIp);
+
+    if (!geo) {
+      return res.status(503).json({ error: 'Could not detect location. Check internet connectivity.' });
+    }
+
+    const result = await pool.query(
+      `UPDATE users SET country = $1, country_code = $2
+       WHERE country_code IS NULL
+       RETURNING id, name, email`,
+      [geo.country, geo.country_code]
+    );
+
+    res.json({
+      updated: result.rowCount,
+      country: geo.country,
+      country_code: geo.country_code,
+      users: result.rows,
+    });
+  } catch (err) {
+    console.error('[backfillCountries]', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+/* ─────────────────────────────────────────────────────────────────
+   PATCH /api/auth/users/:id/country  (admin only)
+   Manually set a specific user's country
+───────────────────────────────────────────────────────────────── */
+const setUserCountry = async (req, res) => {
+  const { id } = req.params;
+  const { country, country_code } = req.body;
+  if (!country || !country_code) {
+    return res.status(400).json({ error: 'country and country_code are required' });
+  }
+  try {
+    await pool.query(
+      'UPDATE users SET country = $1, country_code = $2 WHERE id = $3',
+      [country, country_code.toUpperCase(), id]
+    );
+    res.json({ success: true, country, country_code: country_code.toUpperCase() });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+module.exports = { register, login, me, backfillCountries, setUserCountry };
+
