@@ -5,7 +5,12 @@ import Card from '../components/common/Card';
 import Reveal from '../components/common/Reveal';
 import { useBranding } from '../context/BrandingContext';
 import { useParallax } from '../hooks/useScrollReveal';
-import { Scale, Gem, Newspaper, Sparkles, ArrowRight, TrendingUp, Shield, Zap, Youtube, BookOpen, Trophy, Rss } from 'lucide-react';
+import { Scale, Gem, Newspaper, Sparkles, ArrowRight, TrendingUp, Shield, Zap, BookOpen, Trophy, Rss } from 'lucide-react';
+const YoutubeSVG = ({ size = 36, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+    <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.5 31.5 0 0 0 0 12a31.5 31.5 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.5 31.5 0 0 0 24 12a31.5 31.5 0 0 0-.5-5.8zM9.75 15.5v-7l6.5 3.5-6.5 3.5z"/>
+  </svg>
+);
 
 /* ── Animated background blob ──────────────────────────── */
 const AnimatedBlob = ({ color1, color2, delay = 0, style = {} }) => (
@@ -357,7 +362,7 @@ const Home = () => {
               <div style={{ position: 'relative', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 32px 80px rgba(255,0,0,0.15)', border: '1px solid rgba(255,0,0,0.15)' }}>
                 <div style={{ background: 'linear-gradient(135deg, #1a0000, #0d0d0d)', padding: '3rem 2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '260px', gap: '1.25rem' }}>
                   <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg, #ff0000, #cc0000)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 40px rgba(255,0,0,0.4)', animation: 'pulse 2s infinite' }}>
-                    <Youtube size={36} color="#fff" />
+                    <YoutubeSVG size={36} color="#fff" />
                   </div>
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(255,0,0,0.15)', border: '1px solid rgba(255,0,0,0.3)', padding: '4px 14px', borderRadius: '99px', color: '#ff4444', fontWeight: 800, fontSize: '0.78rem', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
@@ -373,7 +378,7 @@ const Home = () => {
             {/* Right — text */}
             <Reveal direction="right" style={{ flex: '1 1 340px' }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255,0,0,0.08)', border: '1px solid rgba(255,0,0,0.2)', padding: '5px 16px', borderRadius: '99px', color: '#ff6666', fontWeight: 700, fontSize: '0.82rem', marginBottom: '1.5rem' }}>
-                <Youtube size={14} /> YouTube Community
+                <YoutubeSVG size={14} color="currentColor" /> YouTube Community
               </div>
               <h2 style={{ fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 900, letterSpacing: '-1px', lineHeight: 1.15, marginBottom: '1.25rem' }}>
                 Trade Live With Us<br /><span style={{ background: 'linear-gradient(135deg,#ff4444,#ff8888)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Every Single Day — Free</span>
@@ -387,7 +392,7 @@ const Home = () => {
                   onMouseEnter={e => e.currentTarget.style.opacity='0.88'}
                   onMouseLeave={e => e.currentTarget.style.opacity='1'}
                 >
-                  <Youtube size={18} /> Watch Live Now
+                  <YoutubeSVG size={18} color="currentColor" /> Watch Live Now
                 </a>
                 <a href="https://www.youtube.com/@RobertFuturesTrades" target="_blank" rel="noopener noreferrer"
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.85rem 2rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'var(--text-secondary)', fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none', transition: 'all 0.2s' }}
