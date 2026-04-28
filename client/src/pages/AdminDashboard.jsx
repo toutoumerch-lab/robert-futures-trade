@@ -82,13 +82,13 @@ const UsersTab = () => {
 
   const promoteUser = async (id, currentRole) => {
     const newRole = currentRole === 'admin' ? 'user' : 'admin';
-    await axios.patch(http://localhost:5000/api/users//role, { role: newRole });
+    await axios.patch(`http://localhost:5000/api/users/${id}/role`, { role: newRole });
     fetchUsers();
   };
 
   const deleteUser = async (id) => {
     if (!window.confirm('Delete this user?')) return;
-    await axios.delete(http://localhost:5000/api/users/);
+    await axios.delete(`http://localhost:5000/api/users/${id}`);
     fetchUsers();
   };
 
@@ -124,7 +124,7 @@ const UsersTab = () => {
                   )}
                 </td>
                 <td>
-                  <span className={adge ${u.role === 'admin' ? 'badge-admin' : 'badge-user'}}>
+                  <span className={`badge ${u.role === 'admin' ? 'badge-admin' : 'badge-user'}`}>
                     {u.role}
                   </span>
                 </td>
