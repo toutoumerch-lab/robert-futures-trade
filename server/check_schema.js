@@ -1,22 +1,22 @@
 const { pool } = require('./config/db');
-const fs = require('fs');
-
-async function main() {
+(async () => {
   try {
-    const r = await pool.query(
-      "SELECT column_name, data_type, is_nullable FROM information_schema.columns WHERE table_name = 'prop_firms' ORDER BY ordinal_position"
-    );
-    let output = '';
-    r.rows.forEach(row => {
-      output += row.column_name + ' | ' + row.data_type + ' | ' + row.is_nullable + '\n';
-    });
-    fs.writeFileSync('schema_output.txt', output);
-    console.log('Schema written to schema_output.txt');
-  } catch (e) {
-    console.error(e.message);
-  } finally {
-    pool.end();
-  }
-}
+    const r1 = await pool.query(`
+      SELECT column_name, data_type 
+      FROM information_schema.columns 
+      WHERE table_name = 'course_lessons' AND table_schema = 'public'
+      ORDER BY ordinal_position
+    `);
+    console.log('course_lessons cols:', r1.rows.map(c => `${c.column_name}:${c.data_type}`).join(', '));
 
-main();
+    const r2 = await pool.query(`
+      SELECT column_name, data_type 
+      FROM information_schema.columns 
+      WHERE table_name = 'users' AND table_schema = 'public'
+      ORDER BY ordinal_position
+    `);
+    console.log('users cols:', r2.rows.map(c => `${c.column_name}:${c.data_type}`).join(', '));
+    
+  } catch (e) { console.error(e.message); }
+  finally { pool.end(); }
+})();
