@@ -88,6 +88,19 @@ const updateSettings = async (req, res) => {
       }
     }
 
+    // — Social Media Links (clearable URL strings)
+    const socialKeys = ['social_twitter', 'social_youtube', 'social_instagram', 'social_discord'];
+    for (const key of socialKeys) {
+      if (req.body[key] !== undefined) {
+        const val = req.body[key];
+        if (val === '' || val === null) {
+          await remove(key);
+        } else {
+          await upsert(key, val);
+        }
+      }
+    }
+
     res.json({ message: 'Settings updated successfully' });
   } catch (error) {
     console.error('Error updating settings:', error);

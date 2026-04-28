@@ -5,7 +5,8 @@ import { useTheme } from '../../context/ThemeContext';
 import Card from '../common/Card';
 import {
   Upload, Check, AlertCircle, Pipette, RotateCcw, Globe,
-  Palette, Layout, Sun, Moon, Monitor, Sparkles, Eye
+  Palette, Layout, Sun, Moon, Monitor, Sparkles, Eye,
+  Share2, Video, AtSign, MessageCircle, Link
 } from 'lucide-react';
 
 const HEX_REGEX = /^#[0-9A-Fa-f]{6}$/;
@@ -174,6 +175,7 @@ const BrandingManager = () => {
   const {
     siteLogo, siteName, logoSize, siteNameColor, siteFavicon,
     primaryColor, secondaryColor, accentColor, layout, themeMode,
+    socialTwitter, socialYoutube, socialInstagram, socialDiscord,
     refreshBranding, updateBranding, updateSiteNameColor, updateFavicon,
     updateThemeColors, updateLayout, updateThemeMode, resetThemeColors,
     THEME_DEFAULTS,
@@ -201,6 +203,12 @@ const BrandingManager = () => {
   const [newLayout, setNewLayout] = useState(layout);
   const [newThemeMode, setNewThemeMode] = useState(themeMode);
 
+  // ── Social state
+  const [newTwitter, setNewTwitter]     = useState(socialTwitter || '');
+  const [newYoutube, setNewYoutube]     = useState(socialYoutube || '');
+  const [newInstagram, setNewInstagram] = useState(socialInstagram || '');
+  const [newDiscord, setNewDiscord]     = useState(socialDiscord || '');
+
   // ── Form state
   const [status, setStatus] = useState({ type: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -220,6 +228,10 @@ const BrandingManager = () => {
   useEffect(() => { setNewAccent(accentColor); }, [accentColor]);
   useEffect(() => { setNewLayout(layout); }, [layout]);
   useEffect(() => { setNewThemeMode(themeMode); }, [themeMode]);
+  useEffect(() => { setNewTwitter(socialTwitter); },   [socialTwitter]);
+  useEffect(() => { setNewYoutube(socialYoutube); },   [socialYoutube]);
+  useEffect(() => { setNewInstagram(socialInstagram); }, [socialInstagram]);
+  useEffect(() => { setNewDiscord(socialDiscord); },   [socialDiscord]);
 
   useEffect(() => {
     if (!isDirty) {
@@ -324,6 +336,10 @@ const BrandingManager = () => {
         theme_accent_color: newAccent || '',
         theme_layout: newLayout,
         theme_mode: newThemeMode,
+        social_twitter:   newTwitter   || '',
+        social_youtube:   newYoutube   || '',
+        social_instagram: newInstagram || '',
+        social_discord:   newDiscord   || '',
       }, config);
 
       // Upload logo
@@ -651,6 +667,68 @@ const BrandingManager = () => {
                   ))}
                 </div>
               </div>
+            </div>
+          )}
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════
+            SECTION 4: SOCIAL MEDIA LINKS
+        ═══════════════════════════════════════════════════════ */}
+        <div className="branding-section">
+          <button type="button" className="branding-section-header" onClick={() => toggleSection('social')}>
+            <div className="branding-section-title">
+              <div className="branding-section-icon" style={{ background: 'linear-gradient(135deg, #1d9bf0, #e1306c)' }}>
+                <Share2 size={18} />
+              </div>
+              <div>
+                <h3>Social Media Links</h3>
+                <p>Twitter/X, YouTube, Instagram, Discord</p>
+              </div>
+            </div>
+            <div className={`branding-section-chevron ${openSection === 'social' ? 'open' : ''}`}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </button>
+
+          {openSection === 'social' && (
+            <div className="branding-section-body">
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '1.25rem', lineHeight: 1.6 }}>
+                These links appear on the <strong style={{ color: 'var(--text-primary)' }}>Contact Us</strong> page under &quot;Follow Us&quot;. Leave a field empty to hide that platform.
+              </p>
+
+              {[
+                { key: 'twitter',   label: 'Twitter / X',  icon: <Share2 size={16} />,        color: '#1d9bf0', placeholder: 'https://twitter.com/yourhandle',    val: newTwitter,   set: (v) => { setNewTwitter(v);   setIsDirty(true); } },
+                { key: 'youtube',   label: 'YouTube',       icon: <Video size={16} />,         color: '#ff0000', placeholder: 'https://youtube.com/@yourchannel', val: newYoutube,   set: (v) => { setNewYoutube(v);   setIsDirty(true); } },
+                { key: 'instagram', label: 'Instagram',     icon: <AtSign size={16} />,        color: '#e1306c', placeholder: 'https://instagram.com/yourhandle',  val: newInstagram, set: (v) => { setNewInstagram(v); setIsDirty(true); } },
+                { key: 'discord',   label: 'Discord',       icon: <MessageCircle size={16} />, color: '#5865f2', placeholder: 'https://discord.gg/yourserver',     val: newDiscord,   set: (v) => { setNewDiscord(v);   setIsDirty(true); } },
+              ].map(({ key, label, icon, color, placeholder, val, set }) => (
+                <div className="form-group" key={key} style={{ marginBottom: '1rem' }}>
+                  <label className="mb-2 block font-medium" style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                    <span style={{ color }}>{icon}</span> {label}
+                  </label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <span style={{ color: 'var(--text-secondary)', flexShrink: 0 }}><Link size={14} /></span>
+                    <input
+                      type="url"
+                      className="form-input"
+                      placeholder={placeholder}
+                      value={val}
+                      onChange={(e) => set(e.target.value)}
+                      style={{ flex: 1 }}
+                    />
+                    {val && (
+                      <button
+                        type="button"
+                        className="color-reset-btn"
+                        onClick={() => set('')}
+                        title={`Clear ${label} link`}
+                      >
+                        <RotateCcw size={13} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>

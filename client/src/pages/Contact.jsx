@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
+import { useBranding } from '../context/BrandingContext';
 import {
   Mail, MessageSquare, Clock, Send, CheckCircle,
   Share2, Video, AtSign, MessageCircle,
@@ -26,7 +27,7 @@ const Reveal = ({ children, delay = 0, style = {}, className = '' }) => {
 };
 
 /* ─── data ────────────────────────────────────────────────── */
-const CONTACT_CARDS = [
+const CONTACT_CARDS_BASE = [
   {
     icon: Mail,
     title: 'Email Us',
@@ -41,7 +42,7 @@ const CONTACT_CARDS = [
     value: 'Join the Server',
     sub: '2,400+ active traders',
     hue: '265',
-    action: 'https://discord.gg/roberts',
+    action: null, // filled dynamically from branding
   },
   {
     icon: Clock,
@@ -51,13 +52,6 @@ const CONTACT_CARDS = [
     hue: '38',
     action: null,
   },
-];
-
-const SOCIALS = [
-  { icon: Share2,        label: 'Twitter / X',   href: '#', color: '#1d9bf0' },
-  { icon: Video,         label: 'YouTube',        href: '#', color: '#ff0000' },
-  { icon: AtSign,        label: 'Instagram',      href: '#', color: '#e1306c' },
-  { icon: MessageCircle, label: 'Discord',        href: '#', color: '#5865f2' },
 ];
 
 const FAQS = [
@@ -144,6 +138,23 @@ const FaqItem = ({ q, a, index }) => {
    Page
    ═══════════════════════════════════════════════════════════════ */
 export default function Contact() {
+  const { socialTwitter, socialYoutube, socialInstagram, socialDiscord } = useBranding();
+
+  // Build dynamic social list — hide platforms with no URL set
+  const SOCIALS = [
+    { icon: Share2,        label: 'Twitter / X', href: socialTwitter,   color: '#1d9bf0' },
+    { icon: Video,         label: 'YouTube',      href: socialYoutube,   color: '#ff0000' },
+    { icon: AtSign,        label: 'Instagram',    href: socialInstagram, color: '#e1306c' },
+    { icon: MessageCircle, label: 'Discord',      href: socialDiscord,   color: '#5865f2' },
+  ].filter(s => s.href && s.href.trim() !== '');
+
+  // Inject discord link into the Discord contact card dynamically
+  const CONTACT_CARDS = CONTACT_CARDS_BASE.map(card =>
+    card.title === 'Discord Community'
+      ? { ...card, action: socialDiscord || null }
+      : card
+  );
+
   const [form, setForm]       = useState({ name: '', email: '', subject: 'general', message: '' });
   const [errors, setErrors]   = useState({});
   const [status, setStatus]   = useState('idle'); // idle | sending | success | error
@@ -378,23 +389,26 @@ export default function Contact() {
                 </div>
               </Reveal>
 
-              {/* Social links */}
-              <Reveal delay={0.15}>
-                <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '1.75rem' }}>
-                  <div style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#60a5fa', marginBottom: '1.25rem' }}>Follow Us</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                    {SOCIALS.map(({ icon: Icon, label, href, color }) => (
-                      <a key={label} href={href} target="_blank" rel="noreferrer"
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.65rem 0.9rem', borderRadius: '10px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', textDecoration: 'none', color: 'var(--text-secondary)', fontSize: '0.82rem', fontWeight: 700, transition: 'all 0.2s' }}
-                        onMouseEnter={e => { e.currentTarget.style.borderColor = color + '44'; e.currentTarget.style.background = color + '11'; e.currentTarget.style.color = color; }}
-                        onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
-                      >
-                        <Icon size={15} style={{ color }} /> {label}
-                      </a>
-                    ))}
+              {/* Social links — only shown when admin has set at least one link */}
+              {SOCIALS.length > 0 && (
+                <Reveal delay={0.15}>
+                  <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '1.75rem' }}>
+                    <div style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#60a5fa', marginBottom: '1.25rem' }}>Follow Us</div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                      {SOCIALS.map(({ icon: Icon, label, href, color }) => (
+                        <a key={label} href={href} target="_blank" rel="noreferrer"
+                          style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.65rem 0.9rem', borderRadius: '10px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', textDecoration: 'none', color: 'var(--text-secondary)', fontSize: '0.82rem', fontWeight: 700, transition: 'all 0.2s' }}
+                          onMouseEnter={e => { e.currentTarget.style.borderColor = color + '44'; e.currentTarget.style.background = color + '11'; e.currentTarget.style.color = color; }}
+                          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+                        >
+                          <Icon size={15} style={{ color }} /> {label}
+                        </a>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </Reveal>
+                </Reveal>
+              )}
+
 
               {/* Response time badge */}
               <Reveal delay={0.2}>

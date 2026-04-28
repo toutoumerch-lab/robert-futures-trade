@@ -110,6 +110,12 @@ export const BrandingProvider = ({ children }) => {
   const [layout, setLayout] = useState(() => localStorage.getItem('branding_layout') || THEME_DEFAULTS.layout);
   const [themeMode, setThemeMode] = useState(() => localStorage.getItem('branding_theme_mode') || THEME_DEFAULTS.themeMode);
 
+  // — Social Media Links
+  const [socialTwitter, setSocialTwitter] = useState(() => localStorage.getItem('branding_social_twitter') || '');
+  const [socialYoutube, setSocialYoutube] = useState(() => localStorage.getItem('branding_social_youtube') || '');
+  const [socialInstagram, setSocialInstagram] = useState(() => localStorage.getItem('branding_social_instagram') || '');
+  const [socialDiscord, setSocialDiscord] = useState(() => localStorage.getItem('branding_social_discord') || '');
+
   const [loading, setLoading] = useState(true);
 
   const fetchSettings = async () => {
@@ -169,6 +175,17 @@ export const BrandingProvider = ({ children }) => {
       const tm = d.theme_mode || THEME_DEFAULTS.themeMode;
       setThemeMode(tm);
       localStorage.setItem('branding_theme_mode', tm);
+
+      // — Social Media Links
+      const setAndCache = (setter, storageKey, val) => {
+        setter(val || '');
+        if (val) { localStorage.setItem(storageKey, val); }
+        else { localStorage.removeItem(storageKey); }
+      };
+      setAndCache(setSocialTwitter,   'branding_social_twitter',   d.social_twitter   || '');
+      setAndCache(setSocialYoutube,   'branding_social_youtube',   d.social_youtube   || '');
+      setAndCache(setSocialInstagram, 'branding_social_instagram', d.social_instagram || '');
+      setAndCache(setSocialDiscord,   'branding_social_discord',   d.social_discord   || '');
 
     } catch (error) {
       console.error('Error fetching branding settings:', error);
@@ -287,6 +304,8 @@ export const BrandingProvider = ({ children }) => {
       updateThemeMode,
       resetThemeColors,
       THEME_DEFAULTS,
+      // Social Media
+      socialTwitter, socialYoutube, socialInstagram, socialDiscord,
     }}>
       {children}
     </BrandingContext.Provider>
