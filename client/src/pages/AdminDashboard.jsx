@@ -52,6 +52,38 @@ const Modal = ({ title, onClose, hideHeader, style, children }) => {
     document.body
   );
 };
+    // Lock body scroll and prevent layout shift from scrollbar disappearing
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    const originalOverflow = window.getComputedStyle(document.body).overflow;
+    const originalPaddingRight = window.getComputedStyle(document.body).paddingRight;
+    
+    document.body.style.overflow = 'hidden';
+    document.body.style.paddingRight = `calc(${originalPaddingRight} + ${scrollbarWidth}px)`;
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.paddingRight = originalPaddingRight;
+    };
+  }, []);
+
+  return createPortal(
+    <div className="modal-overlay" onClick={onClose} style={{ zIndex: 999999, pointerEvents: 'auto' }}>
+      <div className="modal-box" onClick={e => e.stopPropagation()} style={{ position: 'relative', cursor: 'auto', ...style }}>
+        {!hideHeader && (
+          <div className="modal-header">
+            <h3>{title}</h3>
+            <button className="modal-close" onClick={onClose}><X size={16} /></button>
+          </div>
+        )}
+        {hideHeader && (
+          <button className="modal-close" onClick={onClose} style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 100, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(4px)', width: '36px', height: '36px', borderRadius: '50%', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}><X size={16} /></button>
+        )}
+        <div className="modal-body" style={{ padding: hideHeader ? '0' : '1.5rem' }}>{children}</div>
+      </div>
+    </div>,
+    document.body
+  );
+};
 
 // ──────────────────── FormField helper ────────────────────
 const Field = ({ label, type = 'text', value, onChange, placeholder, as, ...rest }) => (
@@ -82,14 +114,19 @@ const UsersTab = () => {
 
   const promoteUser = async (id, currentRole) => {
     const newRole = currentRole === 'admin' ? 'user' : 'admin';
-    await axios.patch(`http://localhost:5000/api/users/${id}/role`, { role: newRole });
+    await axios.patch(http://localhost:5000/api/users//role, { role: newRole });
     fetchUsers();
   };
 
   const deleteUser = async (id) => {
     if (!window.confirm('Delete this user?')) return;
-    await axios.delete(`http://localhost:5000/api/users/${id}`);
+    await axios.delete(http://localhost:5000/api/users/);
     fetchUsers();
+  };
+
+  const toFlag = (code) => {
+    if (!code || code.length !== 2) return '';
+    return String.fromCodePoint(...code.toUpperCase().split('').map(c => 0x1F1E6 - 65 + c.charCodeAt(0)));
   };
 
   if (loading) return <div className="tab-loading">Loading users...</div>;
@@ -100,16 +137,26 @@ const UsersTab = () => {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>Name</th><th>Email</th><th>Role</th><th>Actions</th>
+              <th>Name</th><th>Email</th><th>Country</th><th>Role</th><th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {users.map(u => (
               <tr key={u.id}>
-                <td>{u.name}</td>
+                <td style={{ fontWeight: 700 }}>{u.name}</td>
                 <td style={{ color: 'var(--text-secondary)' }}>{u.email}</td>
                 <td>
-                  <span className={`badge ${u.role === 'admin' ? 'badge-admin' : 'badge-user'}`}>
+                  {u.country ? (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.875rem' }}>
+                      <span style={{ fontSize: '1.1rem' }}>{toFlag(u.country_code)}</span>
+                      <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>{u.country}</span>
+                    </span>
+                  ) : (
+                    <span style={{ color: 'var(--text-secondary)', opacity: 0.35, fontSize: '0.82rem' }}>—</span>
+                  )}
+                </td>
+                <td>
+                  <span className={adge ${u.role === 'admin' ? 'badge-admin' : 'badge-user'}}>
                     {u.role}
                   </span>
                 </td>

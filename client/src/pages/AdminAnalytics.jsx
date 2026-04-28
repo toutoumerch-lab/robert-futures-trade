@@ -18,7 +18,7 @@ import {
   TrendingUp, TrendingDown, Users, BookOpen, DollarSign,
   Activity, BarChart2, Zap, ArrowLeft, RefreshCw,
   Search, ChevronLeft, ChevronRight, Award, AlertTriangle,
-  CheckCircle, Info, Filter, Eye, Clock, Building2, ExternalLink, MousePointer2, Star,
+  CheckCircle, Info, Filter, Eye, Clock, Building2, ExternalLink, MousePointer2, Star, Globe,
 } from 'lucide-react';
 
 /* ─── constants ─────────────────────────────────────────────── */
@@ -217,13 +217,14 @@ export default function AdminAnalytics() {
   const { user, token } = useAuth();
   const navigate = useNavigate();
   const [range, setRange]             = useState('30d');
-  const [activeTab, setActiveTab]     = useState('overview'); // overview|courses|users|activity|insights
+  const [activeTab, setActiveTab]     = useState('overview'); // overview|courses|users|activity|insights|countries
   const [overview, setOverview]       = useState(null);
   const [courses, setCourses]         = useState(null);
   const [users, setUsers]             = useState(null);
   const [activity, setActivity]       = useState(null);
   const [insights, setInsights]       = useState(null);
   const [propFirms, setPropFirms]     = useState(null);
+  const [countries, setCountries]     = useState(null);
   const [drillCourse, setDrillCourse] = useState(null);
   const [userSearch, setUserSearch]   = useState('');
   const [userPage, setUserPage]       = useState(1);
@@ -276,6 +277,13 @@ export default function AdminAnalytics() {
         .then(r => setPropFirms(r.data))
         .catch(console.error)
         .finally(() => setLoad('propfirms', false));
+    }
+    if (activeTab === 'countries') {
+      setLoad('countries', true);
+      axios.get(`${API}/countries`, { headers })
+        .then(r => setCountries(r.data))
+        .catch(console.error)
+        .finally(() => setLoad('countries', false));
     }
   }, [activeTab, range]);
 
@@ -352,6 +360,7 @@ export default function AdminAnalytics() {
           { value:'activity',  label:'Activity',    icon:Activity },
           { value:'insights',  label:'AI Insights', icon:Zap },
           { value:'propfirms', label:'Prop Firms',  icon:Building2 },
+          { value:'countries', label:'Countries',   icon:Globe },
         ].map(({ value, label, icon:Icon }) => (
           <button key={value} onClick={() => setActiveTab(value)}
             style={{ display:'flex',alignItems:'center',gap:'6px',padding:'10px 18px',border:'none',
@@ -633,7 +642,7 @@ export default function AdminAnalytics() {
             <table style={{width:'100%',borderCollapse:'collapse',fontSize:'0.85rem'}}>
               <thead>
                 <tr style={{borderBottom:'1px solid rgba(255,255,255,0.07)'}}>
-                  {['User','Joined','Courses','Spent','Purchases'].map(h=>(
+                  {['User','Joined','Country','Courses','Spent','Purchases'].map(h=>(
                     <th key={h} style={{padding:'10px 14px',textAlign:'left',color:'var(--text-secondary)',fontWeight:700,fontSize:'0.75rem',textTransform:'uppercase',letterSpacing:'0.05em'}}>{h}</th>
                   ))}
                 </tr>
@@ -655,6 +664,18 @@ export default function AdminAnalytics() {
                     </td>
                     <td style={{padding:'12px 14px',color:'var(--text-secondary)',fontSize:'0.8rem'}}>
                       {new Date(u.joinedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+                    </td>
+                    <td style={{padding:'12px 14px'}}>
+                      {u.countryCode ? (
+                        <span style={{display:'flex',alignItems:'center',gap:'5px',fontSize:'0.82rem'}}>
+                          <span style={{fontSize:'1rem'}}>
+                            {String.fromCodePoint(...(u.countryCode||'').toUpperCase().split('').map(c=>0x1F1E6-65+c.charCodeAt(0)))}
+                          </span>
+                          <span style={{color:'var(--text-secondary)',fontWeight:600}}>{u.country}</span>
+                        </span>
+                      ) : (
+                        <span style={{color:'var(--text-secondary)',opacity:0.35}}>—</span>
+                      )}
                     </td>
                     <td style={{padding:'12px 14px',fontWeight:700,color:'var(--text-primary)'}}>{u.enrolledCourses}</td>
                     <td style={{padding:'12px 14px',color:'#10b981',fontWeight:800}}>{fmt$(u.totalSpent)}</td>
@@ -880,6 +901,90 @@ export default function AdminAnalytics() {
     );
   };
 
+  /* ── COUNTRIES tab ────────────────────────────────────────────*/
+  const CountriesTab = () => {
+    const data   = countries?.countries  || [];
+    const total  = countries?.totalDistinct || 0;
+    const noGeo  = countries?.noGeoCount    || 0;
+    const withGeo = data.reduce((s, c) => s + c.count, 0);
+
+    const toFlag = (code) => {
+      if (!code || code.length !== 2) return '🌐';
+      return String.fromCodePoint(...code.toUpperCase().split('').map(c => 0x1F1E6 - 65 + c.charCodeAt(0)));
+    };
+
+    return (
+      <motion.div key="countries" initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} exit={{opacity:0}} transition={{duration:0.3,ease:easing}}>
+        {/* KPI row */}
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:'1.25rem',marginBottom:'1.75rem'}}>
+          <KPICard icon={Globe}  label="Countries Reached" value={total}   color="#3b82f6" loading={loading.countries}/>
+          <KPICard icon={Users}  label="Users with Location" value={withGeo} color="#10b981" loading={loading.countries}/>
+          <KPICard icon={Users}  label="Location Unknown"   value={noGeo}   color="#f59e0b" loading={loading.countries}/>
+        </div>
+
+        <Section
+          title="Users by Country"
+          subtitle={total > 0 ? `${total} countries detected · location recorded on login/register` : 'No location data yet — will populate as users log in'}
+        >
+          {loading.countries ? (
+            <p style={{color:'var(--text-secondary)',textAlign:'center',padding:'3rem'}}>Loading…</p>
+          ) : data.length === 0 ? (
+            <div style={{textAlign:'center',padding:'4rem 2rem'}}>
+              <Globe size={48} style={{color:'var(--accent-primary)',opacity:0.3,marginBottom:'1rem'}}/>
+              <h3 style={{color:'var(--text-primary)',marginBottom:'0.5rem'}}>No location data yet</h3>
+              <p style={{color:'var(--text-secondary)',fontSize:'0.9rem',maxWidth:'380px',margin:'0 auto'}}>
+                Country is recorded automatically when users log in or register.
+                Data will appear here once users start signing in from production.
+              </p>
+            </div>
+          ) : (
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'2rem'}} className="analytics-sub-grid">
+              {/* Bar chart */}
+              <div>
+                <ResponsiveContainer width="100%" height={Math.max(220, data.length * 38)}>
+                  <BarChart data={data} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" stroke={GRID_STROKE} horizontal={false}/>
+                    <XAxis type="number" tick={AXIS_STYLE} tickLine={false} axisLine={false}/>
+                    <YAxis type="category" dataKey="country" tick={{fontSize:11,fill:'var(--text-secondary)'}} tickLine={false} axisLine={false} width={110}/>
+                    <Tooltip content={<CustomTooltip/>}/>
+                    <Bar dataKey="count" name="Users" radius={[0,5,5,0]} barSize={14}>
+                      {data.map((_,i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]}/>)}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Ranked list with flags + progress bars */}
+              <div style={{paddingTop:'0.25rem'}}>
+                {data.map((c, i) => (
+                  <div key={c.code} style={{marginBottom:'0.9rem'}}>
+                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'5px'}}>
+                      <span style={{display:'flex',alignItems:'center',gap:'7px',fontSize:'0.85rem',fontWeight:700,color:'var(--text-primary)'}}>
+                        <span style={{fontSize:'1.15rem',lineHeight:1}}>{toFlag(c.code)}</span>
+                        {c.country}
+                      </span>
+                      <span style={{fontSize:'0.8rem',fontWeight:800,color:'var(--text-secondary)'}}>
+                        {c.count} · {c.percentage}%
+                      </span>
+                    </div>
+                    <div style={{height:'6px',background:'rgba(255,255,255,0.06)',borderRadius:'3px',overflow:'hidden'}}>
+                      <motion.div
+                        initial={{width:0}}
+                        animate={{width:`${c.percentage}%`}}
+                        transition={{duration:0.7,ease:easing,delay:i*0.04}}
+                        style={{height:'100%',background:CHART_COLORS[i%CHART_COLORS.length],borderRadius:'3px'}}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </Section>
+      </motion.div>
+    );
+  };
+
   /* ── Render ──────────────────────────────────────────────────*/
   return (
     <div style={{ padding:'2rem 5%', maxWidth:'1400px', margin:'0 auto' }}>
@@ -900,6 +1005,7 @@ export default function AdminAnalytics() {
         {activeTab === 'activity'  && <ActivityTab   key="activity"/>}
         {activeTab === 'insights'  && <InsightsTab   key="insights"/>}
         {activeTab === 'propfirms' && <PropFirmsTab  key="propfirms"/>}
+        {activeTab === 'countries' && <CountriesTab  key="countries"/>}
       </AnimatePresence>
     </div>
   );

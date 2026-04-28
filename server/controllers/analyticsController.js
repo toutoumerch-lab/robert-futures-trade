@@ -239,6 +239,7 @@ const getUserAnalytics = async (req, res) => {
     const usersR = await pool.query(`
       SELECT
         u.id, u.name, u.email, u.created_at,
+        u.country, u.country_code,
         COUNT(DISTINCT e.id)    as enrolled_courses,
         COALESCE(SUM(p.amount) FILTER (WHERE p.status='paid'), 0) as total_spent,
         COUNT(DISTINCT p.id) FILTER (WHERE p.status='paid')       as purchases
@@ -271,6 +272,8 @@ const getUserAnalytics = async (req, res) => {
         name:           u.name,
         email:          u.email,
         joinedAt:       u.created_at,
+        country:        u.country        || null,
+        countryCode:    u.country_code   || null,
         enrolledCourses:int(u.enrolled_courses),
         totalSpent:     flt(u.total_spent),
         purchases:      int(u.purchases),
@@ -525,4 +528,42 @@ const getPropFirmAnalytics = async (req, res) => {
   }
 };
 
-module.exports = { getOverview, getCourseAnalytics, getUserAnalytics, getActivity, getAIInsights, trackPropFirmClick, getPropFirmAnalytics };
+/* ══════════════════════════════════════════════════════════════
+   GET /api/admin/analytics/countries
+   Top countries by user count + total distinct countries
+   ══════════════════════════════════════════════════════════════ */
+const getCountriesAnalytics = async (req, res) => {
+  try {
+    const [topR, totalR, noGeoR] = await Promise.all([
+      pool.query(`
+        SELECT country, country_code, COUNT(*) as user_count
+        FROM users
+        WHERE role='user' AND country_code IS NOT NULL
+        GROUP BY country, country_code
+        ORDER BY user_count DESC
+        LIMIT 20
+      `),
+      pool.query(`SELECT COUNT(DISTINCT country_code) as cnt FROM users WHERE country_code IS NOT NULL`),
+      pool.query(`SELECT COUNT(*) as cnt FROM users WHERE role='user' AND country_code IS NULL`),
+    ]);
+
+    const total = int(topR.rows.reduce((s, r) => s + int(r.user_count), 0)) || 1;
+    const countries = topR.rows.map(r => ({
+      country:     r.country,
+      code:        r.country_code,
+      count:       int(r.user_count),
+      percentage:  Math.round((int(r.user_count) / total) * 100),
+    }));
+
+    res.json({
+      countries,
+      totalDistinct: int(totalR.rows[0].cnt),
+      noGeoCount:    int(noGeoR.rows[0].cnt),
+    });
+  } catch (err) {
+    console.error('[analytics] countries error:', err);
+    res.status(500).json({ error: 'Failed to load countries' });
+  }
+};
+
+module.exports = { getOverview, getCourseAnalytics, getUserAnalytics, getActivity, getAIInsights, trackPropFirmClick, getPropFirmAnalytics, getCountriesAnalytics };
