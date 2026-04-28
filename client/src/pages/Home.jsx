@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Card from '../components/common/Card';
@@ -140,6 +140,7 @@ const Step = ({ num, title, desc, delay = 0 }) => (
 const Home = () => {
   const { siteLogo } = useBranding();
   const parallaxOffset = useParallax(0.08);
+  const [liveStats, setLiveStats] = useState({ courses: '...', members: '2.5K+', posts: '...', countries: '10+' });
 
   /* Legacy fade-in observer for .fade-in classes */
   useEffect(() => {
@@ -148,6 +149,21 @@ const Home = () => {
       { threshold: 0.1 }
     );
     document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // Live stats
+    Promise.all([
+      fetch('http://localhost:5000/api/courses').then(r => r.json()).catch(() => []),
+      fetch('http://localhost:5000/api/posts').then(r => r.json()).catch(() => []),
+      fetch('http://localhost:5000/api/about/stats').then(r => r.json()).catch(() => ({})),
+    ]).then(([courses, posts, about]) => {
+      setLiveStats({
+        courses:   Array.isArray(courses) ? courses.length + '+' : '0+',
+        members:   about.students ? Number(about.students).toLocaleString() + '+' : '2.5K+',
+        posts:     Array.isArray(posts) ? posts.length + '+' : '0+',
+        countries: about.countries ? about.countries + '+' : '10+',
+      });
+    });
+
     return () => observer.disconnect();
   }, []);
 
