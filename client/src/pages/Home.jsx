@@ -5,7 +5,7 @@ import Card from '../components/common/Card';
 import Reveal from '../components/common/Reveal';
 import { useBranding } from '../context/BrandingContext';
 import { useParallax } from '../hooks/useScrollReveal';
-import { Scale, Gem, Newspaper, Sparkles, ArrowRight, TrendingUp, Shield, Zap } from 'lucide-react';
+import { Scale, Gem, Newspaper, Sparkles, ArrowRight, TrendingUp, Shield, Zap, Youtube, BookOpen, Trophy, Rss } from 'lucide-react';
 
 /* ── Animated background blob ──────────────────────────── */
 const AnimatedBlob = ({ color1, color2, delay = 0, style = {} }) => (
@@ -329,143 +329,202 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Gradient divider */}
-      <div
-        style={{
-          height: '1px',
-          background: 'linear-gradient(90deg, transparent, var(--accent-primary), transparent)',
-          opacity: 0.25,
-          margin: '0 5%',
-        }}
-      />
-
-      {/* ── Stats ─────────────────────────────────────────── */}
-      <section style={{ padding: '5rem 0' }}>
+      {/* ── SECTION 1 — YouTube Live ─────────────────────── */}
+      <section style={{ padding: '8rem 0', position: 'relative', overflow: 'hidden' }}>
+        {/* Red glow blob */}
+        <div style={{ position: 'absolute', top: '10%', left: '-5%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,0,0,0.08), transparent 70%)', pointerEvents: 'none' }} />
         <div className="container">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <StatItem value="2.5K+" label="Active Members" delay={0} />
-            <StatItem value="$18M+" label="Member Funding" delay={80} />
-            <StatItem value="50+"   label="Deep Dives"      delay={160} />
-            <StatItem value="100%"  label="Unbiased"        delay={240} />
-          </div>
-        </div>
-      </section>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5rem', flexWrap: 'wrap' }}>
 
-      {/* Gradient divider */}
-      <div
-        style={{
-          height: '1px',
-          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)',
-          margin: '0 5%',
-        }}
-      />
-
-      {/* ── Features ──────────────────────────────────────── */}
-      <section style={{ padding: '8rem 0' }}>
-        <div className="container">
-          <Reveal direction="up">
-            <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
-              <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontFamily: 'var(--font-serif)', marginBottom: '1rem' }}>
-                Engineered for <span className="text-gradient">Performance</span>
-              </h2>
-              <div style={{ height: '4px', width: '60px', background: 'var(--gradient-lotus)', margin: '0 auto', borderRadius: '4px' }} />
-            </div>
-          </Reveal>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <FeatureCard
-              delay={0}
-              icon={<Scale size={30} style={{ color: 'var(--accent-primary)' }} />}
-              title="Transparent Analysis"
-              desc="We audit the rules, fine print, and track record of every major prop firm. No fluff, just the facts."
-              to="/prop-firms"
-              linkText="View Audits"
-            />
-            <FeatureCard
-              delay={100}
-              icon={<Gem size={30} style={{ color: 'var(--accent-primary)' }} />}
-              title="Elite Education"
-              desc="Master high-probability setups and the institutional mindset. Designed for professional advancement."
-              to="/courses"
-              linkText="Explore Courses"
-            />
-            <FeatureCard
-              delay={200}
-              icon={<Newspaper size={30} style={{ color: 'var(--accent-primary)' }} />}
-              title="Market Intelligence"
-              desc="Daily strategic breakdowns of market context, sentiment, and major economic catalysts."
-              to="/blog"
-              linkText="Read Intel"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* ── The Path ──────────────────────────────────────── */}
-      <section style={{ padding: '8rem 0' }}>
-        <div className="container" style={{ maxWidth: '900px' }}>
-          <Reveal direction="up">
-            <div
-              className="glass"
-              style={{
-                padding: 'clamp(2.5rem, 6vw, 5rem)',
-                borderRadius: 'var(--radius-xl)',
-                border: '1px solid rgba(255,255,255,0.07)',
-                boxShadow: '0 40px 80px rgba(0,0,0,0.4)',
-                position: 'relative',
-                overflow: 'hidden',
-              }}
-            >
-              {/* Inner glow */}
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: 'radial-gradient(ellipse at 50% -10%, rgba(37,99,235,0.1), transparent 65%)',
-                  pointerEvents: 'none',
-                }}
-              />
-              <h2 style={{ textAlign: 'center', fontSize: 'clamp(1.8rem,4vw,2.5rem)', fontFamily: 'var(--font-serif)', marginBottom: '4rem', position: 'relative' }}>
-                The Road to <span className="text-gradient">Freedom</span>
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '0 3rem', position: 'relative' }}>
-                <Step num="I"   title="Foundation"  desc="Master the mechanics of market structure and professional risk management."          delay={0} />
-                <Step num="II"  title="Selection"   desc="Identify the funding partner that aligns with your specific trading style."         delay={80} />
-                <Step num="III" title="Challenge"   desc="Apply elite strategies with the backing of our insights to secure your capital."    delay={160} />
-                <Step num="IV"  title="Scaling"     desc="Grow your funded capital and achieve the lifestyle you've engineered."              delay={240} />
+            {/* Left — YouTube preview card */}
+            <Reveal direction="left" style={{ flex: '1 1 340px' }}>
+              <div style={{ position: 'relative', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 32px 80px rgba(255,0,0,0.15)', border: '1px solid rgba(255,0,0,0.15)' }}>
+                <div style={{ background: 'linear-gradient(135deg, #1a0000, #0d0d0d)', padding: '3rem 2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '260px', gap: '1.25rem' }}>
+                  <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg, #ff0000, #cc0000)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 40px rgba(255,0,0,0.4)', animation: 'pulse 2s infinite' }}>
+                    <Youtube size={36} color="#fff" />
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(255,0,0,0.15)', border: '1px solid rgba(255,0,0,0.3)', padding: '4px 14px', borderRadius: '99px', color: '#ff4444', fontWeight: 800, fontSize: '0.78rem', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
+                      <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#ff4444', display: 'inline-block', animation: 'pulse 1.5s infinite' }} />
+                      Live Every Day
+                    </div>
+                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem', margin: 0 }}>Join the daily trading session — free</p>
+                  </div>
+                </div>
               </div>
-            </div>
-          </Reveal>
+            </Reveal>
+
+            {/* Right — text */}
+            <Reveal direction="right" style={{ flex: '1 1 340px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255,0,0,0.08)', border: '1px solid rgba(255,0,0,0.2)', padding: '5px 16px', borderRadius: '99px', color: '#ff6666', fontWeight: 700, fontSize: '0.82rem', marginBottom: '1.5rem' }}>
+                <Youtube size={14} /> YouTube Community
+              </div>
+              <h2 style={{ fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 900, letterSpacing: '-1px', lineHeight: 1.15, marginBottom: '1.25rem' }}>
+                Trade Live With Us<br /><span style={{ background: 'linear-gradient(135deg,#ff4444,#ff8888)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Every Single Day — Free</span>
+              </h2>
+              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, fontSize: '1.05rem', marginBottom: '2rem', maxWidth: '480px' }}>
+                Join our live YouTube sessions every morning. We break down the market structure, call key levels, and trade in real time — completely free, no strings attached.
+              </p>
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <a href="https://www.youtube.com/@RobertFuturesTrades" target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.85rem 2rem', borderRadius: '12px', background: 'linear-gradient(135deg,#ff0000,#cc0000)', color: '#fff', fontWeight: 800, fontSize: '0.95rem', textDecoration: 'none', boxShadow: '0 8px 24px rgba(255,0,0,0.35)', transition: 'opacity 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.opacity='0.88'}
+                  onMouseLeave={e => e.currentTarget.style.opacity='1'}
+                >
+                  <Youtube size={18} /> Watch Live Now
+                </a>
+                <a href="https://www.youtube.com/@RobertFuturesTrades" target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.85rem 2rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'var(--text-secondary)', fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none', transition: 'all 0.2s' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(255,0,0,0.4)'; e.currentTarget.style.color='#ff6666'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(255,255,255,0.1)'; e.currentTarget.style.color='var(--text-secondary)'; }}
+                >
+                  Subscribe Free
+                </a>
+              </div>
+            </Reveal>
+          </div>
         </div>
       </section>
 
-      {/* ── CTA ───────────────────────────────────────────── */}
-      <section style={{ padding: '8rem 0', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-        <AnimatedBlob
-          color1="rgba(37,99,235,0.4)"
-          color2="transparent"
-          delay={2}
-          style={{ width: '700px', height: '700px', top: '-40%', left: '50%', transform: 'translateX(-50%)' }}
-        />
-        <div className="container" style={{ maxWidth: '800px', position: 'relative', zIndex: 1 }}>
+      {/* Divider */}
+      <div style={{ height: '1px', background: 'linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent)', margin: '0 5%' }} />
+
+      {/* ── SECTION 2 — Courses ──────────────────────────── */}
+      <section style={{ padding: '8rem 0', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: '20%', right: '-5%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(37,99,235,0.1), transparent 70%)', pointerEvents: 'none' }} />
+        <div className="container">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5rem', flexWrap: 'wrap', flexDirection: 'row-reverse' }}>
+
+            {/* Right — visual */}
+            <Reveal direction="right" style={{ flex: '1 1 340px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                {[
+                  { icon: '📈', label: 'Market Structure', color: 'rgba(37,99,235,0.15)' },
+                  { icon: '⚡', label: 'Scalping Mastery', color: 'rgba(139,92,246,0.15)' },
+                  { icon: '🎯', label: 'Entry & Exit', color: 'rgba(16,185,129,0.15)' },
+                  { icon: '🛡️', label: 'Risk Management', color: 'rgba(245,158,11,0.15)' },
+                ].map(({ icon, label, color }) => (
+                  <div key={label} style={{ background: color, border: '1px solid rgba(255,255,255,0.07)', borderRadius: '18px', padding: '1.5rem', textAlign: 'center', transition: 'transform 0.25s' }}
+                    onMouseEnter={e => e.currentTarget.style.transform='translateY(-4px)'}
+                    onMouseLeave={e => e.currentTarget.style.transform='translateY(0)'}
+                  >
+                    <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{icon}</div>
+                    <div style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--text-primary)' }}>{label}</div>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+
+            {/* Left — text */}
+            <Reveal direction="left" style={{ flex: '1 1 340px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(37,99,235,0.1)', border: '1px solid rgba(37,99,235,0.25)', padding: '5px 16px', borderRadius: '99px', color: 'var(--accent-primary)', fontWeight: 700, fontSize: '0.82rem', marginBottom: '1.5rem' }}>
+                <BookOpen size={14} /> Trading Education
+              </div>
+              <h2 style={{ fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 900, letterSpacing: '-1px', lineHeight: 1.15, marginBottom: '1.25rem' }}>
+                Learn to Trade Like<br /><span className="text-gradient">a Professional</span>
+              </h2>
+              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, fontSize: '1.05rem', marginBottom: '2rem', maxWidth: '480px' }}>
+                From market structure to advanced scalping strategies — our courses are built for traders who are serious about getting funded and staying funded. Step-by-step, no fluff.
+              </p>
+              <Link to="/courses"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.85rem 2rem', borderRadius: '12px', background: 'linear-gradient(135deg,var(--accent-secondary),var(--accent-primary))', color: '#fff', fontWeight: 800, fontSize: '0.95rem', textDecoration: 'none', boxShadow: '0 8px 24px rgba(37,99,235,0.35)' }}
+              >
+                <BookOpen size={18} /> Browse Courses <ArrowRight size={16} />
+              </Link>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* Divider */}
+      <div style={{ height: '1px', background: 'linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent)', margin: '0 5%' }} />
+
+      {/* ── SECTION 3 — Prop Firms ───────────────────────── */}
+      <section style={{ padding: '8rem 0', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', bottom: '0', left: '30%', width: '600px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.07), transparent 70%)', pointerEvents: 'none' }} />
+        <div className="container">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5rem', flexWrap: 'wrap' }}>
+
+            {/* Left — visual steps */}
+            <Reveal direction="left" style={{ flex: '1 1 340px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {[
+                  { step: '01', title: 'Browse Firms', desc: 'Compare rules, fees, and payout structures side by side.' },
+                  { step: '02', title: 'Pick Your Eval', desc: 'Choose the challenge that fits your trading style.' },
+                  { step: '03', title: 'Get Funded', desc: 'Pass the eval and start trading with real capital.' },
+                ].map(({ step, title, desc }) => (
+                  <div key={step} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', padding: '1.25rem 1.5rem', transition: 'border-color 0.2s' }}
+                    onMouseEnter={e => e.currentTarget.style.borderColor='rgba(16,185,129,0.3)'}
+                    onMouseLeave={e => e.currentTarget.style.borderColor='rgba(255,255,255,0.07)'}
+                  >
+                    <div style={{ flexShrink: 0, width: '38px', height: '38px', borderRadius: '10px', background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.78rem', color: '#10b981' }}>{step}</div>
+                    <div>
+                      <div style={{ fontWeight: 800, color: 'var(--text-primary)', marginBottom: '2px' }}>{title}</div>
+                      <div style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', lineHeight: 1.5 }}>{desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+
+            {/* Right — text */}
+            <Reveal direction="right" style={{ flex: '1 1 340px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', padding: '5px 16px', borderRadius: '99px', color: '#10b981', fontWeight: 700, fontSize: '0.82rem', marginBottom: '1.5rem' }}>
+                <Trophy size={14} /> Prop Firm Marketplace
+              </div>
+              <h2 style={{ fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 900, letterSpacing: '-1px', lineHeight: 1.15, marginBottom: '1.25rem' }}>
+                Get Funded & Start<br /><span style={{ background: 'linear-gradient(135deg,#10b981,#34d399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Earning Real Money</span>
+              </h2>
+              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, fontSize: '1.05rem', marginBottom: '2rem', maxWidth: '480px' }}>
+                Browse the top prop firms we've verified and audited. Buy an evaluation account, pass the challenge using our strategies, and trade with funded capital — keeping up to 90% of profits.
+              </p>
+              <Link to="/prop-firms"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.85rem 2rem', borderRadius: '12px', background: 'linear-gradient(135deg,#059669,#10b981)', color: '#fff', fontWeight: 800, fontSize: '0.95rem', textDecoration: 'none', boxShadow: '0 8px 24px rgba(16,185,129,0.3)' }}
+              >
+                <Trophy size={18} /> Browse Prop Firms <ArrowRight size={16} />
+              </Link>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* Divider */}
+      <div style={{ height: '1px', background: 'linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent)', margin: '0 5%' }} />
+
+      {/* ── SECTION 4 — Blog ─────────────────────────────── */}
+      <section style={{ padding: '8rem 0', position: 'relative', overflow: 'hidden', textAlign: 'center' }}>
+        <div style={{ position: 'absolute', top: '0', left: '50%', transform: 'translateX(-50%)', width: '700px', height: '400px', background: 'radial-gradient(ellipse at center top, rgba(99,102,241,0.07), transparent 70%)', pointerEvents: 'none' }} />
+        <div className="container" style={{ maxWidth: '860px', position: 'relative', zIndex: 1 }}>
           <Reveal direction="up">
-            <h2 style={{ fontSize: 'clamp(2.5rem,6vw,4rem)', fontFamily: 'var(--font-serif)', marginBottom: '1.5rem', letterSpacing: '-1px' }}>
-              Define Your <span className="text-gradient">Future</span>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', padding: '5px 16px', borderRadius: '99px', color: '#818cf8', fontWeight: 700, fontSize: '0.82rem', marginBottom: '1.5rem' }}>
+              <Rss size={14} /> Daily Market Posts
+            </div>
+            <h2 style={{ fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 900, letterSpacing: '-1px', lineHeight: 1.15, marginBottom: '1.25rem' }}>
+              Stay Ahead With Our<br /><span style={{ background: 'linear-gradient(135deg,#6366f1,#a5b4fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Daily Trading Posts</span>
             </h2>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '3rem', fontSize: '1.2rem', lineHeight: 1.7 }}>
-              Secure your place in the future of trading education.
+            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, fontSize: '1.05rem', marginBottom: '3rem', maxWidth: '560px', margin: '0 auto 3rem' }}>
+              We publish fresh market breakdowns, trade ideas, and economic analysis every day. Actionable insights you can use before the market opens — all in one place.
             </p>
-            <Link
-              to="/register"
-              className="btn btn-primary pulse-glow"
-              style={{ padding: '1.25rem 4rem', fontSize: '1.15rem', borderRadius: '99px' }}
+
+            {/* 3 preview pills */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '3rem' }}>
+              {['📊 Market Structure', '📰 Economic Calendar', '🎯 Trade Ideas', '⚡ Scalping Setups', '🌍 Global Macro'].map(tag => (
+                <span key={tag} style={{ padding: '6px 18px', borderRadius: '99px', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', color: '#a5b4fc', fontWeight: 700, fontSize: '0.82rem' }}>{tag}</span>
+              ))}
+            </div>
+
+            <Link to="/blog"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.9rem 2.25rem', borderRadius: '12px', background: 'linear-gradient(135deg,#4f46e5,#6366f1)', color: '#fff', fontWeight: 800, fontSize: '0.95rem', textDecoration: 'none', boxShadow: '0 8px 24px rgba(99,102,241,0.3)' }}
             >
-              Get Started Now <ArrowRight size={18} />
+              <Rss size={18} /> Read Daily Posts <ArrowRight size={16} />
             </Link>
           </Reveal>
         </div>
       </section>
+
     </div>
   );
 };
 
 export default Home;
+
