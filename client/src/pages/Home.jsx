@@ -44,38 +44,6 @@ const ShimmerDiv = () => (
   </div>
 );
 
-
-/* ── Animation variants ─────────────────────────────────── */
-const vFadeLeft  = { hidden:{opacity:0,x:-70},  visible:{opacity:1,x:0,  transition:{duration:0.75,ease:[0.16,1,0.3,1]}} };
-const vFadeRight = { hidden:{opacity:0,x:70},   visible:{opacity:1,x:0,  transition:{duration:0.75,ease:[0.16,1,0.3,1]}} };
-const vFadeUp2   = { hidden:{opacity:0,y:60},   visible:{opacity:1,y:0,  transition:{duration:0.75,ease:[0.16,1,0.3,1]}} };
-const vStagger   = { visible:{ transition:{ staggerChildren:0.13 }} };
-const vPop       = { hidden:{opacity:0,scale:0.5,y:20}, visible:{opacity:1,scale:1,y:0,transition:{type:'spring',stiffness:300,damping:20}} };
-
-/* ── Floating glow orb ──────────────────────────────────── */
-const FloatOrb = ({ color, size='400px', style={} }) => (
-  <motion.div
-    animate={{ y:[0,-22,0], scale:[1,1.07,1] }}
-    transition={{ duration:6, repeat:Infinity, ease:'easeInOut' }}
-    style={{ position:'absolute', width:size, height:size, borderRadius:'50%',
-      background:`radial-gradient(circle, ${color}, transparent 70%)`,
-      filter:'blur(60px)', pointerEvents:'none', zIndex:0, ...style }}
-  />
-);
-
-/* ── Shimmer divider ────────────────────────────────────── */
-const ShimmerDiv = () => (
-  <div style={{ position:'relative', height:'1px', margin:'0 5%', overflow:'hidden' }}>
-    <div style={{ position:'absolute', inset:0, background:'linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent)' }}/>
-    <motion.div
-      animate={{ x:['-100%','200%'] }}
-      transition={{ duration:2.8, repeat:Infinity, ease:'linear', repeatDelay:1.5 }}
-      style={{ position:'absolute', top:0, left:0, width:'35%', height:'100%',
-        background:'linear-gradient(90deg,transparent,rgba(37,99,235,0.55),transparent)' }}
-    />
-  </div>
-);
-
 /* ── Animated background blob ──────────────────────────── */
 const AnimatedBlob = ({ color1, color2, delay = 0, style = {} }) => (
   <motion.div
