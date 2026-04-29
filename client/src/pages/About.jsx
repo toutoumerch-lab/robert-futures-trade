@@ -185,41 +185,26 @@ const VALUES = [
 ];
 
 const TIMELINE = [
-  { year: '2019', title: 'First Trade', desc: 'Robert enters the futures market — learns the hard way through prop firm challenges, blown accounts, and relentless study.' },
-  { year: '2021', title: 'Consistency Achieved', desc: 'After mastering ICT concepts and liquidity theory, Robert begins posting public trade breakdowns with 80%+ win rates.' },
-  { year: '2022', title: 'Community Founded', desc: 'First private Discord opens. 200 committed traders join in the first month, hungry for structured, actionable education.' },
-  { year: '2023', title: 'Platform Launched', desc: 'Robert Trades Futures launches its full course library — structured paths from beginner price action to advanced prop-firm strategies.' },
-  { year: '2024', title: 'Global Reach', desc: 'Students from 60+ countries. Hundreds of funded accounts. The platform expands with live sessions, blog analysis, and mentor reviews.' },
+  { year: '2020', title: 'First Trade', desc: 'Robert enters the markets. The early years are a grind — learning price action, working through losses, and building the screen time that no shortcut replaces.' },
+  { year: '2024', title: 'The Turning Point', desc: 'Robert discovers Auction Market Theory and order flow. The pieces finally click. Trading shifts from pattern-guessing to reading what the market is actually doing.' },
+  { year: '2024', title: 'Community Founded', desc: 'A small private group forms around the same methods — traders who want structure over hype and are willing to put in the work.' },
+  { year: 'May 2026', title: 'Platform Launching', desc: 'Robert Trades Futures goes live — beginner course built around AMT and Order Flow, from the fundamentals up to prop-firm-ready execution.' },
 ];
 
 const TEAM = [
   {
     name: 'Robert',
     role: 'Founder & Head Mentor',
-    bio: 'Futures trader with 5+ years of consistent profitability. Specialises in ICT methodology, liquidity engineering, and prop firm evaluation strategies.',
+    bio: 'Robert started trading in 2020 — grinding through losses, rebuilding, and accumulating the screen time that books can\'t replace. The real shift came in 2024 when he discovered Auction Market Theory and order flow, turning years of pattern-guessing into a structured, repeatable edge. He built a private community around those same principles — traders who wanted depth over hype. In May 2026, he launched Robert Trades Futures to bring that full system to anyone serious enough to do the work.',
     initials: 'R',
     hue: '213',
-  },
-  {
-    name: 'Sofia M.',
-    role: 'Risk & Psychology Coach',
-    bio: 'Former institutional desk analyst turned trading educator. Focuses on trader psychology, position sizing, and emotional discipline frameworks.',
-    initials: 'S',
-    hue: '265',
-  },
-  {
-    name: 'James O.',
-    role: 'Macro & Fundamentals',
-    bio: 'Macro economist and CME futures specialist. Bridges the gap between fundamental catalysts and technical price structure.',
-    initials: 'J',
-    hue: '160',
   },
 ];
 
 const TESTIMONIALS = [
-  { quote: 'Robert\'s framework took me from consistently losing to passing my FTMO challenge in 3 weeks. The liquidity concepts alone are worth 10x the course price.', name: 'Khalid A.', tag: 'FTMO Funded' },
-  { quote: 'I\'ve taken $2,000 worth of trading courses. Nothing clicked until I found Robert Trades Futures. The structure and depth here is unmatched.', name: 'Maria T.', tag: 'Apex Funded' },
-  { quote: 'The prop firm module is exactly what the industry needed. Clear rules, real scenarios, and no fluff. My pass rate went from 0/4 to 3/4.', name: 'Dev P.', tag: 'E8 Markets Funded' },
+  { quote: 'It was great, man. I loved it — taught me a lot honestly.', name: 'Jesse E.', tag: 'Course Student' },
+  { quote: 'I loved every minute of it -- sometimes we really need the extra hand.', name: 'Subham F.', tag: 'Course Student' },
+  { quote: 'I love everything you do, I appreciate all your help, started making $$ with this..', name: 'Ricky G.', tag: 'Course Student' },
 ];
 
 /* ═══════════════════════════════════════════════════════════════
@@ -335,11 +320,7 @@ export default function About() {
                   <p style={{ fontSize: '1.45rem', fontWeight: 800, lineHeight: 1.5, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.4px' }}>
                     "To make institutional-grade trading education accessible to every serious trader on the planet."
                   </p>
-                  <div style={{ marginTop: '2rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                    {['ICT Concepts', 'Liquidity Theory', 'Prop Firms', 'Futures'].map(tag => (
-                      <span key={tag} style={{ fontSize: '0.72rem', fontWeight: 800, padding: '0.3rem 0.9rem', borderRadius: '99px', background: 'rgba(37,99,235,0.1)', border: '1px solid rgba(37,99,235,0.2)', color: '#93c5fd', letterSpacing: '0.04em' }}>{tag}</span>
-                    ))}
-                  </div>
+
                 </div>
 
                 {/* floating mini card */}
@@ -420,7 +401,7 @@ export default function About() {
           <Reveal style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
             <div style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#60a5fa', marginBottom: '0.75rem' }}>Our Journey</div>
             <h2 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 900, letterSpacing: '-1px', color: 'var(--text-primary)', margin: 0 }}>
-              From Zero to Funded — Then to Thousands
+              From First Chart to Full Platform
             </h2>
           </Reveal>
 
@@ -453,13 +434,13 @@ export default function About() {
       <section style={{ padding: '5rem 0', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
         <div className="container">
           <Reveal style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-            <div style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#60a5fa', marginBottom: '0.75rem' }}>The Team</div>
+            <div style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#60a5fa', marginBottom: '0.75rem' }}>The Founder</div>
             <h2 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 900, letterSpacing: '-1px', color: 'var(--text-primary)', margin: 0 }}>
-              Traders Teaching Traders
+              The Trader Behind the Platform
             </h2>
           </Reveal>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }} className="about-team-grid">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem', maxWidth: '520px', margin: '0 auto' }}>
             {TEAM.map(({ name, role, bio, initials, hue }, i) => (
               <Reveal key={name} delay={i * 0.1}>
                 <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '24px', padding: '2rem', textAlign: 'center', transition: 'all 0.3s', cursor: 'default' }}
