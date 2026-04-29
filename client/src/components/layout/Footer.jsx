@@ -163,12 +163,21 @@ const Footer = () => {
             © {year} <strong style={{ color: 'var(--text-primary)' }}>{siteName}</strong>. All rights reserved.
           </span>
           <div style={{ display: 'flex', gap: '1.5rem' }}>
-            {['Terms of Service', 'Privacy Policy', 'Cookie Policy'].map(t => (
-              <a key={t} href="#" style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', textDecoration: 'none', transition: 'color 0.2s' }}
+              <Link to="/terms" style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', textDecoration: 'none', transition: 'color 0.2s' }}
                 onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'}
-                onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}
-              >{t}</a>
-            ))}
+                onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}>
+                Terms of Service
+              </Link>
+              <Link to="/privacy" style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', textDecoration: 'none', transition: 'color 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'}
+                onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}>
+                Privacy Policy
+              </Link>
+              <Link to="/cookie-policy" style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', textDecoration: 'none', transition: 'color 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'}
+                onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}>
+                Cookie Policy
+              </Link>
           </div>
         </div>
       </div>

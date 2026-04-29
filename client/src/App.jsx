@@ -26,6 +26,9 @@ import PaymentSuccess from './pages/PaymentSuccess';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Profile from './pages/Profile';
+import TermsOfService from './pages/TermsOfService';
+import CookiePolicy from './pages/CookiePolicyPage';
+import PrivacyPolicy from './pages/PrivacyPolicyPage';
 
 const PageWrapper = ({ children }) => (
   <motion.div
@@ -63,6 +66,9 @@ const AppContent = () => {
             <Route path="/prop-firms"     element={<PageWrapper><PropFirmList /></PageWrapper>} />
             <Route path="/about"           element={<PageWrapper><About /></PageWrapper>} />
             <Route path="/contact"         element={<PageWrapper><Contact /></PageWrapper>} />
+            <Route path="/terms"           element={<PageWrapper><TermsOfService /></PageWrapper>} />
+            <Route path="/cookie-policy"   element={<PageWrapper><CookiePolicy /></PageWrapper>} />
+            <Route path="/privacy"         element={<PageWrapper><PrivacyPolicy /></PageWrapper>} />
             <Route path="/payment/success" element={<PageWrapper><PaymentSuccess /></PageWrapper>} />
           </Routes>
         </AnimatePresence>
