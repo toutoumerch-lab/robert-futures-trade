@@ -31,6 +31,7 @@ app.use('/api/admin/analytics', require('./routes/analyticsRoutes'));
 app.use('/api/about',           require('./routes/aboutRoutes'));
 app.use('/api/reviews',         require('./routes/reviewRoutes'));
 app.use('/webhook',             require('./routes/tawkRoutes'));
+app.use('/api/contact',         require('./routes/contactRoutes'));
 
 // Serve static files
 const path = require('path');
@@ -43,3 +44,4 @@ app.get('/api/health', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+

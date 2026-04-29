@@ -6,7 +6,7 @@ import Card from '../common/Card';
 import {
   Upload, Check, AlertCircle, Pipette, RotateCcw, Globe,
   Palette, Layout, Sun, Moon, Monitor, Sparkles, Eye,
-  Share2, Video, AtSign, MessageCircle, Link, ChevronDown
+  Share2, Video, AtSign, MessageCircle, Link, ChevronDown, Mail
 } from 'lucide-react';
 
 import FacebookIcon from '../icons/FacebookIcon';
@@ -178,6 +178,7 @@ const BrandingManager = () => {
     siteLogo, siteName, logoSize, siteNameColor, siteFavicon,
     primaryColor, secondaryColor, accentColor, layout, themeMode,
     socialTwitter, socialYoutube, socialInstagram, socialDiscord, socialFacebook,
+    contactEmail,
     refreshBranding, updateBranding, updateSiteNameColor, updateFavicon,
     updateThemeColors, updateLayout, updateThemeMode, resetThemeColors,
     THEME_DEFAULTS,
@@ -212,6 +213,9 @@ const BrandingManager = () => {
   const [newDiscord, setNewDiscord]     = useState(socialDiscord || '');
   const [newFacebook, setNewFacebook]   = useState(socialFacebook || '');
 
+  // ── Contact state
+  const [newContactEmail, setNewContactEmail] = useState(contactEmail || 'admin@roberttrades.com');
+
   // YouTube home page button URLs
   const { youtubeWatchUrl, youtubeSubscribeUrl } = useBranding();
   const [newYtWatch, setNewYtWatch]         = useState(youtubeWatchUrl || '');
@@ -243,6 +247,7 @@ const BrandingManager = () => {
   useEffect(() => { setNewFacebook(socialFacebook); }, [socialFacebook]);
   useEffect(() => { setNewYtWatch(youtubeWatchUrl); },     [youtubeWatchUrl]);
   useEffect(() => { setNewYtSubscribe(youtubeSubscribeUrl); }, [youtubeSubscribeUrl]);
+  useEffect(() => { setNewContactEmail(contactEmail || 'admin@roberttrades.com'); }, [contactEmail]);
 
   useEffect(() => {
     if (!isDirty) {
@@ -354,6 +359,7 @@ const BrandingManager = () => {
         social_facebook:  newFacebook  || '',
         youtube_watch_url:     newYtWatch     || '',
         youtube_subscribe_url: newYtSubscribe || '',
+        contact_email:    newContactEmail || '',
       }, config);
 
       // Upload logo
@@ -814,6 +820,59 @@ const BrandingManager = () => {
                     <a href={newYtSubscribe} target="_blank" rel="noopener noreferrer"
                       style={{ flexShrink: 0, color: 'var(--accent-primary)', fontSize: '0.8rem', fontWeight: 700, textDecoration: 'none' }}
                     >Test ↗</a>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════
+            SECTION: CONTACT INFO
+        ═══════════════════════════════════════════════════════ */}
+        <div className="branding-section">
+          <button type="button" className="branding-section-header" onClick={() => toggleSection('contact')}>
+            <div className="branding-section-title">
+              <div className="branding-section-icon" style={{ background: 'linear-gradient(135deg, #2563eb, #1d4ed8)' }}>
+                <Mail size={18} />
+              </div>
+              <div>
+                <h3>Contact Info</h3>
+                <p>Email shown on the Contact page</p>
+              </div>
+            </div>
+            <div className={`branding-section-chevron ${openSection === 'contact' ? 'open' : ''}`}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </button>
+
+          {openSection === 'contact' && (
+            <div className="branding-section-body">
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '1.25rem', lineHeight: 1.6 }}>
+                This email appears on the <strong style={{ color: 'var(--text-primary)' }}>Contact Us</strong> page — in the card, the mailto link, and anywhere else the contact email is referenced.
+              </p>
+              <div className="form-group">
+                <label className="mb-2 block font-medium" style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                  <Mail size={15} style={{ color: '#60a5fa' }} /> Contact Email
+                </label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                  <input
+                    type="email"
+                    className="form-input"
+                    placeholder="admin@roberttrades.com"
+                    value={newContactEmail}
+                    onChange={e => { setNewContactEmail(e.target.value); setIsDirty(true); }}
+                    style={{ flex: 1 }}
+                  />
+                  {newContactEmail && (
+                    <button
+                      type="button"
+                      className="color-reset-btn"
+                      onClick={() => { setNewContactEmail(''); setIsDirty(true); }}
+                      title="Clear email"
+                    >
+                      <RotateCcw size={13} />
+                    </button>
                   )}
                 </div>
               </div>

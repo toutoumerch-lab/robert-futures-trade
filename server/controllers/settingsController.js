@@ -114,6 +114,15 @@ const updateSettings = async (req, res) => {
       }
     }
 
+    // — Contact Email (clearable)
+    if (req.body.contact_email !== undefined) {
+      const val = req.body.contact_email;
+      if (val === '' || val === null) {
+        await remove('contact_email');
+      } else {
+        await upsert('contact_email', val);
+      }
+    }
 
     // \u2014 About Page Stats (numeric strings)
     const aboutKeys = ['about_student_offset', 'about_pass_rate', 'about_countries'];

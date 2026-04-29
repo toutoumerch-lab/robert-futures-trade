@@ -120,6 +120,9 @@ export const BrandingProvider = ({ children }) => {
   const [youtubeWatchUrl, setYoutubeWatchUrl] = useState(() => localStorage.getItem('branding_yt_watch') || 'https://www.youtube.com/@RobertFuturesTrades');
   const [youtubeSubscribeUrl, setYoutubeSubscribeUrl] = useState(() => localStorage.getItem('branding_yt_subscribe') || 'https://www.youtube.com/@RobertFuturesTrades?sub_confirmation=1');
 
+  // Contact email
+  const [contactEmail, setContactEmail] = useState(() => localStorage.getItem('branding_contact_email') || 'admin@roberttrades.com');
+
   const [loading, setLoading] = useState(true);
 
   const fetchSettings = async () => {
@@ -193,6 +196,7 @@ export const BrandingProvider = ({ children }) => {
       setAndCache(setSocialFacebook,  'branding_social_facebook',  d.social_facebook  || '');
       setAndCache(setYoutubeWatchUrl,     'branding_yt_watch',     d.youtube_watch_url     || 'https://www.youtube.com/@RobertFuturesTrades');
       setAndCache(setYoutubeSubscribeUrl, 'branding_yt_subscribe', d.youtube_subscribe_url || 'https://www.youtube.com/@RobertFuturesTrades?sub_confirmation=1');
+      setAndCache(setContactEmail,        'branding_contact_email', d.contact_email        || 'admin@roberttrades.com');
 
     } catch (error) {
       console.error('Error fetching branding settings:', error);
@@ -315,6 +319,8 @@ export const BrandingProvider = ({ children }) => {
       socialTwitter, socialYoutube, socialInstagram, socialDiscord, socialFacebook,
       // Home YouTube buttons
       youtubeWatchUrl, youtubeSubscribeUrl,
+      // Contact
+      contactEmail,
     }}>
       {children}
     </BrandingContext.Provider>

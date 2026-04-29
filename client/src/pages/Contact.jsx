@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
+import axios from 'axios';
 import { useBranding } from '../context/BrandingContext';
 import {
   Mail, MessageSquare, Clock, Send, CheckCircle,
@@ -32,16 +33,16 @@ const CONTACT_CARDS_BASE = [
   {
     icon: Mail,
     title: 'Email Us',
-    value: 'support@roberttradesfutures.com',
+    value: null,        // filled dynamically from branding
     sub: 'We reply within 24 hours',
     hue: '213',
-    action: 'mailto:support@roberttradesfutures.com',
+    action: null,       // filled dynamically from branding
   },
   {
     icon: MessageSquare,
     title: 'Discord Community',
     value: 'Join the Server',
-    sub: '2,400+ active traders',
+    sub: '400+ active traders',
     hue: '265',
     action: null, // filled dynamically from branding
   },
@@ -49,7 +50,7 @@ const CONTACT_CARDS_BASE = [
     icon: Clock,
     title: 'Support Hours',
     value: 'Mon – Fri, 9am – 6pm',
-    sub: 'GMT (London time)',
+    sub: 'EST',
     hue: '38',
     action: null,
   },
@@ -139,7 +140,7 @@ const FaqItem = ({ q, a, index }) => {
    Page
    ═══════════════════════════════════════════════════════════════ */
 export default function Contact() {
-  const { socialTwitter, socialYoutube, socialInstagram, socialDiscord, socialFacebook } = useBranding();
+  const { socialTwitter, socialYoutube, socialInstagram, socialDiscord, socialFacebook, contactEmail } = useBranding();
 
   // Build dynamic social list — hide platforms with no URL set
   const SOCIALS = [
@@ -150,16 +151,22 @@ export default function Contact() {
     { icon: FacebookIcon,   label: 'Facebook',     href: socialFacebook,  color: '#1877f2' },
   ].filter(s => s.href && s.href.trim() !== '');
 
-  // Inject discord link into the Discord contact card dynamically
-  const CONTACT_CARDS = CONTACT_CARDS_BASE.map(card =>
-    card.title === 'Discord Community'
-      ? { ...card, action: socialDiscord || null }
-      : card
-  );
+  // Inject dynamic values into contact cards
+  const CONTACT_CARDS = CONTACT_CARDS_BASE.map(card => {
+    if (card.title === 'Discord Community') {
+      return { ...card, action: socialDiscord || null };
+    }
+    if (card.title === 'Email Us') {
+      const email = contactEmail || 'admin@roberttrades.com';
+      return { ...card, value: email, action: `mailto:${email}` };
+    }
+    return card;
+  });
 
   const [form, setForm]       = useState({ name: '', email: '', subject: 'general', message: '' });
   const [errors, setErrors]   = useState({});
   const [status, setStatus]   = useState('idle'); // idle | sending | success | error
+  const [errorMsg, setErrorMsg] = useState('');
 
   const validate = () => {
     const e = {};
@@ -180,9 +187,20 @@ export default function Contact() {
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setStatus('sending');
-    // Simulate send (replace with real API call)
-    await new Promise(r => setTimeout(r, 1400));
-    setStatus('success');
+    setErrorMsg('');
+    try {
+      await axios.post('http://localhost:5000/api/contact', {
+        name:    form.name,
+        email:   form.email,
+        subject: form.subject,
+        message: form.message,
+      });
+      setStatus('success');
+    } catch (err) {
+      const msg = err.response?.data?.error || 'Failed to send message. Please try again.';
+      setErrorMsg(msg);
+      setStatus('error');
+    }
   };
 
   /* shared input style builder */
@@ -281,6 +299,26 @@ export default function Contact() {
                       onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
                     >
                       Send another message
+                    </button>
+                  </motion.div>
+                ) : status === 'error' ? (
+                  /* Error state */
+                  <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4, ease: easing }}
+                    style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+                    <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', color: '#f87171' }}>
+                      <AlertCircle size={34} />
+                    </div>
+                    <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '0.75rem' }}>Couldn't Send</h3>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.65, maxWidth: '340px', margin: '0 auto 2rem' }}>
+                      {errorMsg}
+                    </p>
+                    <button
+                      onClick={() => setStatus('idle')}
+                      style={{ padding: '0.7rem 1.75rem', borderRadius: '10px', border: '1.5px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'var(--text-secondary)', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'var(--font-sans)', transition: 'all 0.2s' }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(239,68,68,0.4)'; e.currentTarget.style.color = '#f87171'; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+                    >
+                      Try again
                     </button>
                   </motion.div>
                 ) : (
