@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 
 /* ─── constants ─────────────────────────────────────────────── */
-const API = 'http://localhost:5000/api/admin/analytics';
+const API = 'http://localhost:5001/api/admin/analytics';
 const RANGES = [
   { label: '7 days',  value: '7d' },
   { label: '30 days', value: '30d' },
@@ -866,7 +866,7 @@ export default function AdminAnalytics() {
                       </td>
                       <td style={{padding:'12px 14px'}}>
                         <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
-                          {f.logoUrl && <img src={`http://localhost:5000${f.logoUrl}`} alt="" style={{width:'32px',height:'32px',borderRadius:'8px',objectFit:'contain',background:'#fff',padding:'3px',flexShrink:0}}/>}
+                          {f.logoUrl && <img src={`http://localhost:5001${f.logoUrl}`} alt="" style={{width:'32px',height:'32px',borderRadius:'8px',objectFit:'contain',background:'#fff',padding:'3px',flexShrink:0}}/>}
                           <div>
                             <div style={{fontWeight:700,color:'var(--text-primary)'}}>{f.name}</div>
                             {f.featured && <span style={{fontSize:'0.65rem',fontWeight:800,color:'#f97316',textTransform:'uppercase',letterSpacing:'0.06em'}}>Featured</span>}

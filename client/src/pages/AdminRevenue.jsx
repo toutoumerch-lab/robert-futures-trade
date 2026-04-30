@@ -18,7 +18,7 @@ const AdminRevenue = () => {
       return;
     }
 
-    axios.get('http://localhost:5000/api/admin/revenue', {
+    axios.get('http://localhost:5001/api/admin/revenue', {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => setData(res.data))

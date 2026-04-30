@@ -31,7 +31,7 @@ const CourseLearn = () => {
         }
 
         const enrollCheck = await axios.get(
-          `http://localhost:5000/api/enrollments/check/${id}`,
+          `http://localhost:5001/api/enrollments/check/${id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -46,7 +46,7 @@ const CourseLearn = () => {
         }
 
         // Step 2: Fetch course data
-        const res = await axios.get(`http://localhost:5000/api/courses/${id}`, {
+        const res = await axios.get(`http://localhost:5001/api/courses/${id}`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {}
         });
         setCourse(res.data);
@@ -116,7 +116,7 @@ const CourseLearn = () => {
           autoPlay
           controlsList="nodownload"
           className="learn-video__player"
-          src={`http://localhost:5000${videoFile}`}
+          src={`http://localhost:5001${videoFile}`}
         >
           Your browser does not support the video tag.
         </video>
@@ -156,7 +156,7 @@ const CourseLearn = () => {
     setTogglingProgress(true);
     const isCompleted = completedLessons.includes(activeLesson.id);
     try {
-      const res = await axios.post(`http://localhost:5000/api/enrollments/progress`, {
+      const res = await axios.post(`http://localhost:5001/api/enrollments/progress`, {
         courseId: parseInt(id),
         lessonId: activeLesson.id,
         completed: !isCompleted
@@ -231,12 +231,12 @@ const CourseLearn = () => {
                   <h4><Paperclip size={16} /> Lesson Resources</h4>
                   <div className="learn-lesson-resources__list">
                     {activeLesson.pdf_url && (
-                      <a href={`http://localhost:5000${activeLesson.pdf_url}`} target="_blank" rel="noreferrer" className="learn-resource-link learn-resource-link--pdf">
+                      <a href={`http://localhost:5001${activeLesson.pdf_url}`} target="_blank" rel="noreferrer" className="learn-resource-link learn-resource-link--pdf">
                         <FileDown size={16} /> Download PDF
                       </a>
                     )}
                     {activeLesson.zip_url && (
-                      <a href={`http://localhost:5000${activeLesson.zip_url}`} target="_blank" rel="noreferrer" className="learn-resource-link learn-resource-link--zip">
+                      <a href={`http://localhost:5001${activeLesson.zip_url}`} target="_blank" rel="noreferrer" className="learn-resource-link learn-resource-link--zip">
                         <Package size={16} /> Download ZIP
                       </a>
                     )}

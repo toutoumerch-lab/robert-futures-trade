@@ -56,8 +56,8 @@ const Footer = () => {
 
   useEffect(() => {
     Promise.all([
-      fetch('http://localhost:5000/api/courses').then(r => r.json()).catch(() => []),
-      fetch('http://localhost:5000/api/posts').then(r => r.json()).catch(() => []),
+      fetch('http://localhost:5001/api/courses').then(r => r.json()).catch(() => []),
+      fetch('http://localhost:5001/api/posts').then(r => r.json()).catch(() => []),
     ]).then(([courses, posts]) => {
       setStats({
         courses:   Array.isArray(courses) ? courses.length : 0,
@@ -102,7 +102,7 @@ const Footer = () => {
         <div style={{ gridColumn: 'span 2' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
             {siteLogo
-              ? <img src={`http://localhost:5000${siteLogo}`} alt={siteName} style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
+              ? <img src={`http://localhost:5001${siteLogo}`} alt={siteName} style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
               : <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--gradient-lotus)', boxShadow: '0 0 10px rgba(37,99,235,0.6)' }} />
             }
             <span style={{ fontWeight: 900, fontSize: '1.1rem', letterSpacing: '-0.3px' }} className="text-gradient">{siteName}</span>

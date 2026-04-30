@@ -12,6 +12,8 @@ import PromotionBanner from './components/layout/PromotionBanner';
 // Pages
 import Home from './pages/Home';
 import { Login, Register } from './pages/AuthPages';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminRevenue from './pages/AdminRevenue';
@@ -53,6 +55,8 @@ const AppContent = () => {
             <Route path="/"               element={<PageWrapper><Home /></PageWrapper>} />
             <Route path="/login"          element={<PageWrapper><Login /></PageWrapper>} />
             <Route path="/register"       element={<PageWrapper><Register /></PageWrapper>} />
+            <Route path="/forgot-password" element={<PageWrapper><ForgotPassword /></PageWrapper>} />
+            <Route path="/reset-password/:token" element={<PageWrapper><ResetPassword /></PageWrapper>} />
             <Route path="/dashboard"      element={<PageWrapper><Dashboard /></PageWrapper>} />
             <Route path="/profile"        element={<PageWrapper><Profile /></PageWrapper>} />
             <Route path="/admin"              element={<PageWrapper><AdminDashboard /></PageWrapper>} />

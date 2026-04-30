@@ -189,9 +189,9 @@ const Home = () => {
 
     // Live stats
     Promise.all([
-      fetch('http://localhost:5000/api/courses').then(r => r.json()).catch(() => []),
-      fetch('http://localhost:5000/api/posts').then(r => r.json()).catch(() => []),
-      fetch('http://localhost:5000/api/about/stats').then(r => r.json()).catch(() => ({})),
+      fetch('http://localhost:5001/api/courses').then(r => r.json()).catch(() => []),
+      fetch('http://localhost:5001/api/posts').then(r => r.json()).catch(() => []),
+      fetch('http://localhost:5001/api/about/stats').then(r => r.json()).catch(() => ({})),
     ]).then(([courses, posts, about]) => {
       setLiveStats({
         courses:   Array.isArray(courses) ? courses.length + '+' : '0+',
@@ -260,7 +260,7 @@ const Home = () => {
         {/* Parallax watermark */}
         {siteLogo && (
           <img
-            src={`http://localhost:5000${siteLogo}`}
+            src={`http://localhost:5001${siteLogo}`}
             alt="Background Logo"
             className="hero-watermark absolute pointer-events-none select-none"
             style={{

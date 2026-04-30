@@ -8,7 +8,7 @@ import {
   ChevronRight, Loader,
 } from 'lucide-react';
 
-const API = 'http://localhost:5000';
+const API = 'http://localhost:5001';
 
 /* ─── helpers ──────────────────────────────────────────────── */
 const toFlag = (code) => {

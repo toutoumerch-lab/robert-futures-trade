@@ -1,7 +1,11 @@
 const bcrypt = require('bcrypt');
 const jwt    = require('jsonwebtoken');
 const https  = require('https');
+const crypto = require('crypto');
+const { Resend } = require('resend');
 const { pool } = require('../config/db');
+
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 /* ─────────────────────────────────────────────────────────────────
    Geo helpers
@@ -220,5 +224,108 @@ const setUserCountry = async (req, res) => {
   }
 };
 
-module.exports = { register, login, me, backfillCountries, setUserCountry };
+/* ─────────────────────────────────────────────────────────────────
+   POST /api/auth/forgot-password
+───────────────────────────────────────────────────────────────── */
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email is required' });
 
+  try {
+    const user = await pool.query('SELECT id, name FROM users WHERE email = $1', [email]);
+    if (user.rows.length === 0) {
+      // Return 200 even if not found to prevent email enumeration
+      return res.status(200).json({ message: 'If that email is registered, we have sent a reset link.' });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetExpires = new Date(Date.now() + 3600000); // 1 hour from now
+
+    await pool.query(
+      'UPDATE users SET reset_password_token = $1, reset_password_expires = $2 WHERE email = $3',
+      [resetToken, resetExpires, email]
+    );
+
+    const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
+
+    if (resend) {
+      const { data, error } = await resend.emails.send({
+        from: process.env.RESEND_FROM || 'onboarding@resend.dev',
+        to: email,
+        subject: 'Password Reset Request',
+        html: `<p>Hello ${user.rows[0].name},</p>
+               <p>You requested a password reset. Click the link below to reset your password:</p>
+               <p><a href="${resetUrl}">${resetUrl}</a></p>
+               <p>If you did not request this, please ignore this email.</p>
+               <p>This link is valid for 1 hour.</p>`
+      });
+
+      if (error) {
+        console.error('❌ Resend API Error:', error);
+        console.log('--- FALLBACK: PASSWORD RESET SIMULATION ---');
+        console.log('To:', email);
+        console.log('Reset Link:', resetUrl);
+        console.log('-------------------------------------------');
+        // Return the link to the frontend for easy testing if email fails
+        return res.status(200).json({ 
+          message: 'Email failed to send, but here is your reset link (Dev Mode)', 
+          devResetUrl: resetUrl 
+        });
+      } else {
+        console.log('✅ Password reset email sent via Resend to:', email);
+      }
+    } else {
+      console.log('--- PASSWORD RESET SIMULATION ---');
+      console.log('To:', email);
+      console.log('Reset Link:', resetUrl);
+      console.log('---------------------------------');
+      return res.status(200).json({ 
+        message: 'Resend API Key missing. Here is your reset link (Dev Mode)', 
+        devResetUrl: resetUrl 
+      });
+    }
+
+    res.status(200).json({ message: 'If that email is registered, we have sent a reset link.' });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+/* ─────────────────────────────────────────────────────────────────
+   POST /api/auth/reset-password/:token
+───────────────────────────────────────────────────────────────── */
+const resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  if (!password || password.length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+  }
+
+  try {
+    const user = await pool.query(
+      'SELECT id FROM users WHERE reset_password_token = $1 AND reset_password_expires > NOW()',
+      [token]
+    );
+
+    if (user.rows.length === 0) {
+      return res.status(400).json({ error: 'Invalid or expired password reset token' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const password_hash = await bcrypt.hash(password, salt);
+
+    await pool.query(
+      'UPDATE users SET password_hash = $1, reset_password_token = NULL, reset_password_expires = NULL WHERE id = $2',
+      [password_hash, user.rows[0].id]
+    );
+
+    res.status(200).json({ message: 'Password has been reset successfully' });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+module.exports = { register, login, me, backfillCountries, setUserCountry, forgotPassword, resetPassword };

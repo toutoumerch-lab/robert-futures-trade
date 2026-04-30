@@ -24,7 +24,7 @@ const CourseDetail = () => {
 
   useEffect(() => {
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
-    axios.get(`http://localhost:5000/api/courses/${id}`, { headers })
+    axios.get(`http://localhost:5001/api/courses/${id}`, { headers })
       .then(res => {
         setCourse(res.data);
         // Auto-expand all modules
@@ -43,7 +43,7 @@ const CourseDetail = () => {
   useEffect(() => {
     if (user && token && id) {
       setCheckingEnrollment(true);
-      axios.get(`http://localhost:5000/api/enrollments/check/${id}`, {
+      axios.get(`http://localhost:5001/api/enrollments/check/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => {
@@ -66,7 +66,7 @@ const CourseDetail = () => {
     setEnrolling(true);
     try {
       const res = await axios.post(
-        'http://localhost:5000/api/checkouts/create-session',
+        'http://localhost:5001/api/checkouts/create-session',
         { courseId: parseInt(id) },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -75,7 +75,7 @@ const CourseDetail = () => {
       if (res.data.freeBypass) {
         // Execute manual direct-enrollment because price <= 0
         await axios.post(
-          'http://localhost:5000/api/enrollments',
+          'http://localhost:5001/api/enrollments',
           { courseId: parseInt(id) },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -140,7 +140,7 @@ const CourseDetail = () => {
           controls 
           controlsList="nodownload"
           style={{ width: '100%', height: '100%', objectFit: 'cover', background: '#000' }}
-          src={`http://localhost:5000${videoFile}`}
+          src={`http://localhost:5001${videoFile}`}
         >
           Your browser does not support the video tag.
         </video>
@@ -296,7 +296,7 @@ const CourseDetail = () => {
                        <h4 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)' }}><Paperclip size={16} /> Lesson Resources</h4>
                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                          {activeLesson.pdf_url && (
-                           <a href={`http://localhost:5000${activeLesson.pdf_url}`} target="_blank" rel="noreferrer" style={{
+                           <a href={`http://localhost:5001${activeLesson.pdf_url}`} target="_blank" rel="noreferrer" style={{
                              display: 'flex', alignItems: 'center', gap: '10px', padding: '0.85rem 1.25rem',
                              background: 'var(--bg-primary)', borderRadius: '14px', border: '1px solid var(--border)',
                              textDecoration: 'none', color: '#8b5cf6', fontWeight: 700, fontSize: '0.9rem', transition: 'all 0.15s'
@@ -305,7 +305,7 @@ const CourseDetail = () => {
                            </a>
                          )}
                          {activeLesson.zip_url && (
-                           <a href={`http://localhost:5000${activeLesson.zip_url}`} target="_blank" rel="noreferrer" style={{
+                           <a href={`http://localhost:5001${activeLesson.zip_url}`} target="_blank" rel="noreferrer" style={{
                              display: 'flex', alignItems: 'center', gap: '10px', padding: '0.85rem 1.25rem',
                              background: 'var(--bg-primary)', borderRadius: '14px', border: '1px solid var(--border)',
                              textDecoration: 'none', color: '#f59e0b', fontWeight: 700, fontSize: '0.9rem', transition: 'all 0.15s'
@@ -451,7 +451,7 @@ const CourseDetail = () => {
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>Download the official study guide & cheat sheet.</p>
                   
                   {user ? (
-                    <a href={`http://localhost:5000${course.pdf_url}`} target="_blank" rel="noreferrer" style={{ display: 'block', textDecoration: 'none' }}>
+                    <a href={`http://localhost:5001${course.pdf_url}`} target="_blank" rel="noreferrer" style={{ display: 'block', textDecoration: 'none' }}>
                       <Button style={{ width: '100%', padding: '1rem', borderRadius: '16px', fontWeight: 800 }}>Download PDF</Button>
                     </a>
                   ) : (

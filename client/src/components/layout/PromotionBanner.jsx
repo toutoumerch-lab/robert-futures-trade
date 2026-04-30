@@ -183,7 +183,7 @@ const PromotionBanner = () => {
 
   useEffect(() => {
     const fetchPromos = () => {
-      axios.get('http://localhost:5000/api/promotions/active')
+      axios.get('http://localhost:5001/api/promotions/active')
         .then(res => {
           // API now returns an array of all active promotions
           if (Array.isArray(res.data)) {

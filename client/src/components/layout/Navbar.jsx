@@ -46,7 +46,7 @@ const Navbar = () => {
         <Link to="/" className="nav-brand flex items-center gap-3">
           {siteLogo ? (
             <motion.img
-              src={`http://localhost:5000${siteLogo}`}
+              src={`http://localhost:5001${siteLogo}`}
               alt={siteName}
               style={{ height: `${logoSize}px`, width: 'auto', objectFit: 'contain' }}
               whileHover={{ scale: 1.05 }}

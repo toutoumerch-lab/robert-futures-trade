@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const BrandingContext = createContext();
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = 'http://localhost:5001';
 
 // Default theme values
 const THEME_DEFAULTS = {

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
@@ -7,6 +8,7 @@ import Button from '../components/common/Button';
 export const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -14,8 +16,12 @@ export const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      const loggedInUser = await login(email.trim(), password);
+      if (loggedInUser && loggedInUser.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       setError('Invalid credentials');
     }
@@ -31,15 +37,47 @@ export const Login = () => {
             <label className="mb-2" style={{ display: 'block', color: 'var(--text-secondary)' }}>Email</label>
             <input type="email" className="input" value={email} onChange={e => setEmail(e.target.value)} required />
           </div>
-          <div>
+          <div style={{ position: 'relative' }}>
             <label className="mb-2" style={{ display: 'block', color: 'var(--text-secondary)' }}>Password</label>
-            <input type="password" className="input" value={password} onChange={e => setPassword(e.target.value)} required />
+            <input 
+              type={showPassword ? 'text' : 'password'} 
+              className="input" 
+              value={password} 
+              onChange={e => setPassword(e.target.value)} 
+              required 
+              style={{ paddingRight: '2.5rem' }}
+            />
+            <button 
+              type="button" 
+              onClick={() => setShowPassword(!showPassword)}
+              style={{ 
+                position: 'absolute', 
+                right: '0.75rem', 
+                bottom: '0.65rem', 
+                background: 'none', 
+                border: 'none', 
+                cursor: 'pointer', 
+                color: 'var(--text-secondary)',
+                padding: 0,
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
           </div>
           <Button type="submit" variant="primary" style={{ width: '100%', marginTop: '1rem' }}>Login</Button>
         </form>
-        <div className="mt-4 text-center">
-          <span style={{ color: 'var(--text-secondary)' }}>Don't have an account? </span>
-          <Link to="/register" style={{ color: 'var(--accent-primary)' }}>Register</Link>
+        <div className="mt-4 text-center flex-col gap-2">
+          <div>
+            <span style={{ color: 'var(--text-secondary)' }}>Don't have an account? </span>
+            <Link to="/register" style={{ color: 'var(--accent-primary)' }}>Register</Link>
+          </div>
+          <div>
+            <Link to="/forgot-password" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textDecoration: 'underline' }}>
+              Forgot Password?
+            </Link>
+          </div>
         </div>
       </Card>
     </div>
@@ -50,6 +88,7 @@ export const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -78,9 +117,34 @@ export const Register = () => {
             <label className="mb-2" style={{ display: 'block', color: 'var(--text-secondary)' }}>Email</label>
             <input type="email" className="input" value={email} onChange={e => setEmail(e.target.value)} required />
           </div>
-          <div>
+          <div style={{ position: 'relative' }}>
             <label className="mb-2" style={{ display: 'block', color: 'var(--text-secondary)' }}>Password</label>
-            <input type="password" className="input" value={password} onChange={e => setPassword(e.target.value)} required />
+            <input 
+              type={showPassword ? 'text' : 'password'} 
+              className="input" 
+              value={password} 
+              onChange={e => setPassword(e.target.value)} 
+              required 
+              style={{ paddingRight: '2.5rem' }}
+            />
+            <button 
+              type="button" 
+              onClick={() => setShowPassword(!showPassword)}
+              style={{ 
+                position: 'absolute', 
+                right: '0.75rem', 
+                bottom: '0.65rem', 
+                background: 'none', 
+                border: 'none', 
+                cursor: 'pointer', 
+                color: 'var(--text-secondary)',
+                padding: 0,
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
           </div>
           <Button type="submit" variant="primary" style={{ width: '100%', marginTop: '1rem' }}>Register</Button>
         </form>

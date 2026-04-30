@@ -23,7 +23,7 @@ const PaymentSuccess = () => {
     }
 
     // Call backend to verify the Stripe checkout & finish enrollment
-    axios.get(`http://localhost:5000/api/checkouts/verify?session_id=${sessionId}`, {
+    axios.get(`http://localhost:5001/api/checkouts/verify?session_id=${sessionId}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {}
     })
       .then(res => {

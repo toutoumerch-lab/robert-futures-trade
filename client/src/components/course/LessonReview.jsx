@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Star, Send, Loader, MessageSquare, User } from 'lucide-react';
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = 'http://localhost:5001';
 
 /* ── Star Rating selector ─────────────────────────────────── */
 const StarSelector = ({ value, onChange, disabled }) => (

@@ -7,7 +7,7 @@ import {
   BarChart2, Award, ArrowRight, Quote, Zap, Globe, Clock, ThumbsUp, Info,
 } from 'lucide-react';
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = 'http://localhost:5001';
 
 /* ─── helpers ─────────────────────────────────────────────── */
 const easing = [0.16, 1, 0.3, 1];
