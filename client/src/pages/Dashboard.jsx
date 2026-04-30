@@ -39,12 +39,31 @@ const Dashboard = () => {
     navigate('/');
   };
 
+  const devUrl = location.state?.devUrl;
+
   return (
     <div className="container py-16">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-gradient">Welcome back, {user.name}</h1>
         <Button onClick={handleLogout} variant="outline">Logout</Button>
       </div>
+
+      {!user.is_verified && (
+        <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', borderRadius: '16px', padding: '1.5rem', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <h3 style={{ color: '#ef4444', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '1.25rem' }}>⚠️</span> Please verify your email address
+          </h3>
+          <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
+            We've sent a verification link to <strong>{user.email}</strong>. Please check your inbox to unlock all platform features.
+          </p>
+          {devUrl && (
+            <div style={{ marginTop: '1rem', padding: '1rem', background: 'var(--bg-primary)', borderRadius: '8px', border: '1px dashed var(--border)' }}>
+              <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Dev Mode Fallback Link (since email sending failed):</p>
+              <a href={devUrl} style={{ color: 'var(--accent-primary)', wordBreak: 'break-all' }}>{devUrl}</a>
+            </div>
+          )}
+        </div>
+      )}
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card>

@@ -96,8 +96,8 @@ export const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await register(name, email, password);
-      navigate('/dashboard');
+      const res = await register(name, email, password);
+      navigate('/dashboard', { state: { devUrl: res?.devVerificationUrl } });
     } catch (err) {
       setError('Registration failed');
     }

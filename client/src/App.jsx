@@ -14,6 +14,7 @@ import Home from './pages/Home';
 import { Login, Register } from './pages/AuthPages';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import VerifyEmail from './pages/VerifyEmail';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminRevenue from './pages/AdminRevenue';
@@ -57,6 +58,7 @@ const AppContent = () => {
             <Route path="/register"       element={<PageWrapper><Register /></PageWrapper>} />
             <Route path="/forgot-password" element={<PageWrapper><ForgotPassword /></PageWrapper>} />
             <Route path="/reset-password/:token" element={<PageWrapper><ResetPassword /></PageWrapper>} />
+            <Route path="/verify-email/:token" element={<PageWrapper><VerifyEmail /></PageWrapper>} />
             <Route path="/dashboard"      element={<PageWrapper><Dashboard /></PageWrapper>} />
             <Route path="/profile"        element={<PageWrapper><Profile /></PageWrapper>} />
             <Route path="/admin"              element={<PageWrapper><AdminDashboard /></PageWrapper>} />

@@ -83,25 +83,53 @@ const register = async (req, res) => {
     const salt          = await bcrypt.genSalt(10);
     const password_hash = await bcrypt.hash(password, salt);
 
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const isVerified = false;
+
     // Detect country in parallel — non-blocking
     const ip  = getClientIp(req);
     const geo = await lookupCountry(ip);
 
     const newUser = await pool.query(
-      `INSERT INTO users (name, email, password_hash, role, country, country_code)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING id, name, email, role, country, country_code`,
-      [name, email, password_hash, 'user', geo?.country ?? null, geo?.country_code ?? null]
+      `INSERT INTO users (name, email, password_hash, role, country, country_code, verification_token, is_verified)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       RETURNING id, name, email, role, country, country_code, is_verified`,
+      [name, email, password_hash, 'user', geo?.country ?? null, geo?.country_code ?? null, verificationToken, isVerified]
     );
 
     const user  = newUser.rows[0];
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { id: user.id, email: user.email, role: user.role, is_verified: user.is_verified },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
 
-    res.status(201).json({ token, user });
+    // Send Verification Email
+    const verificationUrl = `http://localhost:5173/verify-email/${verificationToken}`;
+    let emailSent = false;
+    
+    if (resend) {
+      try {
+        const { error } = await resend.emails.send({
+          from: 'Robert Trades <onboarding@resend.dev>',
+          to: [email],
+          subject: 'Verify your email address - Robert Trades',
+          html: `<p>Hi ${name},</p><p>Welcome to Robert Trades! Please click the link below to verify your email address:</p><p><a href="${verificationUrl}">${verificationUrl}</a></p>`,
+        });
+        if (!error) emailSent = true;
+      } catch (err) {
+        console.error('Failed to send verification email via Resend:', err);
+      }
+    }
+
+    if (!emailSent) {
+      console.log(`\n=== DEV MODE: EMAIL VERIFICATION ===\nLink for ${email}: ${verificationUrl}\n====================================\n`);
+      return res.status(201).json({ token, user, message: 'Registration successful. Email sending failed, check devVerificationUrl.', devVerificationUrl: verificationUrl });
+    }
+
+    // Always log it and return it in dev so the user can test without verified Resend domains
+    console.log(`\n=== VERIFICATION LINK ===\nLink for ${email}: ${verificationUrl}\n=========================\n`);
+    res.status(201).json({ token, user, message: 'Registration successful. Please check your email to verify your account.', devVerificationUrl: verificationUrl });
   } catch (error) {
     console.error('Register error:', error);
     res.status(500).json({ error: 'Server error' });
@@ -138,14 +166,14 @@ const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { id: user.id, email: user.email, role: user.role, is_verified: user.is_verified },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
 
     res.json({
       token,
-      user: { id: user.id, name: user.name, email: user.email, role: user.role }
+      user: { id: user.id, name: user.name, email: user.email, role: user.role, is_verified: user.is_verified }
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -159,7 +187,7 @@ const login = async (req, res) => {
 const me = async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, name, email, role, country, country_code FROM users WHERE id = $1',
+      'SELECT id, name, email, role, country, country_code, is_verified FROM users WHERE id = $1',
       [req.user.id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'User not found' });
@@ -328,4 +356,25 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = { register, login, me, backfillCountries, setUserCountry, forgotPassword, resetPassword };
+/* ─────────────────────────────────────────────────────────────────
+   GET /api/auth/verify-email/:token
+───────────────────────────────────────────────────────────────── */
+const verifyEmail = async (req, res) => {
+  const { token } = req.params;
+  try {
+    const result = await pool.query('SELECT * FROM users WHERE verification_token = $1', [token]);
+    if (result.rows.length === 0) {
+      return res.status(400).json({ error: 'Invalid or expired verification token.' });
+    }
+
+    const user = result.rows[0];
+    await pool.query('UPDATE users SET is_verified = true, verification_token = NULL WHERE id = $1', [user.id]);
+
+    res.json({ message: 'Email successfully verified!' });
+  } catch (error) {
+    console.error('Verify email error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+module.exports = { register, login, me, backfillCountries, setUserCountry, forgotPassword, resetPassword, verifyEmail };
