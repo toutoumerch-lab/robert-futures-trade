@@ -7,9 +7,21 @@ const { authenticateToken, isAdmin } = require('../middleware/auth');
 router.get('/', authenticateToken, isAdmin, async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, name, email, role, country, country_code, created_at FROM users ORDER BY created_at DESC'
+      'SELECT id, name, email, role, country, country_code, created_at, last_active_at FROM users ORDER BY created_at DESC'
     );
-    res.json(result.rows);
+    
+    const now = new Date();
+    const usersWithStatus = result.rows.map(user => {
+      let is_online = false;
+      if (user.last_active_at) {
+        const lastActive = new Date(user.last_active_at);
+        // User is considered online if active within the last 5 minutes
+        is_online = (now - lastActive) < 5 * 60 * 1000;
+      }
+      return { ...user, is_online };
+    });
+
+    res.json(usersWithStatus);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

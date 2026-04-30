@@ -105,7 +105,7 @@ const UsersTab = () => {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>Name</th><th>Email</th><th>Country</th><th>Role</th><th>Actions</th>
+              <th>Name</th><th>Email</th><th>Country</th><th>Status</th><th>Role</th><th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -122,6 +122,18 @@ const UsersTab = () => {
                   ) : (
                     <span style={{ color: 'var(--text-secondary)', opacity: 0.35, fontSize: '0.82rem' }}>—</span>
                   )}
+                </td>
+                <td>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{
+                      width: '8px', height: '8px', borderRadius: '50%',
+                      backgroundColor: u.is_online ? '#10b981' : '#6b7280',
+                      boxShadow: u.is_online ? '0 0 8px rgba(16, 185, 129, 0.4)' : 'none'
+                    }} />
+                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                      {u.is_online ? 'Online' : 'Offline'}
+                    </span>
+                  </div>
                 </td>
                 <td>
                   <span className={`badge ${u.role === 'admin' ? 'badge-admin' : 'badge-user'}`}>
