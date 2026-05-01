@@ -183,13 +183,10 @@ const getCourseAnalytics = async (req, res) => {
     let lessonBreakdown = [];
     if (courseId) {
       const lessonR = await pool.query(`
-        SELECT l.id, l.title, l.sort_order, m.title as module_title,
-               COUNT(DISTINCT e.id) as enrolled_count
+        SELECT l.id, l.title, l.sort_order, m.title as module_title
         FROM course_lessons l
         JOIN course_modules m ON l.module_id = m.id
-        JOIN enrollments e    ON e.course_id = m.course_id
         WHERE m.course_id = $1
-        GROUP BY l.id, l.title, l.sort_order, m.title
         ORDER BY m.sort_order, l.sort_order
       `, [courseId]);
 
@@ -262,7 +259,7 @@ const getUserAnalytics = async (req, res) => {
     const segR = await pool.query(`
       SELECT
         COUNT(*) FILTER (WHERE created_at >= $1)  as new_users,
-        COUNT(*) FILTER (WHERE created_at <  $1)  as returning_users
+        COUNT(*) FILTER (WHERE last_active_at >= $1 AND last_active_at > created_at)  as returning_users
       FROM users WHERE role='user'
     `, [since]);
 

@@ -2,10 +2,8 @@ const bcrypt = require('bcrypt');
 const jwt    = require('jsonwebtoken');
 const https  = require('https');
 const crypto = require('crypto');
-const { Resend } = require('resend');
+const { sendMail } = require('../utils/mailer');
 const { pool } = require('../config/db');
-
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 /* ─────────────────────────────────────────────────────────────────
    Geo helpers
@@ -106,28 +104,20 @@ const register = async (req, res) => {
 
     // Send Verification Email
     const verificationUrl = `http://localhost:5173/verify-email/${verificationToken}`;
-    let emailSent = false;
     
-    if (resend) {
-      try {
-        const { error } = await resend.emails.send({
-          from: 'Robert Trades <onboarding@resend.dev>',
-          to: [email],
-          subject: 'Verify your email address - Robert Trades',
-          html: `<p>Hi ${name},</p><p>Welcome to Robert Trades! Please click the link below to verify your email address:</p><p><a href="${verificationUrl}">${verificationUrl}</a></p>`,
-        });
-        if (!error) emailSent = true;
-      } catch (err) {
-        console.error('Failed to send verification email via Resend:', err);
-      }
-    }
+    // Call Nodemailer
+    const mailResult = await sendMail(
+      email,
+      'Verify your email address - Robert Trades',
+      `<p>Hi ${name},</p><p>Welcome to Robert Trades! Please click the link below to verify your email address:</p><p><a href="${verificationUrl}">${verificationUrl}</a></p>`
+    );
 
-    if (!emailSent) {
+    if (!mailResult.success) {
       console.log(`\n=== DEV MODE: EMAIL VERIFICATION ===\nLink for ${email}: ${verificationUrl}\n====================================\n`);
       return res.status(201).json({ token, user, message: 'Registration successful. Email sending failed, check devVerificationUrl.', devVerificationUrl: verificationUrl });
     }
 
-    // Always log it and return it in dev so the user can test without verified Resend domains
+    // Always log it and return it in dev so the user can test without verified domains
     console.log(`\n=== VERIFICATION LINK ===\nLink for ${email}: ${verificationUrl}\n=========================\n`);
     res.status(201).json({ token, user, message: 'Registration successful. Please check your email to verify your account.', devVerificationUrl: verificationUrl });
   } catch (error) {
@@ -153,17 +143,23 @@ const login = async (req, res) => {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    // Update country if we don't have it yet (backfills existing users)
+    // Update country if we don't have it yet, and update last_active_at
+    const updatePromises = [];
+    updatePromises.push(pool.query('UPDATE users SET last_active_at = NOW() WHERE id = $1', [user.id]));
+    
     if (!user.country_code) {
       const ip  = getClientIp(req);
-      const geo = await lookupCountry(ip);
-      if (geo) {
-        pool.query(
-          'UPDATE users SET country = $1, country_code = $2 WHERE id = $3',
-          [geo.country, geo.country_code, user.id]
-        ).catch(() => {}); // fire-and-forget
-      }
+      lookupCountry(ip).then(geo => {
+        if (geo) {
+          pool.query(
+            'UPDATE users SET country = $1, country_code = $2 WHERE id = $3',
+            [geo.country, geo.country_code, user.id]
+          ).catch(() => {});
+        }
+      });
     }
+
+    Promise.all(updatePromises).catch(() => {}); // fire-and-forget
 
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role, is_verified: user.is_verified },
@@ -276,44 +272,34 @@ const forgotPassword = async (req, res) => {
 
     const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
 
-    if (resend) {
-      const { data, error } = await resend.emails.send({
-        from: process.env.RESEND_FROM || 'onboarding@resend.dev',
-        to: email,
-        subject: 'Password Reset Request',
-        html: `<p>Hello ${user.rows[0].name},</p>
-               <p>You requested a password reset. Click the link below to reset your password:</p>
-               <p><a href="${resetUrl}">${resetUrl}</a></p>
-               <p>If you did not request this, please ignore this email.</p>
-               <p>This link is valid for 1 hour.</p>`
-      });
+    const mailResult = await sendMail(
+      email,
+      'Password Reset Request - Robert Trades',
+      `<p>Hello ${user.rows[0].name},</p>
+       <p>You requested a password reset. Click the link below to reset your password:</p>
+       <p><a href="${resetUrl}">${resetUrl}</a></p>
+       <p>If you did not request this, please ignore this email.</p>
+       <p>This link is valid for 1 hour.</p>`
+    );
 
-      if (error) {
-        console.error('❌ Resend API Error:', error);
-        console.log('--- FALLBACK: PASSWORD RESET SIMULATION ---');
-        console.log('To:', email);
-        console.log('Reset Link:', resetUrl);
-        console.log('-------------------------------------------');
-        // Return the link to the frontend for easy testing if email fails
-        return res.status(200).json({ 
-          message: 'Email failed to send, but here is your reset link (Dev Mode)', 
-          devResetUrl: resetUrl 
-        });
-      } else {
-        console.log('✅ Password reset email sent via Resend to:', email);
-      }
-    } else {
-      console.log('--- PASSWORD RESET SIMULATION ---');
+    if (!mailResult.success) {
+      console.error('❌ Nodemailer Error:', mailResult.error);
+      console.log('--- FALLBACK: PASSWORD RESET SIMULATION ---');
       console.log('To:', email);
       console.log('Reset Link:', resetUrl);
-      console.log('---------------------------------');
+      console.log('-------------------------------------------');
+      // Return the link to the frontend for easy testing if email fails
       return res.status(200).json({ 
-        message: 'Resend API Key missing. Here is your reset link (Dev Mode)', 
+        message: 'Email failed to send, but here is your reset link (Dev Mode)', 
         devResetUrl: resetUrl 
       });
+    } else {
+      console.log('✅ Password reset email sent via Nodemailer to:', email);
+      return res.status(200).json({ 
+        message: 'If that email is registered, we have sent a reset link.',
+        devResetUrl: resetUrl // Kept for easy dev testing 
+      });
     }
-
-    res.status(200).json({ message: 'If that email is registered, we have sent a reset link.' });
   } catch (error) {
     console.error('Forgot password error:', error);
     res.status(500).json({ error: 'Server error' });

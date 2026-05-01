@@ -561,7 +561,7 @@ export default function AdminAnalytics() {
             <table style={{width:'100%',borderCollapse:'collapse',fontSize:'0.85rem'}}>
               <thead>
                 <tr style={{borderBottom:'1px solid rgba(255,255,255,0.07)'}}>
-                  {['Course','Level','Enrollments','Avg Completion','Revenue','Sales',''].map(h=>(
+                  {['Course','Level','Enrollments','Avg Completion','Revenue','Sales'].map(h=>(
                     <th key={h} style={{padding:'10px 14px',textAlign:'left',color:'var(--text-secondary)',fontWeight:700,fontSize:'0.75rem',textTransform:'uppercase',letterSpacing:'0.05em',whiteSpace:'nowrap'}}>{h}</th>
                   ))}
                 </tr>
@@ -571,10 +571,9 @@ export default function AdminAnalytics() {
                   <tr><td colSpan={7} style={{padding:'3rem',textAlign:'center',color:'var(--text-secondary)'}}>No course data.</td></tr>
                 )}
                 {list.map((c,i) => (
-                  <tr key={c.id} style={{borderBottom:'1px solid rgba(255,255,255,0.04)',transition:'background 0.15s',cursor:'pointer'}}
+                  <tr key={c.id} style={{borderBottom:'1px solid rgba(255,255,255,0.04)',transition:'background 0.15s'}}
                     onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,0.025)'}
                     onMouseLeave={e=>e.currentTarget.style.background='transparent'}
-                    onClick={()=>drillDown(c.id)}
                   >
                     <td style={{padding:'12px 14px'}}>
                       <div style={{fontWeight:700,color:'var(--text-primary)',maxWidth:'200px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{c.title}</div>
@@ -596,12 +595,6 @@ export default function AdminAnalytics() {
                     </td>
                     <td style={{padding:'12px 14px',color:'#10b981',fontWeight:800}}>{fmt$(c.revenue)}</td>
                     <td style={{padding:'12px 14px',color:'var(--text-primary)',fontWeight:700}}>{fmtN(c.sales)}</td>
-                    <td style={{padding:'12px 14px'}}>
-                      <button style={{padding:'5px 10px',borderRadius:'8px',border:'1px solid rgba(59,130,246,0.3)',background:'rgba(59,130,246,0.08)',
-                        color:'#60a5fa',cursor:'pointer',fontFamily:'var(--font-sans)',fontWeight:700,fontSize:'0.75rem',display:'flex',alignItems:'center',gap:'4px'}}>
-                        <Eye size={11}/> Drill
-                      </button>
-                    </td>
                   </tr>
                 ))}
               </tbody>
