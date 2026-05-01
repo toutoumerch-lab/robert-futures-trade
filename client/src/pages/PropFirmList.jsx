@@ -180,7 +180,7 @@ const SmartSearch = ({ firms, searchQuery, setSearchQuery, onSelectFirm }) => {
 /* â═══════════════════════════════════════════════•
    Comparison Modal (Conversion-Optimized)
    â═══════════════════════════════════════════════• */
-const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
+const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm, onTrackWebsite }) => {
   const [firms, setFirms] = useState(initialFirms);
 
   // Sync if parent changes the list
@@ -389,7 +389,7 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
             </thead>
             <tbody>
 
-              {/* â══• PRICING SECTION â══• */}
+              {/* â══•  PRICING SECTION â══•  */}
               <SectionRow icon={<DollarSign size={14} />} title="Pricing & Savings" />
 
               {/* Rating */}
@@ -399,19 +399,6 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
                   <td key={f.id} style={cellStyle(f.id, bestRatingIds)}>
                     {f.rating ? <><span style={{ fontSize: '1.1rem' }}>{f.rating}</span><span style={{ fontSize: '0.78rem', opacity: 0.6 }}>/5</span></> : <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
                     {isWinner(f.id, bestRatingIds) && getNumericRating(f) > 0 && <WinnerBadge tied={bestRatingIds.length > 1} />}
-                  </td>
-                ))}
-              </tr>
-
-              {/* Activation Fee */}
-              <tr className="cmp-row">
-                <td className="pf-compare-label"><Lock size={14} /> Activation Fee</td>
-                {firms.map(f => (
-                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700 }}>
-                    {isFreeActivation(f)
-                      ? <span style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981', padding: '4px 14px', borderRadius: '8px', fontWeight: 800, fontSize: '0.88rem' }}>FREE <Check size={14} /></span>
-                      : <span>${f.activation_fee}</span>
-                    }
                   </td>
                 ))}
               </tr>
@@ -439,19 +426,6 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
                 })}
               </tr>
 
-              {/* Discount */}
-              <tr className="cmp-row">
-                <td className="pf-compare-label"><Tag size={14} /> Discount</td>
-                {firms.map(f => (
-                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700 }}>
-                    {f.discount_percent
-                      ? <span style={{ color: '#3b82f6', fontWeight: 800 }}>-{f.discount_percent}%</span>
-                      : <span style={{ color: 'var(--text-secondary)' }}>—</span>
-                    }
-                  </td>
-                ))}
-              </tr>
-
               {/* Promo Code */}
               <tr className="cmp-row">
                 <td className="pf-compare-label"><Ticket size={14} /> Promo Code</td>
@@ -465,8 +439,18 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
                 ))}
               </tr>
 
-              {/* â══• TRADING RULES SECTION â══• */}
+              {/* â══•  TRADING RULES SECTION â══•  */}
               <SectionRow icon={<Settings size={14} />} title="Trading Rules & Metrics" />
+
+              {/* Eval Type */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label"><ClipboardList size={14} /> Eval Type</td>
+                {firms.map(f => (
+                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700, color: 'var(--text-primary)' }}>
+                    {f.eval || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
+                  </td>
+                ))}
+              </tr>
 
               {/* Profit Split */}
               <tr className="cmp-row">
@@ -488,16 +472,6 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
                 ))}
               </tr>
 
-              {/* Daily Loss Limit */}
-              <tr className="cmp-row">
-                <td className="pf-compare-label"><TrendingDown size={14} /> Daily Loss Limit</td>
-                {firms.map(f => (
-                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
-                    {f.dll || <span style={{ color: 'var(--text-secondary)' }}>None</span>}
-                  </td>
-                ))}
-              </tr>
-
               {/* Drawdown */}
               <tr className="cmp-row">
                 <td className="pf-compare-label"><TrendingDown size={14} /> Drawdown Rules</td>
@@ -507,25 +481,6 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
                   </td>
                 ))}
               </tr>
-
-              {/* Buffer Support */}
-              <tr className="cmp-row">
-                <td className="pf-compare-label"><Shield size={14} /> Buffer</td>
-                {firms.map(f => (
-                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700 }}>
-                    {f.buffer ? (
-                      <span style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', padding: '4px 12px', borderRadius: '8px', fontWeight: 800 }}>
-                        <Check size={14} /> {f.buffer_amount || 'Yes'}
-                      </span>
-                    ) : (
-                      <span className="cmp-check-off"><X size={14} /> No</span>
-                    )}
-                  </td>
-                ))}
-              </tr>
-
-              {/* â══• PAYOUT SECTION â══• */}
-              <SectionRow icon={<Timer size={14} />} title="Payout & Accounts" />
 
               {/* Days to Payout */}
               <tr className="cmp-row">
@@ -538,73 +493,32 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
                 ))}
               </tr>
 
-              {/* Max Withdrawal */}
+              {/* Trading Features (Condensed) */}
               <tr className="cmp-row">
-                <td className="pf-compare-label"><Banknote size={14} /> Max Withdrawal</td>
-                {firms.map(f => (
-                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
-                    {f.max_withdrawal || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
-                  </td>
-                ))}
-              </tr>
-
-              {/* Days to Pass */}
-              <tr className="cmp-row">
-                <td className="pf-compare-label"><Calendar size={14} /> Days to Pass</td>
-                {firms.map(f => (
-                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700 }}>
-                    {f.days_to_pass || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
-                  </td>
-                ))}
-              </tr>
-
-              {/* Max Accounts */}
-              <tr className="cmp-row">
-                <td className="pf-compare-label"><User size={14} /> Max Accounts</td>
-                {firms.map(f => (
-                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
-                    {f.max_accounts || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
-                  </td>
-                ))}
-              </tr>
-
-              {/* Eval */}
-              <tr className="cmp-row">
-                <td className="pf-compare-label"><ClipboardList size={14} /> Eval</td>
-                {firms.map(f => (
-                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700 }}>
-                    {f.eval || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
-                  </td>
-                ))}
-              </tr>
-
-              {/* â══• TRADING FEATURES SECTION â══• */}
-              <SectionRow icon={<Wrench size={14} />} title="Trading Features" />
-
-              {/* Feature toggles as visual check/cross */}
-              {[
-                { key: 'copy_trade', label: 'Copy Trading' },
-                { key: 'news', label: 'News Trading' },
-                { key: 'bots', label: 'Bots Allowed' },
-                { key: 'vpn', label: 'VPN Allowed' },
-                { key: 'dca', label: 'DCA Allowed' },
-                { key: 'micro_scalping', label: 'Micro Scalping' },
-              ].map(feat => (
-                <tr key={feat.key} className="cmp-row">
-                  <td className="pf-compare-label">{feat.label}</td>
-                  {firms.map(f => (
-                    <td key={f.id} style={{ textAlign: 'center', fontWeight: 700 }}>
-                      {f[feat.key] ? (
-                        <span style={{ color: '#10b981', fontSize: '1rem' }}><Check size={14} /> Yes</span>
-                      ) : (
-                        <span className="cmp-check-off"><X size={14} /> No</span>
-                      )}
+                <td className="pf-compare-label"><Wrench size={14} /> Allowed Features</td>
+                {firms.map(f => {
+                  const allowed = [
+                    f.copy_trade && 'Copy Trade',
+                    f.news && 'News',
+                    f.bots && 'Bots',
+                    f.vpn && 'VPN'
+                  ].filter(Boolean);
+                  return (
+                    <td key={f.id} style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.4, paddingBottom: '1.5rem' }}>
+                      {allowed.length > 0 ? (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', justifyContent: 'center' }}>
+                          {allowed.map(a => (
+                            <span key={a} style={{ background: 'var(--bg-primary)', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--border-color)', whiteSpace: 'nowrap' }}>{a}</span>
+                          ))}
+                        </div>
+                      ) : 'None'}
                     </td>
-                  ))}
-                </tr>
-              ))}
+                  );
+                })}
+              </tr>
 
             </tbody>
+
           </table>
         </div>
 
@@ -616,7 +530,7 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
         }}>
           {firms.map(f => (
             f.website ? (
-              <a key={f.id} href={f.website} target="_blank" rel="noreferrer" style={{
+              <a key={f.id} href={f.website} target="_blank" rel="noreferrer" onClick={() => onTrackWebsite?.(f.id)} style={{
                 background: 'linear-gradient(135deg, var(--accent-secondary), var(--accent-primary))',
                 color: '#fff', padding: '0.6rem 1.25rem', borderRadius: '12px',
                 fontWeight: 700, textDecoration: 'none', fontSize: firms.length >= 4 ? '0.78rem' : '0.88rem',
@@ -640,7 +554,7 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {
 /* â═══════════════════════════════════════════════•
    Grid Card (with compare + fav)
    â═══════════════════════════════════════════════• */
-const FirmGridCard = ({ firm, onClick, isComparing, onToggleCompare, isFav, onToggleFav, compareDisabled }) => (
+const FirmGridCard = ({ firm, onClick, isComparing, onToggleCompare, isFav, onToggleFav, compareDisabled, onTrackWebsite }) => (
   <div className={`firm-grid-card ${isComparing ? 'comparing' : ''}`} onClick={onClick} style={{
     background: 'var(--bg-secondary)', borderRadius: '24px', padding: '1.75rem',
     border: isComparing ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
@@ -727,7 +641,7 @@ const FirmGridCard = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTo
 /* â═══════════════════════════════════════════════•
    List Row (with compare + fav)
    â═══════════════════════════════════════════════• */
-const FirmListRow = ({ firm, onClick, isComparing, onToggleCompare, isFav, onToggleFav, compareDisabled }) => (
+const FirmListRow = ({ firm, onClick, isComparing, onToggleCompare, isFav, onToggleFav, compareDisabled, onTrackWebsite }) => (
   <div className={`firm-list-row ${isComparing ? 'comparing' : ''}`} onClick={onClick} style={{
     background: 'var(--bg-secondary)', borderRadius: '16px', padding: '1.25rem 1.5rem',
     border: isComparing ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
@@ -1272,7 +1186,7 @@ const PropFirmList = () => {
       </div>
 
       {/* ── Compare Modal ── */}
-      {showCompare && <CompareModal firms={compareFirms} onClose={() => setShowCompare(false)} onRemoveFirm={(id) => setCompareIds(prev => prev.filter(x => x !== id))} />}
+      {showCompare && <CompareModal firms={compareFirms} onClose={() => setShowCompare(false)} onRemoveFirm={(id) => setCompareIds(prev => prev.filter(x => x !== id))} onTrackWebsite={(id) => trackClick(id, 'website')} />}
 
       {/* ── Detail Modal ── */}
       {viewingFirm && createPortal(
