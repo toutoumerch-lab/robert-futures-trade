@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
 const AuthContext = createContext();
@@ -6,8 +6,8 @@ const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token') || null);
+  const [user, setUser]     = useState(null);
+  const [token, setToken]   = useState(localStorage.getItem('token') || null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,12 +34,24 @@ export const AuthProvider = ({ children }) => {
     return res.data.user;
   };
 
+  // Returns { email } only — user is not logged in until OTP is verified
   const register = async (name, email, password) => {
     const res = await axios.post('http://localhost:5001/api/auth/register', { name, email, password });
+    return res.data;
+  };
+
+  // Called after user submits the 6-digit code — logs the user in
+  const verifyOtp = async (email, code) => {
+    const res = await axios.post('http://localhost:5001/api/auth/verify-otp', { email, code });
     setToken(res.data.token);
     setUser(res.data.user);
     localStorage.setItem('token', res.data.token);
-    return res.data;
+    axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
+    return res.data.user;
+  };
+
+  const resendOtp = async (email) => {
+    await axios.post('http://localhost:5001/api/auth/resend-otp', { email });
   };
 
   const logout = () => {
@@ -50,7 +62,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, verifyOtp, resendOtp, logout }}>
       {children}
     </AuthContext.Provider>
   );

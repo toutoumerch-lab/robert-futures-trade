@@ -96,10 +96,10 @@ export const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await register(name, email, password);
-      navigate('/dashboard', { state: { devUrl: res?.devVerificationUrl } });
+      await register(name, email, password);
+      navigate('/verify-code', { state: { email } });
     } catch (err) {
-      setError('Registration failed');
+      setError(err.response?.data?.error || 'Registration failed');
     }
   };
 
