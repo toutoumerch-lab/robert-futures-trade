@@ -14,7 +14,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (user && user.role !== 'admin' && token) {
-      axios.get('http://localhost:5001/api/enrollments/my', {
+      axios.get(`${import.meta.env.VITE_API_URL}/api/enrollments/my`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(res => setEnrollments(res.data))
@@ -106,7 +106,7 @@ const Dashboard = () => {
                   return (
                     <div key={enr.id} style={{ display: 'flex', gap: '1rem', alignItems: 'center', padding: '1rem', borderRadius: '16px', background: 'var(--bg-primary)', border: '1px solid var(--border)' }}>
                        {enr.image_url ? (
-                         <img src={`http://localhost:5001${enr.image_url}`} alt={enr.title} style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: '8px' }} />
+                         <img src={`${import.meta.env.VITE_API_URL}${enr.image_url}`} alt={enr.title} style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: '8px' }} />
                        ) : (
                          <div style={{ width: '80px', height: '60px', borderRadius: '8px', background: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><BookOpen size={24} color="var(--text-secondary)" /></div>
                        )}

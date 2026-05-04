@@ -65,7 +65,7 @@ const UsersTab = () => {
 
   const fetchUsers = useCallback(() => {
     setLoading(true);
-    axios.get('http://localhost:5001/api/users')
+    axios.get(`${import.meta.env.VITE_API_URL}/api/users`)
       .then(res => setUsers(res.data))
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -75,13 +75,13 @@ const UsersTab = () => {
 
   const promoteUser = async (id, currentRole) => {
     const newRole = currentRole === 'admin' ? 'user' : 'admin';
-    await axios.patch(`http://localhost:5001/api/users/${id}/role`, { role: newRole });
+    await axios.patch(`${import.meta.env.VITE_API_URL}/api/users/${id}/role`, { role: newRole });
     fetchUsers();
   };
 
   const deleteUser = async (id) => {
     if (!window.confirm('Delete this user?')) return;
-    await axios.delete(`http://localhost:5001/api/users/${id}`);
+    await axios.delete(`${import.meta.env.VITE_API_URL}/api/users/${id}`);
     fetchUsers();
   };
 
@@ -132,7 +132,7 @@ const PostsTab = ({ adminUser }) => {
 
   const fetchPosts = useCallback(() => {
     setLoading(true);
-    axios.get('http://localhost:5001/api/posts')
+    axios.get(`${import.meta.env.VITE_API_URL}/api/posts`)
       .then(res => setPosts(res.data))
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -146,9 +146,9 @@ const PostsTab = ({ adminUser }) => {
   const handleSave = async (e) => {
     e.preventDefault();
     if (editing) {
-      await axios.put(`http://localhost:5001/api/posts/${editing.id}`, form);
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/posts/${editing.id}`, form);
     } else {
-      await axios.post('http://localhost:5001/api/posts', form);
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/posts`, form);
     }
     setShowModal(false);
     fetchPosts();
@@ -156,7 +156,7 @@ const PostsTab = ({ adminUser }) => {
 
   const deletePost = async (id) => {
     if (!window.confirm('Delete this post?')) return;
-    await axios.delete(`http://localhost:5001/api/posts/${id}`);
+    await axios.delete(`${import.meta.env.VITE_API_URL}/api/posts/${id}`);
     fetchPosts();
   };
 
@@ -225,14 +225,14 @@ const CoursesTab = () => {
 
   const fetchCourses = useCallback(() => {
     setLoading(true);
-    axios.get('http://localhost:5001/api/courses')
+    axios.get(`${import.meta.env.VITE_API_URL}/api/courses`)
       .then(res => setCourses(res.data))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
   const fetchCategories = useCallback(() => {
-    axios.get('http://localhost:5001/api/categories')
+    axios.get(`${import.meta.env.VITE_API_URL}/api/categories`)
       .then(res => setCategories(res.data || []))
       .catch(console.error);
   }, []);
@@ -245,7 +245,7 @@ const CoursesTab = () => {
   const handleCreateCategory = async (catName, e = null) => {
     if (!catName || catName.trim() === '') return;
     try {
-      const res = await axios.post('http://localhost:5001/api/categories', { name: catName.trim() });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/categories`, { name: catName.trim() });
       if (res.data) {
         setCategories(prev => {
           const exists = prev.find(c => c.name.toLowerCase() === res.data.name.toLowerCase());
@@ -266,7 +266,7 @@ const CoursesTab = () => {
     e.stopPropagation();
     if (!window.confirm(`Are you sure you want to delete the category "${catName}"?`)) return;
     try {
-      await axios.delete(`http://localhost:5001/api/categories/${catId}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/categories/${catId}`);
       setCategories(prev => prev.filter(c => c.id !== catId));
       // Clear selection if the deleted category was selected
       if (form.category === catName) {
@@ -324,11 +324,11 @@ const CoursesTab = () => {
 
     try {
       if (editing) {
-        await axios.put(`http://localhost:5001/api/courses/${editing.id}`, formData, {
+        await axios.put(`${import.meta.env.VITE_API_URL}/api/courses/${editing.id}`, formData, {
            headers: { 'Content-Type': 'multipart/form-data' }
         });
       } else {
-        await axios.post('http://localhost:5001/api/courses', formData, {
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/courses`, formData, {
            headers: { 'Content-Type': 'multipart/form-data' }
         });
       }
@@ -342,7 +342,7 @@ const CoursesTab = () => {
 
   const deleteCourse = async (id) => {
     if (!window.confirm('Delete this course?')) return;
-    await axios.delete(`http://localhost:5001/api/courses/${id}`);
+    await axios.delete(`${import.meta.env.VITE_API_URL}/api/courses/${id}`);
     fetchCourses();
   };
 
@@ -585,7 +585,7 @@ const CoursesTab = () => {
                        <input type="file" accept="image/*" onChange={e => setForm({...form, image: e.target.files[0]})} style={{ width: '100%', padding: '0.75rem', background: 'var(--bg-primary)', borderRadius: '12px', color: 'var(--text-primary)', border: '1px solid var(--border)' }} />
                      </div>
                      {editing && editing.image_url && !form.image && (
-                       <div style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Current banner: <a href={`http://localhost:5001${editing.image_url}`} target="_blank" rel="noreferrer" style={{color: 'var(--accent-secondary)', fontWeight: 700}}>View active image ï¿½ </a></div>
+                       <div style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Current banner: <a href={`${import.meta.env.VITE_API_URL}${editing.image_url}`} target="_blank" rel="noreferrer" style={{color: 'var(--accent-secondary)', fontWeight: 700}}>View active image ï¿½ </a></div>
                      )}
                    </div>
 
@@ -621,7 +621,7 @@ const CoursesTab = () => {
                      <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Attach any PDF cheatsheets or study guides associated with this course.</p>
                      <input type="file" accept="application/pdf" onChange={e => setForm({...form, pdf_file: e.target.files[0]})} style={{ width: '100%', maxWidth: '400px', padding: '0.75rem', background: 'var(--bg-primary)', borderRadius: '12px', border: '1px solid var(--border)', color: 'var(--text-primary)' }} />
                      {editing && editing.pdf_url && !form.pdf_file && (
-                       <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>PDF Payload Active: <a href={`http://localhost:5001${editing.pdf_url}`} target="_blank" rel="noreferrer" style={{color: 'var(--accent-primary)', fontWeight: 700}}>Verify PDF ï¿½ </a></div>
+                       <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>PDF Payload Active: <a href={`${import.meta.env.VITE_API_URL}${editing.pdf_url}`} target="_blank" rel="noreferrer" style={{color: 'var(--accent-primary)', fontWeight: 700}}>Verify PDF ï¿½ </a></div>
                      )}
                    </div>
 
@@ -667,7 +667,7 @@ const PropFirmsTab = () => {
 
   const fetchFirms = useCallback(() => {
     setLoading(true);
-    axios.get('http://localhost:5001/api/prop-firms/admin')
+    axios.get(`${import.meta.env.VITE_API_URL}/api/prop-firms/admin`)
       .then(res => setFirms(res.data))
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -675,7 +675,7 @@ const PropFirmsTab = () => {
 
   useEffect(() => {
     fetchFirms();
-    axios.get('http://localhost:5001/api/prop-firms/platforms')
+    axios.get(`${import.meta.env.VITE_API_URL}/api/prop-firms/platforms`)
       .then(res => setAvailablePlatforms(res.data))
       .catch(console.error);
   }, [fetchFirms]);
@@ -746,7 +746,7 @@ const PropFirmsTab = () => {
   const confirmImport = async () => {
     if (!importPreview || importPreview.length === 0) return;
     try {
-      await axios.post('http://localhost:5001/api/prop-firms/bulk', importPreview);
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/prop-firms/bulk`, importPreview);
       setImportPreview(null);
       fetchFirms();
       alert("Successfully imported records!");
@@ -818,9 +818,9 @@ const PropFirmsTab = () => {
 
     try {
       if (editing) {
-        await axios.put(`http://localhost:5001/api/prop-firms/${editing.id}`, formData);
+        await axios.put(`${import.meta.env.VITE_API_URL}/api/prop-firms/${editing.id}`, formData);
       } else {
-        await axios.post('http://localhost:5001/api/prop-firms', formData);
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/prop-firms`, formData);
       }
       setShowModal(false);
       fetchFirms();
@@ -832,7 +832,7 @@ const PropFirmsTab = () => {
 
   const deleteFirm = async (id) => {
     if (!window.confirm('Delete this prop firm?')) return;
-    await axios.delete(`http://localhost:5001/api/prop-firms/${id}`);
+    await axios.delete(`${import.meta.env.VITE_API_URL}/api/prop-firms/${id}`);
     fetchFirms();
   };
 
@@ -962,7 +962,7 @@ const PropFirmsTab = () => {
                     {(form.imageFile || form.logo_url) ? (
                       <div style={{ position: 'relative', width: '120px', height: '120px', margin: '0 auto 1rem', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <img 
-                          src={form.imageFile ? URL.createObjectURL(form.imageFile) : `http://localhost:5001${form.logo_url}`} 
+                          src={form.imageFile ? URL.createObjectURL(form.imageFile) : `${import.meta.env.VITE_API_URL}${form.logo_url}`} 
                           alt="Logo Preview" 
                           style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                         />
@@ -1135,7 +1135,7 @@ const PropFirmsTab = () => {
                     {viewingFirm.logo_url && (
                       <div style={{ background: '#fff', padding: '0.25rem', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                         <img 
-                          src={`http://localhost:5001${viewingFirm.logo_url}`} 
+                          src={`${import.meta.env.VITE_API_URL}${viewingFirm.logo_url}`} 
                           alt="Logo" 
                           style={{ width: '48px', height: '48px', objectFit: 'contain', display: 'block' }} 
                         />
@@ -1294,7 +1294,7 @@ const PromotionsTab = () => {
 
   const fetchPromos = useCallback(() => {
     setLoading(true);
-    axios.get('http://localhost:5001/api/promotions')
+    axios.get(`${import.meta.env.VITE_API_URL}/api/promotions`)
       .then(res => setPromos(res.data))
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -1333,9 +1333,9 @@ const PromotionsTab = () => {
     };
     try {
       if (editing) {
-        await axios.put(`http://localhost:5001/api/promotions/${editing.id}`, payload);
+        await axios.put(`${import.meta.env.VITE_API_URL}/api/promotions/${editing.id}`, payload);
       } else {
-        await axios.post('http://localhost:5001/api/promotions', payload);
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/promotions`, payload);
       }
       setShowModal(false);
       fetchPromos();
@@ -1346,7 +1346,7 @@ const PromotionsTab = () => {
 
   const deletePromo = async (id) => {
     if (!window.confirm('Delete this promotion?')) return;
-    await axios.delete(`http://localhost:5001/api/promotions/${id}`);
+    await axios.delete(`${import.meta.env.VITE_API_URL}/api/promotions/${id}`);
     fetchPromos();
   };
 

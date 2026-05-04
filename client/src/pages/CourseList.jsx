@@ -197,9 +197,9 @@ const CourseList = () => {
 
   useEffect(() => {
     Promise.all([
-      axios.get('http://localhost:5001/api/courses'),
-      axios.get('http://localhost:5001/api/categories'),
-      axios.get('http://localhost:5001/api/reviews/course-ratings'),
+      axios.get(`${import.meta.env.VITE_API_URL}/api/courses`),
+      axios.get(`${import.meta.env.VITE_API_URL}/api/categories`),
+      axios.get(`${import.meta.env.VITE_API_URL}/api/reviews/course-ratings`),
     ]).then(([coursesRes, categoriesRes, ratingsRes]) => {
       setCourses(coursesRes.data);
       setCategories(categoriesRes.data || []);
@@ -216,7 +216,7 @@ const CourseList = () => {
     }
     setIsSearching(true); setHasQueried(true); setShowDropdown(true);
     const timeout = setTimeout(() => {
-      axios.get(`http://localhost:5001/api/courses/search?q=${encodeURIComponent(searchQuery)}`)
+      axios.get(`${import.meta.env.VITE_API_URL}/api/courses/search?q=${encodeURIComponent(searchQuery)}`)
         .then(res => setSearchResults(res.data))
         .catch(err => console.error('Search error:', err))
         .finally(() => setIsSearching(false));

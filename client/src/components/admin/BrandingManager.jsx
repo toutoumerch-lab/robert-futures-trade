@@ -12,7 +12,7 @@ import {
 import FacebookIcon from '../icons/FacebookIcon';
 
 const HEX_REGEX = /^#[0-9A-Fa-f]{6}$/;
-const API_BASE = 'http://localhost:5001';
+const API_BASE = `${import.meta.env.VITE_API_URL}`;
 
 // ── Theme Presets ──
 const PRESETS = [

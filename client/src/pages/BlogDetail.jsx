@@ -43,7 +43,7 @@ const BlogDetail = () => {
   // ── Fetch post ──────────────────────────────────────────────────────────────
   const fetchPost = useCallback(async () => {
     try {
-      const res = await axios.get(`http://localhost:5001/api/posts/${id}`);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/posts/${id}`);
       const data = res.data;
       setPost(data);
       setComments(data.comments || []);
@@ -67,7 +67,7 @@ const BlogDetail = () => {
     if (!user) { navigate('/login'); return; }
     setRxLoad(type);
     try {
-      const res = await axios.post(`http://localhost:5001/api/posts/${id}/reactions`, { type });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/posts/${id}/reactions`, { type });
       if (res.data.action === 'added') {
         setReactions(prev => ({ ...prev, [type]: (prev[type] || 0) + 1 }));
         setUserRx(prev => [...prev, type]);
@@ -88,7 +88,7 @@ const BlogDetail = () => {
     if (!newComment.trim()) return;
     setSub(true);
     try {
-      const res = await axios.post(`http://localhost:5001/api/posts/${id}/comments`, { content: newComment });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/posts/${id}/comments`, { content: newComment });
       setComments(prev => [...prev, res.data]);
       setNew('');
     } catch (err) {
@@ -102,7 +102,7 @@ const BlogDetail = () => {
   const handleDeleteComment = async (commentId) => {
     if (!window.confirm('Delete this comment?')) return;
     try {
-      await axios.delete(`http://localhost:5001/api/posts/${id}/comments/${commentId}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/posts/${id}/comments/${commentId}`);
       setComments(prev => prev.filter(c => c.id !== commentId));
     } catch (err) {
       console.error('deleteComment error:', err);
@@ -155,7 +155,7 @@ const BlogDetail = () => {
       {post.image_url && (
         <div className="blog-detail-cover">
           <img
-            src={`http://localhost:5001${post.image_url}`}
+            src={`${import.meta.env.VITE_API_URL}${post.image_url}`}
             alt={post.title}
             className="blog-detail-cover-img"
           />

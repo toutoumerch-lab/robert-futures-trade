@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      axios.get('http://localhost:5001/api/auth/me')
+      axios.get(`${import.meta.env.VITE_API_URL}/api/auth/me`)
         .then(res => setUser(res.data))
         .catch(() => {
           localStorage.removeItem('token');
@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   const login = async (email, password) => {
-    const res = await axios.post('http://localhost:5001/api/auth/login', { email, password });
+    const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, { email, password });
     setToken(res.data.token);
     setUser(res.data.user);
     localStorage.setItem('token', res.data.token);
@@ -36,13 +36,13 @@ export const AuthProvider = ({ children }) => {
 
   // Returns { email } only — user is not logged in until OTP is verified
   const register = async (name, email, password) => {
-    const res = await axios.post('http://localhost:5001/api/auth/register', { name, email, password });
+    const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register`, { name, email, password });
     return res.data;
   };
 
   // Called after user submits the 6-digit code — logs the user in
   const verifyOtp = async (email, code) => {
-    const res = await axios.post('http://localhost:5001/api/auth/verify-otp', { email, code });
+    const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/verify-otp`, { email, code });
     setToken(res.data.token);
     setUser(res.data.user);
     localStorage.setItem('token', res.data.token);
@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const resendOtp = async (email) => {
-    await axios.post('http://localhost:5001/api/auth/resend-otp', { email });
+    await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/resend-otp`, { email });
   };
 
   const logout = () => {

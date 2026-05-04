@@ -9,7 +9,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
-const API = 'http://localhost:5001';
+const API = `${import.meta.env.VITE_API_URL}`;
 
 /* ── tiny helpers ─────────────────────────────────────────────── */
 const pct = (enr) => {

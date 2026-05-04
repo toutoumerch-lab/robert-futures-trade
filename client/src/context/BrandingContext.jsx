@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const BrandingContext = createContext();
 
-const API_BASE = 'http://localhost:5001';
+const API_BASE = `${import.meta.env.VITE_API_URL}`;
 
 // Default theme values
 const THEME_DEFAULTS = {

@@ -72,7 +72,7 @@ const UsersTab = () => {
 
   const fetchUsers = useCallback(() => {
     setLoading(true);
-    axios.get('http://localhost:5001/api/users')
+    axios.get(`${import.meta.env.VITE_API_URL}/api/users`)
       .then(res => setUsers(res.data))
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -82,13 +82,13 @@ const UsersTab = () => {
 
   const promoteUser = async (id, currentRole) => {
     const newRole = currentRole === 'admin' ? 'user' : 'admin';
-    await axios.patch(`http://localhost:5001/api/users/${id}/role`, { role: newRole });
+    await axios.patch(`${import.meta.env.VITE_API_URL}/api/users/${id}/role`, { role: newRole });
     fetchUsers();
   };
 
   const deleteUser = async (id) => {
     if (!window.confirm('Delete this user?')) return;
-    await axios.delete(`http://localhost:5001/api/users/${id}`);
+    await axios.delete(`${import.meta.env.VITE_API_URL}/api/users/${id}`);
     fetchUsers();
   };
 
@@ -188,7 +188,7 @@ const PostsTab = ({ adminUser }) => {
 
   const fetchPosts = useCallback(() => {
     setLoading(true);
-    axios.get('http://localhost:5001/api/posts')
+    axios.get(`${import.meta.env.VITE_API_URL}/api/posts`)
       .then(res => setPosts(res.data))
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -196,7 +196,7 @@ const PostsTab = ({ adminUser }) => {
 
   const fetchCategories = useCallback(() => {
     setCatLoading(true);
-    axios.get('http://localhost:5001/api/categories')
+    axios.get(`${import.meta.env.VITE_API_URL}/api/categories`)
       .then(res => setCategories(res.data || []))
       .catch(console.error)
       .finally(() => setCatLoading(false));
@@ -210,7 +210,7 @@ const PostsTab = ({ adminUser }) => {
     if (!name || catSaving) return;
     setCatSaving(true);
     try {
-      const res = await axios.post('http://localhost:5001/api/categories', { name });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/categories`, { name });
       const created = res.data;
       setCategories(prev => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)));
       setForm(f => ({ ...f, category: created.name }));
@@ -239,7 +239,7 @@ const PostsTab = ({ adminUser }) => {
     const name = editingCatName.trim();
     if (!name) return;
     try {
-      const res = await axios.patch(`http://localhost:5001/api/categories/${id}`, { name });
+      const res = await axios.patch(`${import.meta.env.VITE_API_URL}/api/categories/${id}`, { name });
       const updated = res.data;
       setCategories(prev => prev.map(c => c.id === id ? updated : c).sort((a, b) => a.name.localeCompare(b.name)));
       // If the form currently has the old name selected, update it
@@ -252,7 +252,7 @@ const PostsTab = ({ adminUser }) => {
   const handleDeleteCategory = async (cat) => {
     if (!window.confirm(`Delete "${cat.name}"? Posts using it will fall back to General.`)) return;
     try {
-      await axios.delete(`http://localhost:5001/api/categories/${cat.id}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/categories/${cat.id}`);
       setCategories(prev => prev.filter(c => c.id !== cat.id));
       if (form.category === cat.name) setForm(f => ({ ...f, category: 'General' }));
     } catch (err) {
@@ -277,7 +277,7 @@ const PostsTab = ({ adminUser }) => {
       read_time: p.read_time || '', is_published: p.is_published || false,
       image: null,
     });
-    setPreview(p.image_url ? `http://localhost:5001${p.image_url}` : null);
+    setPreview(p.image_url ? `${import.meta.env.VITE_API_URL}${p.image_url}` : null);
     setActiveTab('content');
     setShowModal(true);
   };
@@ -309,9 +309,9 @@ const PostsTab = ({ adminUser }) => {
         },
       };
       if (editing) {
-        await axios.put(`http://localhost:5001/api/posts/${editing.id}`, fd, config);
+        await axios.put(`${import.meta.env.VITE_API_URL}/api/posts/${editing.id}`, fd, config);
       } else {
-        await axios.post('http://localhost:5001/api/posts', fd, config);
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/posts`, fd, config);
       }
       setShowModal(false);
       fetchPosts();
@@ -327,7 +327,7 @@ const PostsTab = ({ adminUser }) => {
   const togglePublish = async (post) => {
     setPubLoad(post.id);
     try {
-      const res = await axios.patch(`http://localhost:5001/api/posts/${post.id}/publish`);
+      const res = await axios.patch(`${import.meta.env.VITE_API_URL}/api/posts/${post.id}/publish`);
       setPosts(prev => prev.map(p => p.id === post.id ? { ...p, is_published: res.data.is_published } : p));
     } catch (err) { console.error(err); }
     finally { setPubLoad(null); }
@@ -335,7 +335,7 @@ const PostsTab = ({ adminUser }) => {
 
   const deletePost = async (id) => {
     if (!window.confirm('Permanently delete this post?')) return;
-    await axios.delete(`http://localhost:5001/api/posts/${id}`);
+    await axios.delete(`${import.meta.env.VITE_API_URL}/api/posts/${id}`);
     fetchPosts();
   };
 
@@ -343,7 +343,7 @@ const PostsTab = ({ adminUser }) => {
     setCommModal(post);
     setComLoad(true);
     try {
-      const res = await axios.get(`http://localhost:5001/api/posts/${post.id}`);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/posts/${post.id}`);
       setComments(res.data.comments || []);
     } catch (err) { console.error(err); }
     finally { setComLoad(false); }
@@ -351,7 +351,7 @@ const PostsTab = ({ adminUser }) => {
 
   const deleteComment = async (commentId) => {
     if (!window.confirm('Delete this comment?')) return;
-    await axios.delete(`http://localhost:5001/api/posts/${commentsModal.id}/comments/${commentId}`);
+    await axios.delete(`${import.meta.env.VITE_API_URL}/api/posts/${commentsModal.id}/comments/${commentId}`);
     setComments(prev => prev.filter(c => c.id !== commentId));
   };
 
@@ -677,7 +677,7 @@ const CoursesTab = () => {
     if (!courseId) { setModules([]); return; }
     setModulesLoading(true);
     try {
-      const res = await axios.get(`http://localhost:5001/api/courses/${courseId}/modules`);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/courses/${courseId}/modules`);
       setModules(res.data || []);
     } catch (e) { console.error('Error fetching modules:', e); }
     finally { setModulesLoading(false); }
@@ -687,7 +687,7 @@ const CoursesTab = () => {
     if (!newModuleTitle.trim()) return;
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post(`http://localhost:5001/api/courses/${courseId}/modules`, 
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/courses/${courseId}/modules`, 
         { title: newModuleTitle.trim(), description: newModuleDesc.trim() },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -700,7 +700,7 @@ const CoursesTab = () => {
     if (!editModuleTitle.trim()) return;
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5001/api/modules/${modId}`,
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/modules/${modId}`,
         { title: editModuleTitle.trim(), description: editModuleDesc.trim() },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -713,7 +713,7 @@ const CoursesTab = () => {
     if (!window.confirm('Delete this module and all its lessons?')) return;
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5001/api/modules/${modId}`, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/modules/${modId}`, { headers: { Authorization: `Bearer ${token}` } });
       setModules(prev => prev.filter(m => m.id !== modId));
     } catch (e) { alert('Error deleting module'); }
   };
@@ -730,7 +730,7 @@ const CoursesTab = () => {
       if (newLessonVideoFile) formData.append('video_file', newLessonVideoFile);
       if (newLessonPdfFile) formData.append('pdf_file', newLessonPdfFile);
       if (newLessonZipFile) formData.append('zip_file', newLessonZipFile);
-      const res = await axios.post(`http://localhost:5001/api/modules/${moduleId}/lessons`, formData,
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/modules/${moduleId}/lessons`, formData,
         { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } }
       );
       setModules(prev => prev.map(m => m.id === moduleId ? { ...m, lessons: [...(m.lessons || []), res.data] } : m));
@@ -752,7 +752,7 @@ const CoursesTab = () => {
       if (editLessonVideoFile) formData.append('video_file', editLessonVideoFile);
       if (editLessonPdfFile) formData.append('pdf_file', editLessonPdfFile);
       if (editLessonZipFile) formData.append('zip_file', editLessonZipFile);
-      const res = await axios.put(`http://localhost:5001/api/lessons/${lessonId}`, formData,
+      const res = await axios.put(`${import.meta.env.VITE_API_URL}/api/lessons/${lessonId}`, formData,
         { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } }
       );
       setModules(prev => prev.map(m => m.id === moduleId
@@ -768,7 +768,7 @@ const CoursesTab = () => {
     if (!window.confirm('Delete this lesson?')) return;
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5001/api/lessons/${lessonId}`, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/lessons/${lessonId}`, { headers: { Authorization: `Bearer ${token}` } });
       setModules(prev => prev.map(m => m.id === moduleId ? { ...m, lessons: (m.lessons || []).filter(l => l.id !== lessonId) } : m));
     } catch (e) { alert('Error deleting lesson'); }
   };
@@ -777,14 +777,14 @@ const CoursesTab = () => {
 
   const fetchCourses = useCallback(() => {
     setLoading(true);
-    axios.get('http://localhost:5001/api/courses')
+    axios.get(`${import.meta.env.VITE_API_URL}/api/courses`)
       .then(res => setCourses(res.data))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
   const fetchCategories = useCallback(() => {
-    axios.get('http://localhost:5001/api/categories')
+    axios.get(`${import.meta.env.VITE_API_URL}/api/categories`)
       .then(res => setCategories(res.data || []))
       .catch(console.error);
   }, []);
@@ -797,7 +797,7 @@ const CoursesTab = () => {
   const handleCreateCategory = async (catName, e = null) => {
     if (!catName || catName.trim() === '') return;
     try {
-      const res = await axios.post('http://localhost:5001/api/categories', { name: catName.trim() });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/categories`, { name: catName.trim() });
       if (res.data) {
         setCategories(prev => {
           const exists = prev.find(c => c.name.toLowerCase() === res.data.name.toLowerCase());
@@ -818,7 +818,7 @@ const CoursesTab = () => {
     e.stopPropagation();
     if (!window.confirm(`Are you sure you want to delete the category "${catName}"?`)) return;
     try {
-      await axios.delete(`http://localhost:5001/api/categories/${catId}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/categories/${catId}`);
       setCategories(prev => prev.filter(c => c.id !== catId));
       // Clear selection if the deleted category was selected
       if (form.category === catName) {
@@ -885,11 +885,11 @@ const CoursesTab = () => {
 
     try {
       if (editing) {
-        await axios.put(`http://localhost:5001/api/courses/${editing.id}`, formData, {
+        await axios.put(`${import.meta.env.VITE_API_URL}/api/courses/${editing.id}`, formData, {
            headers: { 'Content-Type': 'multipart/form-data' }
         });
       } else {
-        await axios.post('http://localhost:5001/api/courses', formData, {
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/courses`, formData, {
            headers: { 'Content-Type': 'multipart/form-data' }
         });
       }
@@ -903,7 +903,7 @@ const CoursesTab = () => {
 
   const deleteCourse = async (id) => {
     if (!window.confirm('Delete this course?')) return;
-    await axios.delete(`http://localhost:5001/api/courses/${id}`);
+    await axios.delete(`${import.meta.env.VITE_API_URL}/api/courses/${id}`);
     fetchCourses();
   };
 
@@ -1146,7 +1146,7 @@ const CoursesTab = () => {
                      {/* Current thumbnail preview */}
                      {editing && editing.image_url && !form.image && (
                        <div style={{ marginBottom: '1.5rem' }}>
-                         <img src={`http://localhost:5001${editing.image_url}`} alt="Current cover" style={{ width: '100%', maxWidth: '360px', aspectRatio: '16/9', objectFit: 'cover', borderRadius: '16px', border: '2px solid var(--border)', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }} />
+                         <img src={`${import.meta.env.VITE_API_URL}${editing.image_url}`} alt="Current cover" style={{ width: '100%', maxWidth: '360px', aspectRatio: '16/9', objectFit: 'cover', borderRadius: '16px', border: '2px solid var(--border)', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }} />
                          <div style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: '#10b981', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Check size={14} /> Current cover image active</div>
                        </div>
                      )}
@@ -1203,7 +1203,7 @@ const CoursesTab = () => {
                        <div style={{ marginBottom: '1.25rem', padding: '0.85rem 1.25rem', background: 'rgba(16,185,129,0.08)', borderRadius: '12px', border: '1px solid rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', gap: '10px', width: '100%', maxWidth: '400px' }}>
                          <Check size={16} style={{ color: '#10b981', flexShrink: 0 }} />
                          <span style={{ flex: 1, fontSize: '0.85rem', fontWeight: 700, color: '#10b981' }}>PDF uploaded</span>
-                         <a href={`http://localhost:5001${editing.pdf_url}`} target="_blank" rel="noreferrer" style={{ color: 'var(--accent-primary)', fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '4px' }}>View <ExternalLink size={12} /></a>
+                         <a href={`${import.meta.env.VITE_API_URL}${editing.pdf_url}`} target="_blank" rel="noreferrer" style={{ color: 'var(--accent-primary)', fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '4px' }}>View <ExternalLink size={12} /></a>
                        </div>
                      )}
                      {form.pdf_file && (
@@ -1489,7 +1489,7 @@ const PropFirmsTab = () => {
 
   const fetchFirms = useCallback(() => {
     setLoading(true);
-    axios.get('http://localhost:5001/api/prop-firms/admin')
+    axios.get(`${import.meta.env.VITE_API_URL}/api/prop-firms/admin`)
       .then(res => setFirms(res.data))
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -1497,10 +1497,10 @@ const PropFirmsTab = () => {
 
   useEffect(() => {
     fetchFirms();
-    axios.get('http://localhost:5001/api/prop-firms/platforms')
+    axios.get(`${import.meta.env.VITE_API_URL}/api/prop-firms/platforms`)
       .then(res => setAvailablePlatforms(res.data))
       .catch(console.error);
-    axios.get('http://localhost:5001/api/prop-firms/groups')
+    axios.get(`${import.meta.env.VITE_API_URL}/api/prop-firms/groups`)
       .then(res => setAvailableGroups(res.data))
       .catch(console.error);
   }, [fetchFirms]);
@@ -1572,7 +1572,7 @@ const PropFirmsTab = () => {
   const confirmImport = async () => {
     if (!importPreview || importPreview.length === 0) return;
     try {
-      await axios.post('http://localhost:5001/api/prop-firms/bulk', importPreview);
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/prop-firms/bulk`, importPreview);
       setImportPreview(null);
       fetchFirms();
       alert("Successfully imported records!");
@@ -1618,14 +1618,14 @@ const PropFirmsTab = () => {
 
     try {
       if (editing) {
-        await axios.put(`http://localhost:5001/api/prop-firms/${editing.id}`, formData);
+        await axios.put(`${import.meta.env.VITE_API_URL}/api/prop-firms/${editing.id}`, formData);
       } else {
-        await axios.post('http://localhost:5001/api/prop-firms', formData);
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/prop-firms`, formData);
       }
       setShowModal(false);
       fetchFirms();
       // Refresh available groups in case a new group name was entered
-      axios.get('http://localhost:5001/api/prop-firms/groups')
+      axios.get(`${import.meta.env.VITE_API_URL}/api/prop-firms/groups`)
         .then(res => setAvailableGroups(res.data))
         .catch(console.error);
     } catch (err) {
@@ -1638,7 +1638,7 @@ const PropFirmsTab = () => {
 
   const deleteFirm = async (id) => {
     if (!window.confirm('Delete this prop firm?')) return;
-    await axios.delete(`http://localhost:5001/api/prop-firms/${id}`);
+    await axios.delete(`${import.meta.env.VITE_API_URL}/api/prop-firms/${id}`);
     fetchFirms();
   };
 
@@ -1746,7 +1746,7 @@ const PropFirmsTab = () => {
                   {isCollapsed ? <ChevronRight size={18} style={{ color: 'var(--text-secondary)' }} /> : <ChevronDown size={18} style={{ color: 'var(--text-secondary)' }} />}
                   {/* Group Logo or Letter Avatar */}
                   {groupImg ? (
-                    <img src={`http://localhost:5001${groupImg}`} alt={label} style={{ width: 32, height: 32, borderRadius: 10, objectFit: 'cover', border: '2px solid rgba(37,99,235,0.2)', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', flexShrink: 0 }} />
+                    <img src={`${import.meta.env.VITE_API_URL}${groupImg}`} alt={label} style={{ width: 32, height: 32, borderRadius: 10, objectFit: 'cover', border: '2px solid rgba(37,99,235,0.2)', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', flexShrink: 0 }} />
                   ) : !isUngrouped ? (
                     <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg, #2563eb, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: '0.85rem', flexShrink: 0 }}>{label.charAt(0).toUpperCase()}</div>
                   ) : null}
@@ -1803,7 +1803,7 @@ const PropFirmsTab = () => {
               {/* Current Group */}
               {groupingFirm.group_name && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0.75rem 1rem', background: 'linear-gradient(135deg, rgba(37,99,235,0.08), rgba(59,130,246,0.08))', borderRadius: '12px', border: '1px solid rgba(37,99,235,0.15)' }}>
-                  {(() => { const img = getGroupImage(groupingFirm.group_name); return img ? <img src={`http://localhost:5001${img}`} alt="" style={{ width: 28, height: 28, borderRadius: 8, objectFit: 'cover' }} /> : <Layers size={16} style={{ color: '#2563eb' }} />; })()}
+                  {(() => { const img = getGroupImage(groupingFirm.group_name); return img ? <img src={`${import.meta.env.VITE_API_URL}${img}`} alt="" style={{ width: 28, height: 28, borderRadius: 8, objectFit: 'cover' }} /> : <Layers size={16} style={{ color: '#2563eb' }} />; })()}
                   <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Current group:</span>
                   <span style={{ fontWeight: 800, color: '#2563eb' }}>{groupingFirm.group_name}</span>
                 </div>
@@ -1824,7 +1824,7 @@ const PropFirmsTab = () => {
                     {availableGroups.map(g => <option key={g.name} value={g.name}>{g.name}</option>)}
                   </select>
                   {/* Show current group logo if selected */}
-                  {groupModalValue && (() => { const g = availableGroups.find(gr => gr.name === groupModalValue); return g?.image_url ? <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '8px' }}><img src={`http://localhost:5001${g.image_url}`} alt="" style={{ width: 40, height: 40, borderRadius: 12, objectFit: 'cover', border: '2px solid rgba(37,99,235,0.2)' }} /><span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Current logo for {g.name}</span></div> : null; })()}
+                  {groupModalValue && (() => { const g = availableGroups.find(gr => gr.name === groupModalValue); return g?.image_url ? <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '8px' }}><img src={`${import.meta.env.VITE_API_URL}${g.image_url}`} alt="" style={{ width: 40, height: 40, borderRadius: 12, objectFit: 'cover', border: '2px solid rgba(37,99,235,0.2)' }} /><span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Current logo for {g.name}</span></div> : null; })()}
                 </div>
               )}
 
@@ -1886,19 +1886,19 @@ const PropFirmsTab = () => {
                     try {
                       const newGroup = groupModalMode === 'new' ? groupModalValue.trim() : groupModalValue;
                       // 1. Assign group name
-                      await axios.patch(`http://localhost:5001/api/prop-firms/${groupingFirm.id}/group`, { group_name: newGroup || null });
+                      await axios.patch(`${import.meta.env.VITE_API_URL}/api/prop-firms/${groupingFirm.id}/group`, { group_name: newGroup || null });
                       // 2. Upload group logo if selected
                       if (groupLogoFile && newGroup) {
                         const logoFormData = new FormData();
                         logoFormData.append('logo', groupLogoFile);
-                        await axios.post(`http://localhost:5001/api/prop-firms/groups/${encodeURIComponent(newGroup)}/image`, logoFormData);
+                        await axios.post(`${import.meta.env.VITE_API_URL}/api/prop-firms/groups/${encodeURIComponent(newGroup)}/image`, logoFormData);
                       }
                       setGroupingFirm(null);
                       setGroupLogoFile(null);
                       setGroupLogoPreview(null);
                       fetchFirms();
                       // Refresh groups list
-                      axios.get('http://localhost:5001/api/prop-firms/groups').then(res => setAvailableGroups(res.data)).catch(console.error);
+                      axios.get(`${import.meta.env.VITE_API_URL}/api/prop-firms/groups`).then(res => setAvailableGroups(res.data)).catch(console.error);
                     } catch (err) {
                       alert('Failed to update group: ' + (err.response?.data?.message || err.message));
                     }
@@ -1933,7 +1933,7 @@ const PropFirmsTab = () => {
                     {(form.imageFile || form.logo_url) ? (
                       <div style={{ position: 'relative', width: '120px', height: '120px', margin: '0 auto 1rem', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <img 
-                          src={form.imageFile ? URL.createObjectURL(form.imageFile) : `http://localhost:5001${form.logo_url}`} 
+                          src={form.imageFile ? URL.createObjectURL(form.imageFile) : `${import.meta.env.VITE_API_URL}${form.logo_url}`} 
                           alt="Logo Preview" 
                           style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                         />
@@ -2134,7 +2134,7 @@ const PropFirmsTab = () => {
                     {viewingFirm.logo_url && (
                       <div style={{ background: '#fff', padding: '0.25rem', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                         <img 
-                          src={`http://localhost:5001${viewingFirm.logo_url}`} 
+                          src={`${import.meta.env.VITE_API_URL}${viewingFirm.logo_url}`} 
                           alt="Logo" 
                           style={{ width: '48px', height: '48px', objectFit: 'contain', display: 'block' }} 
                         />
@@ -2300,7 +2300,7 @@ const PromotionsTab = () => {
 
   const fetchPromos = useCallback(() => {
     setLoading(true);
-    axios.get('http://localhost:5001/api/promotions')
+    axios.get(`${import.meta.env.VITE_API_URL}/api/promotions`)
       .then(res => setPromos(res.data))
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -2339,9 +2339,9 @@ const PromotionsTab = () => {
     };
     try {
       if (editing) {
-        await axios.put(`http://localhost:5001/api/promotions/${editing.id}`, payload);
+        await axios.put(`${import.meta.env.VITE_API_URL}/api/promotions/${editing.id}`, payload);
       } else {
-        await axios.post('http://localhost:5001/api/promotions', payload);
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/promotions`, payload);
       }
       setShowModal(false);
       fetchPromos();
@@ -2352,7 +2352,7 @@ const PromotionsTab = () => {
 
   const deletePromo = async (id) => {
     if (!window.confirm('Delete this promotion?')) return;
-    await axios.delete(`http://localhost:5001/api/promotions/${id}`);
+    await axios.delete(`${import.meta.env.VITE_API_URL}/api/promotions/${id}`);
     fetchPromos();
   };
 
@@ -2483,12 +2483,12 @@ const ReviewsTab = () => {
   const fetchReviews = useCallback((cid = '') => {
     setLoading(true);
     const url = cid
-      ? `http://localhost:5001/api/reviews/admin?course_id=${cid}&limit=200`
-      : 'http://localhost:5001/api/reviews/admin?limit=200';
+      ? `${import.meta.env.VITE_API_URL}/api/reviews/admin?course_id=${cid}&limit=200`
+      : `${import.meta.env.VITE_API_URL}/api/reviews/admin?limit=200`;
     const token = localStorage.getItem('token');
     Promise.all([
       axios.get(url, { headers: { Authorization: `Bearer ${token}` } }),
-      axios.get('http://localhost:5001/api/reviews/satisfaction'),
+      axios.get(`${import.meta.env.VITE_API_URL}/api/reviews/satisfaction`),
     ])
       .then(([rRes, sRes]) => {
         setReviews(rRes.data.reviews || []);
@@ -2499,7 +2499,7 @@ const ReviewsTab = () => {
   }, []);
 
   const fetchCourses = useCallback(() => {
-    axios.get('http://localhost:5001/api/courses')
+    axios.get(`${import.meta.env.VITE_API_URL}/api/courses`)
       .then(res => setCourses(res.data || []))
       .catch(console.error);
   }, []);
@@ -2515,7 +2515,7 @@ const ReviewsTab = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this review?')) return;
     const token = localStorage.getItem('token');
-    await axios.delete(`http://localhost:5001/api/reviews/admin/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+    await axios.delete(`${import.meta.env.VITE_API_URL}/api/reviews/admin/${id}`, { headers: { Authorization: `Bearer ${token}` } });
     fetchReviews(courseFilter);
   };
 

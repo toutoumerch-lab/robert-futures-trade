@@ -13,7 +13,7 @@ const VerifyEmail = () => {
   useEffect(() => {
     const verify = async () => {
       try {
-        const res = await axios.get(`http://localhost:5001/api/auth/verify-email/${token}`);
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/verify-email/${token}`);
         setStatus('success');
         setMessage(res.data.message || 'Email successfully verified!');
         

@@ -7,7 +7,7 @@ import {
   BarChart2, Award, ArrowRight, Quote, Zap, Globe, Clock, ThumbsUp, Info,
 } from 'lucide-react';
 
-const API_BASE = 'http://localhost:5001';
+const API_BASE = `${import.meta.env.VITE_API_URL}`;
 
 /* ─── helpers ─────────────────────────────────────────────── */
 const easing = [0.16, 1, 0.3, 1];
