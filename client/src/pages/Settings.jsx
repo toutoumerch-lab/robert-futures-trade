@@ -199,8 +199,7 @@ export default function Settings() {
   const [showNew, setShowNew]         = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [savingPw, setSavingPw]       = useState(false);
-  const [pwError, setPwError]         = useState('');
-  const [pwSuccess, setPwSuccess]     = useState(false);
+  const [pwFeedback, setPwFeedback]   = useState(null); // { type:'error'|'success', msg:string }
 
   // Certificate modal
   const [certCourse, setCertCourse] = useState(null);
@@ -278,19 +277,17 @@ export default function Settings() {
   /* ── Password save ───────────────────────────────── */
   const handleChangePassword = async (e) => {
     e.preventDefault();
-    setPwError('');
-    setPwSuccess(false);
-    if (newPw !== confirmPw) { setPwError('New passwords do not match.'); return; }
-    if (newPw.length < 6)     { setPwError('New password must be at least 6 characters.'); return; }
+    setPwFeedback(null);
+    if (newPw !== confirmPw) { setPwFeedback({ type: 'error', msg: 'New passwords do not match.' }); return; }
+    if (newPw.length < 6)    { setPwFeedback({ type: 'error', msg: 'New password must be at least 6 characters.' }); return; }
     setSavingPw(true);
     try {
       await axios.patch(`${API}/api/users/me/password`, { currentPassword: currentPw, newPassword: newPw }, { headers });
-      setPwSuccess(true);
+      setPwFeedback({ type: 'success', msg: 'Password changed successfully!' });
       setCurrentPw(''); setNewPw(''); setConfirmPw('');
-      addToast('success', 'Done', 'Password changed successfully.');
     } catch (err) {
       const msg = err.response?.data?.error || 'Could not change password. Please try again.';
-      setPwError(msg);
+      setPwFeedback({ type: 'error', msg });
     } finally {
       setSavingPw(false);
     }
@@ -427,37 +424,39 @@ export default function Settings() {
                   <Section title="Change Password">
                     <form onSubmit={handleChangePassword}>
 
-                      {/* Inline error banner */}
-                      {pwError && (
-                        <div style={{ display:'flex', alignItems:'center', gap:'10px', background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.3)', borderRadius:'12px', padding:'0.9rem 1.1rem', marginBottom:'1.5rem' }}>
-                          <X size={16} style={{ color:'#f87171', flexShrink:0 }} />
-                          <span style={{ color:'#f87171', fontSize:'0.875rem', fontWeight:600 }}>{pwError}</span>
-                        </div>
-                      )}
-
-                      {/* Success banner */}
-                      {pwSuccess && (
-                        <div style={{ display:'flex', alignItems:'center', gap:'10px', background:'rgba(16,185,129,0.08)', border:'1px solid rgba(16,185,129,0.25)', borderRadius:'12px', padding:'0.9rem 1.1rem', marginBottom:'1.5rem' }}>
-                          <CheckCircle size={16} style={{ color:'#10b981', flexShrink:0 }} />
-                          <span style={{ color:'#10b981', fontSize:'0.875rem', fontWeight:600 }}>Password changed successfully!</span>
+                      {/* Single feedback banner — only one can show at a time */}
+                      {pwFeedback && (
+                        <div style={{
+                          display:'flex', alignItems:'center', gap:'10px',
+                          background: pwFeedback.type === 'success' ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)',
+                          border: `1px solid ${pwFeedback.type === 'success' ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.3)'}`,
+                          borderRadius:'12px', padding:'0.9rem 1.1rem', marginBottom:'1.5rem',
+                        }}>
+                          {pwFeedback.type === 'success'
+                            ? <CheckCircle size={16} style={{ color:'#10b981', flexShrink:0 }} />
+                            : <X size={16} style={{ color:'#f87171', flexShrink:0 }} />
+                          }
+                          <span style={{ color: pwFeedback.type === 'success' ? '#10b981' : '#f87171', fontSize:'0.875rem', fontWeight:600 }}>
+                            {pwFeedback.msg}
+                          </span>
                         </div>
                       )}
 
                       <div style={{ position:'relative', marginBottom:'1.25rem' }}>
                         <label style={{ display:'block', marginBottom:'6px', fontSize:'0.83rem', fontWeight:600, color:'var(--text-secondary)' }}>Current Password</label>
-                        <input className="input" type={showCurrent?'text':'password'} value={currentPw} onChange={e=>{setCurrentPw(e.target.value);setPwError('');setPwSuccess(false);}} placeholder="Enter current password" required style={{ width:'100%', paddingRight:'2.5rem' }} />
+                        <input className="input" type={showCurrent?'text':'password'} value={currentPw} onChange={e=>{setCurrentPw(e.target.value);setPwFeedback(null);}} placeholder="Enter current password" required style={{ width:'100%', paddingRight:'2.5rem' }} />
                         <EyeBtn show={showCurrent} toggle={()=>setShowCurrent(v=>!v)} />
                       </div>
 
                       <div style={{ position:'relative', marginBottom:'1.25rem' }}>
                         <label style={{ display:'block', marginBottom:'6px', fontSize:'0.83rem', fontWeight:600, color:'var(--text-secondary)' }}>New Password</label>
-                        <input className="input" type={showNew?'text':'password'} value={newPw} onChange={e=>{setNewPw(e.target.value);setPwError('');setPwSuccess(false);}} placeholder="Enter new password" required style={{ width:'100%', paddingRight:'2.5rem' }} />
+                        <input className="input" type={showNew?'text':'password'} value={newPw} onChange={e=>{setNewPw(e.target.value);setPwFeedback(null);}} placeholder="Enter new password" required style={{ width:'100%', paddingRight:'2.5rem' }} />
                         <EyeBtn show={showNew} toggle={()=>setShowNew(v=>!v)} />
                       </div>
 
                       <div style={{ position:'relative', marginBottom:'1.75rem' }}>
                         <label style={{ display:'block', marginBottom:'6px', fontSize:'0.83rem', fontWeight:600, color:'var(--text-secondary)' }}>Confirm New Password</label>
-                        <input className="input" type={showConfirm?'text':'password'} value={confirmPw} onChange={e=>{setConfirmPw(e.target.value);setPwError('');setPwSuccess(false);}} placeholder="Confirm new password" required style={{ width:'100%', paddingRight:'2.5rem' }} />
+                        <input className="input" type={showConfirm?'text':'password'} value={confirmPw} onChange={e=>{setConfirmPw(e.target.value);setPwFeedback(null);}} placeholder="Confirm new password" required style={{ width:'100%', paddingRight:'2.5rem' }} />
                         <EyeBtn show={showConfirm} toggle={()=>setShowConfirm(v=>!v)} />
                         {confirmPw && newPw !== confirmPw && (
                           <p style={{ color:'#ef4444', fontSize:'0.78rem', marginTop:'4px' }}>Passwords do not match</p>
