@@ -30,6 +30,7 @@ import PaymentSuccess from './pages/PaymentSuccess';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Profile from './pages/Profile';
+import Settings from './pages/Settings';
 import TermsOfService from './pages/TermsOfService';
 import CookiePolicy from './pages/CookiePolicyPage';
 import PrivacyPolicy from './pages/PrivacyPolicyPage';
@@ -63,6 +64,7 @@ const AppContent = () => {
             <Route path="/verify-code"        element={<PageWrapper><VerifyCode /></PageWrapper>} />
             <Route path="/dashboard"      element={<PageWrapper><Dashboard /></PageWrapper>} />
             <Route path="/profile"        element={<PageWrapper><Profile /></PageWrapper>} />
+            <Route path="/settings"       element={<PageWrapper><Settings /></PageWrapper>} />
             <Route path="/admin"              element={<PageWrapper><AdminDashboard /></PageWrapper>} />
             <Route path="/admin/revenue"      element={<PageWrapper><AdminRevenue /></PageWrapper>} />
             <Route path="/admin/analytics"    element={<PageWrapper><AdminAnalytics /></PageWrapper>} />

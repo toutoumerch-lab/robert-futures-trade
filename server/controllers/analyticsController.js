@@ -448,10 +448,20 @@ const trackPropFirmClick = async (req, res) => {
     const clickType = ['view','website','affiliate'].includes(req.body.type) ? req.body.type : 'view';
     const sessionId = req.body.session_id || null;
     if (!firmId) return res.status(400).json({ error: 'Invalid firm id' });
+
     await pool.query(
       'INSERT INTO prop_firm_clicks (firm_id, click_type, session_id) VALUES ($1,$2,$3)',
       [firmId, clickType, sessionId]
     );
+
+    // Record unique per-user view when a logged-in user visits a firm
+    if (req.user?.id) {
+      await pool.query(
+        'INSERT INTO user_prop_firm_views (user_id, firm_id) VALUES ($1,$2) ON CONFLICT (user_id, firm_id) DO UPDATE SET viewed_at = NOW()',
+        [req.user.id, firmId]
+      );
+    }
+
     res.json({ ok: true });
   } catch (err) {
     console.error('[analytics] trackClick error:', err);

@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 import {
   User, BookOpen, Star, Play, Globe, MapPin,
   TrendingUp, Award, Clock, CheckCircle, LogOut,
-  ChevronRight, Loader,
+  ChevronRight, Loader, Settings,
 } from 'lucide-react';
 
 const API = 'http://localhost:5001';
@@ -111,16 +112,37 @@ export default function Profile() {
         <div className="container">
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '2rem', flexWrap: 'wrap' }}>
             {/* Avatar */}
-            <div style={{
-              width: '88px', height: '88px', borderRadius: '24px', flexShrink: 0,
-              background: 'linear-gradient(135deg, #1d4ed8, #7c3aed)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '2.2rem', fontWeight: 900, color: '#fff',
-              boxShadow: '0 8px 32px rgba(37,99,235,0.4)',
-              border: '2px solid rgba(255,255,255,0.1)',
-            }}>
-              {user.name?.[0]?.toUpperCase() || '?'}
-            </div>
+            {(profile?.avatar_url || !profile) ? (
+              profile?.avatar_url ? (
+                <img src={`${API}${profile.avatar_url}`} alt={user.name} style={{
+                  width: '88px', height: '88px', borderRadius: '24px', flexShrink: 0,
+                  objectFit: 'cover', boxShadow: '0 8px 32px rgba(37,99,235,0.4)',
+                  border: '2px solid rgba(255,255,255,0.1)',
+                }} />
+              ) : (
+                <div style={{
+                  width: '88px', height: '88px', borderRadius: '24px', flexShrink: 0,
+                  background: 'linear-gradient(135deg, #1d4ed8, #7c3aed)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '2.2rem', fontWeight: 900, color: '#fff',
+                  boxShadow: '0 8px 32px rgba(37,99,235,0.4)',
+                  border: '2px solid rgba(255,255,255,0.1)',
+                }}>
+                  {user.name?.[0]?.toUpperCase() || '?'}
+                </div>
+              )
+            ) : (
+              <div style={{
+                width: '88px', height: '88px', borderRadius: '24px', flexShrink: 0,
+                background: 'linear-gradient(135deg, #1d4ed8, #7c3aed)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '2.2rem', fontWeight: 900, color: '#fff',
+                boxShadow: '0 8px 32px rgba(37,99,235,0.4)',
+                border: '2px solid rgba(255,255,255,0.1)',
+              }}>
+                {user.name?.[0]?.toUpperCase() || '?'}
+              </div>
+            )}
 
             {/* Info */}
             <div style={{ flex: 1 }}>
@@ -144,15 +166,26 @@ export default function Profile() {
               )}
             </div>
 
-            {/* Logout */}
-            <button
-              onClick={handleLogout}
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 18px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontWeight: 700, fontSize: '0.85rem', transition: 'all 0.2s' }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
-            >
-              <LogOut size={14} /> Log out
-            </button>
+            {/* Actions */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <Link to="/settings" style={{ textDecoration: 'none' }}>
+                <button
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 18px', borderRadius: '12px', border: '1px solid rgba(37,99,235,0.3)', background: 'rgba(37,99,235,0.08)', color: '#60a5fa', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontWeight: 700, fontSize: '0.85rem', width: '100%', transition: 'all 0.2s' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(37,99,235,0.16)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(37,99,235,0.08)'; }}
+                >
+                  <Settings size={14} /> Settings
+                </button>
+              </Link>
+              <button
+                onClick={handleLogout}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 18px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontWeight: 700, fontSize: '0.85rem', transition: 'all 0.2s' }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+              >
+                <LogOut size={14} /> Log out
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -15,22 +15,17 @@ const getClientIp = (req) => {
   return req.headers['x-real-ip'] || req.socket?.remoteAddress || null;
 };
 
-const getServerPublicIp = () => new Promise((resolve) => {
-  https.get('https://api.ipify.org?format=json', { timeout: 3000 }, (res) => {
-    let d = '';
-    res.on('data', c => d += c);
-    res.on('end', () => {
-      try { resolve(JSON.parse(d).ip || null); } catch { resolve(null); }
-    });
-  }).on('error', () => resolve(null)).on('timeout', () => resolve(null));
-});
-
 const lookupCountry = async (ip) => {
-  const isLocal = !ip || ip === '::1' || ip.startsWith('127.') ||
-                  ip.startsWith('192.168.') || ip.startsWith('10.');
-  const resolvedIp = isLocal ? await getServerPublicIp() : ip;
-  if (!resolvedIp) return null;
-  const cleanIp = resolvedIp.replace(/^::ffff:/, '');
+  if (!ip) return null;
+
+  // Strip IPv6-mapped IPv4 prefix (::ffff:x.x.x.x)
+  const cleanIp = ip.replace(/^::ffff:/, '');
+
+  // Never geolocate loopback or private IPs — return null, not the server's country
+  const isUnroutable = cleanIp === '::1' || cleanIp === '127.0.0.1' ||
+    cleanIp.startsWith('127.') || cleanIp.startsWith('192.168.') ||
+    cleanIp.startsWith('10.') || cleanIp.startsWith('172.');
+  if (isUnroutable) return null;
 
   return new Promise((resolve) => {
     const url = `https://ipwho.is/${cleanIp}`;
@@ -261,7 +256,7 @@ const login = async (req, res) => {
 const me = async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, name, email, role, country, country_code, is_verified FROM users WHERE id = $1',
+      'SELECT id, name, email, role, avatar_url, country, country_code, is_verified FROM users WHERE id = $1',
       [req.user.id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'User not found' });
@@ -335,7 +330,7 @@ const forgotPassword = async (req, res) => {
       [resetToken, resetExpires, email]
     );
 
-    const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
+    const resetUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
     const mailResult = await sendMail(
       email,
       'Password Reset Request – Robert Trades',

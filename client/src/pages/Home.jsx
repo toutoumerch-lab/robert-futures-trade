@@ -360,7 +360,7 @@ const Home = () => {
               {[
                 { icon: <Shield size={15} />, text: 'Verified Data' },
                 { icon: <Zap size={15} />, text: 'Real-time Updates' },
-                { icon: <TrendingUp size={15} />, text: '2,500+ Members' },
+                { icon: <TrendingUp size={15} />, text: '400+ Members' },
               ].map(({ icon, text }) => (
                 <div
                   key={text}
@@ -382,119 +382,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ── SECTION 1 — YouTube Live ─────────────────────── */}
-      <section style={{ padding: '8rem 0', position: 'relative', overflow: 'hidden' }}>
-        {/* Red glow blob */}
-        <div style={{ position: 'absolute', top: '10%', left: '-5%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,0,0,0.08), transparent 70%)', pointerEvents: 'none' }} />
-        <div className="container" style={{ position:'relative', zIndex:1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5rem', flexWrap: 'wrap' }}>
-
-            {/* Left — YouTube preview card */}
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once:true, margin:'-60px' }} variants={vFadeLeft} style={{ flex:'1 1 340px' }}>
-              <div style={{ position: 'relative', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 32px 80px rgba(255,0,0,0.15)', border: '1px solid rgba(255,0,0,0.15)' }}>
-                <div style={{ background: 'linear-gradient(135deg, #1a0000, #0d0d0d)', padding: '3rem 2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '260px', gap: '1.25rem' }}>
-                  <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg, #ff0000, #cc0000)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 40px rgba(255,0,0,0.4)', animation: 'pulse 2s infinite' }}>
-                    <YoutubeSVG size={36} color="#fff" />
-                  </div>
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(255,0,0,0.15)', border: '1px solid rgba(255,0,0,0.3)', padding: '4px 14px', borderRadius: '99px', color: '#ff4444', fontWeight: 800, fontSize: '0.78rem', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
-                      <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#ff4444', display: 'inline-block', animation: 'pulse 1.5s infinite' }} />
-                      Live Every Day
-                    </div>
-                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem', margin: 0 }}>Join the daily trading session — free</p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Right — text */}
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once:true, margin:'-60px' }} variants={vFadeRight} style={{ flex:'1 1 340px' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255,0,0,0.08)', border: '1px solid rgba(255,0,0,0.2)', padding: '5px 16px', borderRadius: '99px', color: '#ff6666', fontWeight: 700, fontSize: '0.82rem', marginBottom: '1.5rem' }}>
-                <YoutubeSVG size={14} color="currentColor" /> YouTube Community
-              </div>
-              <h2 style={{ fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 900, letterSpacing: '-1px', lineHeight: 1.15, marginBottom: '1.25rem' }}>
-                Trade Live With Us<br /><span style={{ background: 'linear-gradient(135deg,#ff4444,#ff8888)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Every Single Day — Free</span>
-              </h2>
-              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, fontSize: '1.05rem', marginBottom: '2rem', maxWidth: '480px' }}>
-                Join our live YouTube sessions every morning. We break down the market structure, call key levels, and trade in real time — completely free, no strings attached.
-              </p>
-              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                <a href={youtubeWatchUrl} target="_blank" rel="noopener noreferrer"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.85rem 2rem', borderRadius: '12px', background: 'linear-gradient(135deg,#ff0000,#cc0000)', color: '#fff', fontWeight: 800, fontSize: '0.95rem', textDecoration: 'none', boxShadow: '0 8px 24px rgba(255,0,0,0.35)', transition: 'opacity 0.2s' }}
-                  onMouseEnter={e => e.currentTarget.style.opacity='0.88'}
-                  onMouseLeave={e => e.currentTarget.style.opacity='1'}
-                >
-                  <YoutubeSVG size={18} color="currentColor" /> Watch Live Now
-                </a>
-                <a href={youtubeSubscribeUrl} target="_blank" rel="noopener noreferrer"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.85rem 2rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'var(--text-secondary)', fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none', transition: 'all 0.2s' }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(255,0,0,0.4)'; e.currentTarget.style.color='#ff6666'; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(255,255,255,0.1)'; e.currentTarget.style.color='var(--text-secondary)'; }}
-                >
-                  Subscribe Free
-                </a>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      <ShimmerDiv />
-
-      {/* ── SECTION 2 — Courses ──────────────────────────── */}
-      <section style={{ padding: '8rem 0', position: 'relative', overflow: 'hidden' }}>
-        <FloatOrb color="rgba(37,99,235,0.12)" size="500px" style={{ top:'10%', right:'-6%' }} />
-        <FloatOrb color="rgba(139,92,246,0.08)" size="300px" style={{ bottom:'0%', left:'20%' }} />
-        <div className="container" style={{ position:'relative', zIndex:1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5rem', flexWrap: 'wrap', flexDirection: 'row-reverse' }}>
-
-            {/* Right — visual */}
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once:true, margin:'-60px' }} variants={vFadeRight} style={{ flex:'1 1 340px' }}>
-              <motion.div initial="hidden" whileInView="visible" viewport={{ once:true, margin:'-60px' }} variants={vStagger}
-                style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}
-              >
-                {[
-                  { icon: '📈', label: 'Market Structure', color: 'rgba(37,99,235,0.15)' },
-                  { icon: '⚡', label: 'Scalping Mastery', color: 'rgba(139,92,246,0.15)' },
-                  { icon: '🎯', label: 'Entry & Exit', color: 'rgba(16,185,129,0.15)' },
-                  { icon: '🛡️', label: 'Risk Management', color: 'rgba(245,158,11,0.15)' },
-                ].map(({ icon, label, color }) => (
-                  <motion.div key={label} variants={vPop} whileHover={{ y:-6, scale:1.05, boxShadow:'0 14px 32px rgba(0,0,0,0.2)' }}
-                    style={{ background: color, border: '1px solid rgba(255,255,255,0.07)', borderRadius: '18px', padding: '1.5rem', textAlign: 'center', cursor:'default' }}
-                  >
-                    <motion.div animate={{ rotate:[0,10,-10,0] }} transition={{ duration:3, repeat:Infinity, repeatDelay:2 }}
-                      style={{ fontSize: '2rem', marginBottom: '0.5rem' }}
-                    >{icon}</motion.div>
-                    <div style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--text-primary)' }}>{label}</div>
-                  </motion.div>
-                ))}
-              </motion.div>
-            </motion.div>
-
-            {/* Left — text */}
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once:true, margin:'-60px' }} variants={vFadeLeft} style={{ flex:'1 1 340px' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(37,99,235,0.1)', border: '1px solid rgba(37,99,235,0.25)', padding: '5px 16px', borderRadius: '99px', color: 'var(--accent-primary)', fontWeight: 700, fontSize: '0.82rem', marginBottom: '1.5rem' }}>
-                <BookOpen size={14} /> Trading Education
-              </div>
-              <h2 style={{ fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 900, letterSpacing: '-1px', lineHeight: 1.15, marginBottom: '1.25rem' }}>
-                Learn to Trade Like<br /><span className="text-gradient">a Professional</span>
-              </h2>
-              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, fontSize: '1.05rem', marginBottom: '2rem', maxWidth: '480px' }}>
-                From market structure to advanced scalping strategies — our courses are built for traders who are serious about getting funded and staying funded. Step-by-step, no fluff.
-              </p>
-              <Link to="/courses"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.85rem 2rem', borderRadius: '12px', background: 'linear-gradient(135deg,var(--accent-secondary),var(--accent-primary))', color: '#fff', fontWeight: 800, fontSize: '0.95rem', textDecoration: 'none', boxShadow: '0 8px 24px rgba(37,99,235,0.35)' }}
-              >
-                <BookOpen size={18} /> Browse Courses <ArrowRight size={16} />
-              </Link>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      <ShimmerDiv />
-
-      {/* ── SECTION 3 — Prop Firms ───────────────────────── */}
+      {/* ── SECTION 1 — Prop Firms ───────────────────────── */}
       <section style={{ padding: '8rem 0', position: 'relative', overflow: 'hidden' }}>
         <FloatOrb color="rgba(16,185,129,0.1)" size="500px" style={{ bottom:'-10%', left:'25%' }} />
         <div className="container" style={{ position:'relative', zIndex:1 }}>
@@ -541,6 +429,145 @@ const Home = () => {
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.85rem 2rem', borderRadius: '12px', background: 'linear-gradient(135deg,#059669,#10b981)', color: '#fff', fontWeight: 800, fontSize: '0.95rem', textDecoration: 'none', boxShadow: '0 8px 24px rgba(16,185,129,0.3)' }}
               >
                 <Trophy size={18} /> Browse Prop Firms <ArrowRight size={16} />
+              </Link>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      <ShimmerDiv />
+
+      {/* ── SECTION 2 — YouTube Live ─────────────────────── */}
+      <section style={{ padding: '8rem 0', position: 'relative', overflow: 'hidden' }}>
+        {/* Red glow blob */}
+        <div style={{ position: 'absolute', top: '10%', right: '-5%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,0,0,0.08), transparent 70%)', pointerEvents: 'none' }} />
+        <div className="container" style={{ position:'relative', zIndex:1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5rem', flexWrap: 'wrap', flexDirection: 'row-reverse' }}>
+
+            {/* Right — YouTube preview card */}
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once:true, margin:'-60px' }} variants={vFadeRight} style={{ flex:'1 1 340px' }}>
+              <div style={{ position: 'relative', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 32px 80px rgba(255,0,0,0.15)', border: '1px solid rgba(255,0,0,0.15)' }}>
+                <div style={{ background: 'linear-gradient(135deg, #1a0000, #0d0d0d)', padding: '3rem 2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '260px', gap: '1.25rem' }}>
+                  <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg, #ff0000, #cc0000)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 40px rgba(255,0,0,0.4)', animation: 'pulse 2s infinite' }}>
+                    <YoutubeSVG size={36} color="#fff" />
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(255,0,0,0.15)', border: '1px solid rgba(255,0,0,0.3)', padding: '4px 14px', borderRadius: '99px', color: '#ff4444', fontWeight: 800, fontSize: '0.78rem', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
+                      <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#ff4444', display: 'inline-block', animation: 'pulse 1.5s infinite' }} />
+                      Live Every Day
+                    </div>
+                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem', margin: 0 }}>Join the daily trading session — free</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Left — text */}
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once:true, margin:'-60px' }} variants={vFadeLeft} style={{ flex:'1 1 340px' }}>
+
+              {/* Blurred content + Coming Soon overlay */}
+              <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '12px', marginBottom: '2rem' }}>
+                {/* Blurred text */}
+                <div style={{ filter: 'blur(5px)', pointerEvents: 'none', userSelect: 'none' }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255,0,0,0.08)', border: '1px solid rgba(255,0,0,0.2)', padding: '5px 16px', borderRadius: '99px', color: '#ff6666', fontWeight: 700, fontSize: '0.82rem', marginBottom: '1.5rem' }}>
+                    <YoutubeSVG size={14} color="currentColor" /> YouTube Community
+                  </div>
+                  <h2 style={{ fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 900, letterSpacing: '-1px', lineHeight: 1.15, marginBottom: '1.25rem' }}>
+                    Trade Live With Us<br /><span style={{ background: 'linear-gradient(135deg,#ff4444,#ff8888)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Every Single Day — Free</span>
+                  </h2>
+                  <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, fontSize: '1.05rem', maxWidth: '480px' }}>
+                    Join our live YouTube sessions every morning. We break down the market structure, call key levels, and trade in real time — completely free, no strings attached.
+                  </p>
+                </div>
+
+                {/* Coming Soon moving text */}
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                  <motion.span
+                    animate={{ x: ['-35%', '35%', '-35%'] }}
+                    transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+                    style={{
+                      fontSize: 'clamp(2.2rem, 5vw, 3.2rem)',
+                      fontWeight: 900,
+                      letterSpacing: '-1px',
+                      whiteSpace: 'nowrap',
+                      color: 'rgba(255,255,255,0.92)',
+                      textShadow: '0 0 40px rgba(255,60,60,0.7), 0 2px 24px rgba(0,0,0,0.9)',
+                    }}
+                  >
+                    Coming Soon...
+                  </motion.span>
+                </div>
+              </div>
+
+              {/* Buttons — clear and fully clickable */}
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <a href={youtubeWatchUrl} target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.85rem 2rem', borderRadius: '12px', background: 'linear-gradient(135deg,#ff0000,#cc0000)', color: '#fff', fontWeight: 800, fontSize: '0.95rem', textDecoration: 'none', boxShadow: '0 8px 24px rgba(255,0,0,0.35)', transition: 'opacity 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.opacity='0.88'}
+                  onMouseLeave={e => e.currentTarget.style.opacity='1'}
+                >
+                  <YoutubeSVG size={18} color="currentColor" /> Watch Live Now
+                </a>
+                <a href={youtubeSubscribeUrl} target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.85rem 2rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'var(--text-secondary)', fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none', transition: 'all 0.2s' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(255,0,0,0.4)'; e.currentTarget.style.color='#ff6666'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(255,255,255,0.1)'; e.currentTarget.style.color='var(--text-secondary)'; }}
+                >
+                  Subscribe Free
+                </a>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      <ShimmerDiv />
+
+      {/* ── SECTION 3 — Courses ──────────────────────────── */}
+      <section style={{ padding: '8rem 0', position: 'relative', overflow: 'hidden' }}>
+        <FloatOrb color="rgba(37,99,235,0.12)" size="500px" style={{ top:'10%', right:'-6%' }} />
+        <FloatOrb color="rgba(139,92,246,0.08)" size="300px" style={{ bottom:'0%', left:'20%' }} />
+        <div className="container" style={{ position:'relative', zIndex:1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5rem', flexWrap: 'wrap' }}>
+
+            {/* Left — visual */}
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once:true, margin:'-60px' }} variants={vFadeLeft} style={{ flex:'1 1 340px' }}>
+              <motion.div initial="hidden" whileInView="visible" viewport={{ once:true, margin:'-60px' }} variants={vStagger}
+                style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}
+              >
+                {[
+                  { icon: '📈', label: 'Market Structure', color: 'rgba(37,99,235,0.15)' },
+                  { icon: '⚡', label: 'Scalping Mastery', color: 'rgba(139,92,246,0.15)' },
+                  { icon: '🎯', label: 'Entry & Exit', color: 'rgba(16,185,129,0.15)' },
+                  { icon: '🛡️', label: 'Risk Management', color: 'rgba(245,158,11,0.15)' },
+                ].map(({ icon, label, color }) => (
+                  <motion.div key={label} variants={vPop} whileHover={{ y:-6, scale:1.05, boxShadow:'0 14px 32px rgba(0,0,0,0.2)' }}
+                    style={{ background: color, border: '1px solid rgba(255,255,255,0.07)', borderRadius: '18px', padding: '1.5rem', textAlign: 'center', cursor:'default' }}
+                  >
+                    <motion.div animate={{ rotate:[0,10,-10,0] }} transition={{ duration:3, repeat:Infinity, repeatDelay:2 }}
+                      style={{ fontSize: '2rem', marginBottom: '0.5rem' }}
+                    >{icon}</motion.div>
+                    <div style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--text-primary)' }}>{label}</div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </motion.div>
+
+            {/* Right — text */}
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once:true, margin:'-60px' }} variants={vFadeRight} style={{ flex:'1 1 340px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(37,99,235,0.1)', border: '1px solid rgba(37,99,235,0.25)', padding: '5px 16px', borderRadius: '99px', color: 'var(--accent-primary)', fontWeight: 700, fontSize: '0.82rem', marginBottom: '1.5rem' }}>
+                <BookOpen size={14} /> Trading Education
+              </div>
+              <h2 style={{ fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 900, letterSpacing: '-1px', lineHeight: 1.15, marginBottom: '1.25rem' }}>
+                Learn to Trade Like<br /><span className="text-gradient">a Professional</span>
+              </h2>
+              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, fontSize: '1.05rem', marginBottom: '2rem', maxWidth: '480px' }}>
+                From market structure to advanced scalping strategies — our courses are built for traders who are serious about getting funded and staying funded. Step-by-step, no fluff.
+              </p>
+              <Link to="/courses"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.85rem 2rem', borderRadius: '12px', background: 'linear-gradient(135deg,var(--accent-secondary),var(--accent-primary))', color: '#fff', fontWeight: 800, fontSize: '0.95rem', textDecoration: 'none', boxShadow: '0 8px 24px rgba(37,99,235,0.35)' }}
+              >
+                <BookOpen size={18} /> Browse Courses <ArrowRight size={16} />
               </Link>
             </motion.div>
           </div>

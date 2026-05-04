@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Settings } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useBranding } from '../../context/BrandingContext';
@@ -152,6 +152,20 @@ const Navbar = () => {
               >
                 <Link to="/profile" className={`nav-item ${isActive('/profile')}`}>
                   {user.name.split(' ')[0]}
+                </Link>
+                <Link
+                  to="/settings"
+                  title="Settings"
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    width: '32px', height: '32px', borderRadius: '8px',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    background: isActive('/settings') ? 'rgba(37,99,235,0.12)' : 'transparent',
+                    color: isActive('/settings') ? '#60a5fa' : 'var(--text-secondary)',
+                    transition: 'all 0.2s', flexShrink: 0,
+                  }}
+                >
+                  <Settings size={15} />
                 </Link>
                 <motion.button
                   className="btn btn-outline"

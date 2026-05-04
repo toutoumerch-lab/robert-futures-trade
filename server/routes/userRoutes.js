@@ -1,33 +1,44 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../config/db');
+const { pool } = require('../config/db');
 const { authenticateToken, isAdmin } = require('../middleware/auth');
+const uploadAvatar = require('../middleware/uploadAvatar');
+const {
+  updateProfile,
+  uploadAvatar: uploadAvatarCtrl,
+  removeAvatar,
+  changePassword,
+  getMyPropFirmViews,
+} = require('../controllers/userController');
 
-// GET all users (admin only)
+/* ── Self-service (any authenticated user) ── */
+router.patch('/me/profile',       authenticateToken, updateProfile);
+router.post('/me/avatar',         authenticateToken, uploadAvatar.single('avatar'), uploadAvatarCtrl);
+router.delete('/me/avatar',       authenticateToken, removeAvatar);
+router.patch('/me/password',      authenticateToken, changePassword);
+router.get('/me/prop-firm-views', authenticateToken, getMyPropFirmViews);
+
+/* ── Admin only ── */
 router.get('/', authenticateToken, isAdmin, async (req, res) => {
   try {
     const result = await pool.query(
       'SELECT id, name, email, role, country, country_code, created_at, last_active_at FROM users ORDER BY created_at DESC'
     );
-    
     const now = new Date();
     const usersWithStatus = result.rows.map(user => {
       let is_online = false;
       if (user.last_active_at) {
         const lastActive = new Date(user.last_active_at);
-        // User is considered online if active within the last 5 minutes
         is_online = (now - lastActive) < 5 * 60 * 1000;
       }
       return { ...user, is_online };
     });
-
     res.json(usersWithStatus);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// PATCH user role (admin only)
 router.patch('/:id/role', authenticateToken, isAdmin, async (req, res) => {
   const { id } = req.params;
   const { role } = req.body;
@@ -46,7 +57,6 @@ router.patch('/:id/role', authenticateToken, isAdmin, async (req, res) => {
   }
 });
 
-// DELETE user (admin only)
 router.delete('/:id', authenticateToken, isAdmin, async (req, res) => {
   const { id } = req.params;
   try {
