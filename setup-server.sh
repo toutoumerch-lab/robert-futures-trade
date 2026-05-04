@@ -5,6 +5,7 @@
 #  Usage: curl -fsSL https://raw.githubusercontent.com/toutoumerch-lab/robert-futures-trade/main/setup-server.sh | bash
 # ============================================================
 set -e
+export DEBIAN_FRONTEND=noninteractive
 
 REPO_URL="https://github.com/toutoumerch-lab/robert-futures-trade.git"
 APP_DIR="/var/www/trades"
@@ -32,7 +33,8 @@ fi
 
 # ── 2. System update ──────────────────────────────────────────────────────────
 echo "[2/11] Updating system packages..."
-apt-get update -y -qq && apt-get upgrade -y -qq
+apt-get update -y -qq
+apt-get upgrade -y -qq -o Dpkg::Options::="--force-confkeep"
 
 # ── 3. Install Node.js 20, Nginx, PostgreSQL, git ─────────────────────────────
 echo "[3/11] Installing Node.js 20, Nginx, PostgreSQL..."
