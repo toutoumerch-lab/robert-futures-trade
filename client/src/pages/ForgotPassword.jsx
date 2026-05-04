@@ -80,7 +80,10 @@ const ForgotPassword = () => {
                   Reset link (use this if you don't receive the email)
                 </p>
                 <button
-                  onClick={() => navigate(devUrl.replace(window.location.origin, '').replace('http://localhost:5173', ''))}
+                  onClick={() => {
+                    try { navigate(new URL(devUrl).pathname); }
+                    catch { navigate('/forgot-password'); }
+                  }}
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: '6px',
                     background: 'linear-gradient(135deg,var(--accent-secondary),var(--accent-primary))',
