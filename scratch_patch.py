@@ -1,0 +1,174 @@
+import sys
+
+with open('client/src/pages/PropFirmList.jsx', 'r', encoding='utf-8') as f:
+    lines = f.readlines()
+
+new_lines = []
+skip = False
+i = 0
+while i < len(lines):
+    line = lines[i]
+    
+    # Tracking Fixes
+    if 'const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm }) => {' in line:
+        line = line.replace('onRemoveFirm', 'onRemoveFirm, onTrackWebsite')
+    elif '<a key={f.id} href={f.website} target="_blank" rel="noreferrer" style={{' in line:
+        line = line.replace('style={{', 'onClick={() => onTrackWebsite?.(f.id)} style={{')
+    elif 'const FirmGridCard = ({ firm, onClick, isComparing, onToggleCompare, isFav, onToggleFav, compareDisabled }) => (' in line:
+        line = line.replace('compareDisabled })', 'compareDisabled, onTrackWebsite })')
+    elif 'const FirmListRow = ({ firm, onClick, isComparing, onToggleCompare, isFav, onToggleFav, compareDisabled }) => (' in line:
+        line = line.replace('compareDisabled })', 'compareDisabled, onTrackWebsite })')
+    elif '{showCompare && <CompareModal firms={compareFirms} onClose={() => setShowCompare(false)} onRemoveFirm={(id) => setCompareIds(prev => prev.filter(x => x !== id))} />}' in line:
+        line = line.replace('/>} ', 'onTrackWebsite={(id) => trackClick(id, \\'website\\')} />}')
+    elif i+1 < len(lines) and 'Visit Official Site' in lines[i+1]:
+        if '<a href={viewingFirm.website} target="_blank" rel="noreferrer" style={{ background:' in line:
+            line = line.replace('style={{ background:', 'onClick={() => trackClick(viewingFirm.id, \\'website\\')} style={{ background:')
+
+    # <tbody> replacements!
+    if i == 389 and '<tbody>' in line:
+        # We are at <tbody>
+        new_lines.append(line)
+        # Append our new <tbody> contents
+        new_lines.append('''
+              {/* â══•  PRICING SECTION â══•  */}
+              <SectionRow icon={<DollarSign size={14} />} title="Pricing & Savings" />
+
+              {/* Rating */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label"><Star size={14} style={{ color: "#f59e0b" }} /> Rating</td>
+                {firms.map(f => (
+                  <td key={f.id} style={cellStyle(f.id, bestRatingIds)}>
+                    {f.rating ? <><span style={{ fontSize: '1.1rem' }}>{f.rating}</span><span style={{ fontSize: '0.78rem', opacity: 0.6 }}>/5</span></> : <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
+                    {isWinner(f.id, bestRatingIds) && getNumericRating(f) > 0 && <WinnerBadge tied={bestRatingIds.length > 1} />}
+                  </td>
+                ))}
+              </tr>
+
+              {/* Final Price */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label"><DollarSign size={14} /> Final Price</td>
+                {firms.map(f => {
+                  const price = getEffectivePrice(f);
+                  const savings = getSavings(f);
+                  return (
+                    <td key={f.id} style={cellStyle(f.id, bestPriceIds)}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
+                        <span style={{ fontSize: '1.15rem', fontWeight: 900 }}>{price < Infinity ? `$${price}` : 'N/A'}</span>
+                        {f.without_discount_usd && f.discount_usd && (
+                          <span style={{ textDecoration: 'line-through', color: 'var(--text-secondary)', fontSize: '0.78rem' }}>${f.without_discount_usd}</span>
+                        )}
+                        {savings > 0 && (
+                          <span style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981', fontSize: '0.72rem', fontWeight: 800, padding: '2px 8px', borderRadius: '6px' }}>Save ${savings}</span>
+                        )}
+                        {isWinner(f.id, bestPriceIds) && price < Infinity && <WinnerBadge tied={bestPriceIds.length > 1} />}
+                      </div>
+                    </td>
+                  );
+                })}
+              </tr>
+
+              {/* Promo Code */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label"><Ticket size={14} /> Promo Code</td>
+                {firms.map(f => (
+                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700 }}>
+                    {f.discount_code
+                      ? <span style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', padding: '4px 12px', borderRadius: '6px', fontWeight: 800, fontFamily: 'monospace', letterSpacing: '0.05em' }}>{f.discount_code}</span>
+                      : <span style={{ color: 'var(--text-secondary)' }}>—</span>
+                    }
+                  </td>
+                ))}
+              </tr>
+
+              {/* â══•  TRADING RULES SECTION â══•  */}
+              <SectionRow icon={<Settings size={14} />} title="Trading Rules & Metrics" />
+
+              {/* Eval Type */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label"><ClipboardList size={14} /> Eval Type</td>
+                {firms.map(f => (
+                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700, color: 'var(--text-primary)' }}>
+                    {f.eval || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
+                  </td>
+                ))}
+              </tr>
+
+              {/* Profit Split */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label"><BarChart3 size={14} /> Profit Split</td>
+                {firms.map(f => (
+                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 800, fontSize: '0.95rem', color: f.profit_split ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
+                    {f.profit_split || 'N/A'}
+                  </td>
+                ))}
+              </tr>
+
+              {/* Profit Target */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label"><Target size={14} /> Profit Target</td>
+                {firms.map(f => (
+                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
+                    {f.profit_target || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
+                  </td>
+                ))}
+              </tr>
+
+              {/* Drawdown */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label"><TrendingDown size={14} /> Drawdown Rules</td>
+                {firms.map(f => (
+                  <td key={f.id} style={{ textAlign: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
+                    {f.drawdown_limit || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}
+                  </td>
+                ))}
+              </tr>
+
+              {/* Days to Payout */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label"><Zap size={14} /> Payout Speed</td>
+                {firms.map(f => (
+                  <td key={f.id} style={cellStyle(f.id, bestPayoutIds)}>
+                    <span>{f.days_to_payout || <span style={{ color: 'var(--text-secondary)' }}>N/A</span>}</span>
+                    {isWinner(f.id, bestPayoutIds) && getNumericPayout(f) < Infinity && <WinnerBadge tied={bestPayoutIds.length > 1} />}
+                  </td>
+                ))}
+              </tr>
+
+              {/* Trading Features (Condensed) */}
+              <tr className="cmp-row">
+                <td className="pf-compare-label"><Wrench size={14} /> Allowed Features</td>
+                {firms.map(f => {
+                  const allowed = [
+                    f.copy_trade && 'Copy Trade',
+                    f.news && 'News',
+                    f.bots && 'Bots',
+                    f.vpn && 'VPN'
+                  ].filter(Boolean);
+                  return (
+                    <td key={f.id} style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.4, paddingBottom: '1.5rem' }}>
+                      {allowed.length > 0 ? (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', justifyContent: 'center' }}>
+                          {allowed.map(a => (
+                            <span key={a} style={{ background: 'var(--bg-primary)', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--border-color)', whiteSpace: 'nowrap' }}>{a}</span>
+                          ))}
+                        </div>
+                      ) : 'None'}
+                    </td>
+                  );
+                })}
+              </tr>
+''')
+        # Now skip everything until </tbody>
+        while i < len(lines) and '</tbody>' not in lines[i]:
+            i += 1
+        new_lines.append(lines[i]) # append </tbody>
+        i += 1
+        continue
+    
+    new_lines.append(line)
+    i += 1
+
+with open('client/src/pages/PropFirmList.jsx', 'w', encoding='utf-8') as f:
+    f.writelines(new_lines)
+
+print("Patch successful!")
