@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useInView, useAnimation } from 'framer-motion';
 import Card from '../components/common/Card';
 import Reveal from '../components/common/Reveal';
 import { useBranding } from '../context/BrandingContext';
-import { useParallax } from '../hooks/useScrollReveal';
 import { Scale, Gem, Newspaper, Sparkles, ArrowRight, TrendingUp, Shield, Zap, BookOpen, Trophy, Rss } from 'lucide-react';
 const YoutubeSVG = ({ size = 36, color = 'currentColor' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
@@ -35,16 +34,11 @@ const FloatOrb = ({ color, size='400px', style={}, delay=0 }) => (
   />
 );
 
-/* ── Shimmer divider ────────────────────────────────────── */
+/* ── Shimmer divider — CSS only ── */
 const ShimmerDiv = () => (
   <div style={{ position:'relative', height:'1px', margin:'0 5%', overflow:'hidden' }}>
     <div style={{ position:'absolute', inset:0, background:'linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent)' }}/>
-    <motion.div
-      animate={{ x:['-100%','200%'] }}
-      transition={{ duration:2.8, repeat:Infinity, ease:'linear', repeatDelay:1.5 }}
-      style={{ position:'absolute', top:0, left:0, width:'35%', height:'100%',
-        background:'linear-gradient(90deg,transparent,rgba(37,99,235,0.55),transparent)' }}
-    />
+    <div className="shimmer-beam" />
   </div>
 );
 
@@ -172,8 +166,19 @@ const Step = ({ num, title, desc, delay = 0 }) => (
 /* ── Main Component ─────────────────────────────────────── */
 const Home = () => {
   const { siteLogo, youtubeWatchUrl, youtubeSubscribeUrl } = useBranding();
-  const parallaxOffset = useParallax(0.08);
+  const parallaxRef = useRef(null);
   const [liveStats, setLiveStats] = useState({ courses: '...', members: '2.5K+', posts: '...', countries: '10+' });
+
+  /* Parallax — direct DOM write, zero React re-renders */
+  useEffect(() => {
+    const el = parallaxRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      el.style.transform = `translate(-50%, calc(-50% + ${window.scrollY * 0.06}px))`;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   /* Legacy fade-in observer for .fade-in classes */
   useEffect(() => {
@@ -256,6 +261,7 @@ const Home = () => {
         {/* Parallax watermark */}
         {siteLogo && (
           <img
+            ref={parallaxRef}
             src={`${import.meta.env.VITE_API_URL}${siteLogo}`}
             alt="Background Logo"
             className="hero-watermark absolute pointer-events-none select-none"
@@ -265,7 +271,8 @@ const Home = () => {
               width: 'clamp(300px, 50vw, 600px)',
               aspectRatio: '1 / 1',
               zIndex: 0,
-              transform: `translate(-50%, calc(-50% + ${parallaxOffset}px))`,
+              transform: 'translate(-50%, -50%)',
+              willChange: 'transform',
             }}
           />
         )}
