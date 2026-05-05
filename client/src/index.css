@@ -6526,3 +6526,12 @@ html { scroll-behavior: smooth; }
   }
   .stagger-grid > * { animation: none !important; opacity: 1 !important; }
 }
+
+/* ── Tawk.to chat widget — ensure always on top ── */
+#tawk-bubble-container,
+.tawk-bubble,
+div[id^="tawk-"],
+iframe[title*="chat"],
+iframe[src*="tawk.to"] {
+  z-index: 10000 !important;
+}
