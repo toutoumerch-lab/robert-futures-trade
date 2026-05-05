@@ -13,16 +13,8 @@
     <!--Start of Tawk.to Script-->
     <script type="text/javascript">
       var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-
-      // Auto-open the chat with a welcome message on the home page only
-      Tawk_API.onLoad = function(){
-        if (window.location.pathname === '/' || window.location.pathname === '') {
-          // Wait 5 seconds so the user has time to see the page first
-          setTimeout(function(){
-            Tawk_API.maximize();
-          }, 5000);
-        }
-      };
+      // Show the bubble immediately, stay minimized
+      Tawk_API.onLoad = function(){ Tawk_API.showWidget(); };
 
       (function(){
         var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];

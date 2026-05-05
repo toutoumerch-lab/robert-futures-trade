@@ -20,14 +20,18 @@ const vFadeUp2   = { hidden:{opacity:0,y:60},   visible:{opacity:1,y:0,  transit
 const vStagger   = { visible:{ transition:{ staggerChildren:0.13 }} };
 const vPop       = { hidden:{opacity:0,scale:0.5,y:20}, visible:{opacity:1,scale:1,y:0,transition:{type:'spring',stiffness:300,damping:20}} };
 
-/* ── Floating glow orb ──────────────────────────────────── */
-const FloatOrb = ({ color, size='400px', style={} }) => (
-  <motion.div
-    animate={{ y:[0,-22,0], scale:[1,1.07,1] }}
-    transition={{ duration:6, repeat:Infinity, ease:'easeInOut' }}
-    style={{ position:'absolute', width:size, height:size, borderRadius:'50%',
+/* ── Floating glow orb — CSS animation (compositor thread) ── */
+const FloatOrb = ({ color, size='400px', style={}, delay=0 }) => (
+  <div
+    style={{
+      position:'absolute', width:size, height:size, borderRadius:'50%',
       background:`radial-gradient(circle, ${color}, transparent 70%)`,
-      filter:'blur(60px)', pointerEvents:'none', zIndex:0, ...style }}
+      filter:'blur(60px)', pointerEvents:'none', zIndex:0,
+      willChange:'transform',
+      animation:`orbFloat 6s ease-in-out infinite`,
+      animationDelay:`${delay}s`,
+      ...style,
+    }}
   />
 );
 
@@ -44,46 +48,38 @@ const ShimmerDiv = () => (
   </div>
 );
 
-/* ── Animated background blob ──────────────────────────── */
+/* ── Animated background blob — CSS only (compositor thread) ── */
 const AnimatedBlob = ({ color1, color2, delay = 0, style = {} }) => (
-  <motion.div
-    animate={{
-      borderRadius: [
-        '40% 60% 70% 30% / 40% 50% 60% 50%',
-        '60% 40% 30% 70% / 60% 30% 70% 40%',
-        '40% 60% 70% 30% / 40% 50% 60% 50%',
-      ],
-      x: [0, 50, 0],
-      y: [0, 70, 0],
-    }}
-    transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut', delay }}
+  <div
     style={{
       position: 'absolute',
       background: `radial-gradient(circle at center, ${color1}, ${color2}, transparent)`,
       filter: 'blur(90px)',
-      opacity: 0.35,
+      opacity: 0.32,
       zIndex: 0,
       pointerEvents: 'none',
+      borderRadius: '50%',
+      willChange: 'transform',
+      animation: 'blobDrift 16s ease-in-out infinite',
+      animationDelay: `${delay}s`,
       ...style,
     }}
   />
 );
 
-/* ── Floating particle dots ─────────────────────────────── */
+/* ── Floating particle dots — CSS only ── */
 const Particle = ({ x, y, delay, size }) => (
-  <motion.div
-    animate={{ y: [0, -18, 0], opacity: [0.3, 0.8, 0.3] }}
-    transition={{ duration: 3 + delay, repeat: Infinity, ease: 'easeInOut', delay }}
+  <div
     style={{
       position: 'absolute',
-      left: `${x}%`,
-      top: `${y}%`,
-      width: size,
-      height: size,
+      left: `${x}%`, top: `${y}%`,
+      width: size, height: size,
       borderRadius: '50%',
       background: 'var(--accent-primary)',
-      pointerEvents: 'none',
-      zIndex: 0,
+      pointerEvents: 'none', zIndex: 0,
+      willChange: 'transform, opacity',
+      animation: `particleDrift ${3 + delay}s ease-in-out infinite`,
+      animationDelay: `${delay}s`,
     }}
   />
 );

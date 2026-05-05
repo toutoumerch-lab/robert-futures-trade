@@ -6535,3 +6535,44 @@ iframe[title*="chat"],
 iframe[src*="tawk.to"] {
   z-index: 10000 !important;
 }
+
+/* ══════════════════════════════════════════════════════════
+   PERFORMANCE — CSS-only keyframes replace Framer Motion
+   infinite loops (runs on compositor thread, never blocks scroll)
+   ══════════════════════════════════════════════════════════ */
+
+/* Blob drift — only transform (GPU only, no repaint) */
+@keyframes blobDrift {
+  0%,100% { transform: translate(0px,   0px)  translateZ(0); }
+  33%      { transform: translate(40px,  55px) translateZ(0); }
+  66%      { transform: translate(-25px, 35px) translateZ(0); }
+}
+
+/* Orb float — only translateY + scale */
+@keyframes orbFloat {
+  0%,100% { transform: translateY(0px)   scale(1)    translateZ(0); }
+  50%      { transform: translateY(-22px) scale(1.06) translateZ(0); }
+}
+
+/* Particle drift */
+@keyframes particleDrift {
+  0%,100% { transform: translateY(0px)   translateZ(0); opacity: 0.3; }
+  50%      { transform: translateY(-18px) translateZ(0); opacity: 0.75; }
+}
+
+/* Force GPU layer on all decorative bg elements */
+.home-bg-layer,
+[style*="blobDrift"],
+[style*="orbFloat"],
+[style*="particleDrift"] {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Smooth scroll on the whole page */
+html { scroll-behavior: smooth; }
+
+/* Reduce paint area for off-screen sections */
+@media (min-width: 769px) {
+  section { content-visibility: auto; contain-intrinsic-size: 0 600px; }
+}
