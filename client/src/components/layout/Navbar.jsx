@@ -1,34 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sun, Moon, Settings, Menu, X } from 'lucide-react';
+import {
+  Sun, Moon, Settings, Home, BookOpen, Building2,
+  Newspaper, Info, Mail, ShieldCheck, LogOut, User, ChevronRight,
+} from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useBranding } from '../../context/BrandingContext';
 
 const NAV_LINKS = [
-  { to: '/',           label: 'Home' },
-  { to: '/courses',    label: 'Courses' },
-  { to: '/prop-firms', label: 'Prop Firms' },
-  { to: '/blog',       label: 'Blog' },
-  { to: '/about',      label: 'About' },
-  { to: '/contact',    label: 'Contact' },
+  { to: '/',           label: 'Home',       icon: Home },
+  { to: '/courses',    label: 'Courses',    icon: BookOpen },
+  { to: '/prop-firms', label: 'Prop Firms', icon: Building2 },
+  { to: '/blog',       label: 'Blog',       icon: Newspaper },
+  { to: '/about',      label: 'About',      icon: Info },
+  { to: '/contact',    label: 'Contact',    icon: Mail },
 ];
+
+/* Animated hamburger → X bars */
+const HamburgerIcon = ({ open }) => (
+  <div className="ham-icon" aria-hidden>
+    <motion.span animate={open ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.3 }} />
+    <motion.span animate={open ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }} transition={{ duration: 0.2 }} />
+    <motion.span animate={open ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.3 }} />
+  </div>
+);
 
 const Navbar = () => {
   const location = useLocation();
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { siteLogo, siteName, logoSize, siteNameColor } = useBranding();
-  const [scrolled, setScrolled]   = useState(false);
-  const [menuOpen, setMenuOpen]   = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const isActive = (path) =>
     location.pathname.startsWith(path) && path !== '/'
-      ? 'active'
+      ? true
       : location.pathname === '/' && path === '/'
-      ? 'active'
-      : '';
+      ? true
+      : false;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -36,14 +48,16 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Close menu on route change
   useEffect(() => { setMenuOpen(false); }, [location.pathname]);
 
-  // Lock body scroll when menu open
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [menuOpen]);
+
+  const initials = user?.name
+    ? user.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+    : '?';
 
   return (
     <>
@@ -101,11 +115,11 @@ const Navbar = () => {
           {/* Desktop nav links */}
           <div className="nav-links nav-links-desktop">
             {NAV_LINKS.map(({ to, label }) => (
-              <Link key={to} to={to} className={`nav-item ${isActive(to)}`}>{label}</Link>
+              <Link key={to} to={to} className={`nav-item ${isActive(to) ? 'active' : ''}`}>{label}</Link>
             ))}
 
             {user?.role === 'admin' && (
-              <Link to="/admin" className={`nav-item ${isActive('/admin')}`} style={{ color: 'var(--accent-primary)' }}>
+              <Link to="/admin" className={`nav-item ${isActive('/admin') ? 'active' : ''}`} style={{ color: 'var(--accent-primary)' }}>
                 Admin
               </Link>
             )}
@@ -148,7 +162,7 @@ const Navbar = () => {
                   transition={{ duration: 0.28 }}
                   style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}
                 >
-                  <Link to="/profile" className={`nav-item ${isActive('/profile')}`}>{user.name.split(' ')[0]}</Link>
+                  <Link to="/profile" className={`nav-item ${isActive('/profile') ? 'active' : ''}`}>{user.name.split(' ')[0]}</Link>
                   <Link to="/settings" title="Settings" style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     width: '32px', height: '32px', borderRadius: '8px',
@@ -174,129 +188,172 @@ const Navbar = () => {
             </AnimatePresence>
           </div>
 
-          {/* Mobile right side: theme toggle + hamburger */}
+          {/* Mobile right side */}
           <div className="nav-mobile-right">
             <motion.button
-              className="theme-toggle"
-              whileTap={{ scale: 0.9 }}
-              style={{
-                width: '38px', height: '38px', borderRadius: '50%',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-                color: theme === 'dark' ? '#fbbf24' : '#475569', cursor: 'pointer',
-              }}
+              className="mob-theme-btn"
+              whileTap={{ scale: 0.88 }}
               onClick={toggleTheme}
               aria-label="Toggle Theme"
             >
-              {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={theme}
+                  initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
+                  animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                  exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
+                  transition={{ duration: 0.22 }}
+                  style={{ display: 'flex', alignItems: 'center' }}
+                >
+                  {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                </motion.span>
+              </AnimatePresence>
             </motion.button>
 
             <motion.button
-              className="hamburger-btn"
-              whileTap={{ scale: 0.9 }}
+              className={`mob-ham-btn ${menuOpen ? 'open' : ''}`}
+              whileTap={{ scale: 0.88 }}
               onClick={() => setMenuOpen(v => !v)}
               aria-label="Toggle Menu"
-              style={{
-                width: '38px', height: '38px', borderRadius: '10px',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: menuOpen ? 'rgba(99,102,241,0.15)' : 'var(--bg-secondary)',
-                border: '1px solid var(--border)', cursor: 'pointer',
-                color: menuOpen ? 'var(--accent-primary)' : 'var(--text-primary)',
-              }}
             >
-              {menuOpen ? <X size={20} /> : <Menu size={20} />}
+              <HamburgerIcon open={menuOpen} />
             </motion.button>
           </div>
         </div>
       </motion.nav>
 
-      {/* Mobile drawer overlay */}
+      {/* Mobile drawer */}
       <AnimatePresence>
         {menuOpen && (
           <>
+            {/* Backdrop */}
             <motion.div
-              key="overlay"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              key="mob-overlay"
+              className="mob-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
               onClick={() => setMenuOpen(false)}
-              style={{
-                position: 'fixed', inset: 0, zIndex: 48,
-                background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
-              }}
             />
+
+            {/* Drawer */}
             <motion.div
-              key="drawer"
-              initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-              style={{
-                position: 'fixed', top: 0, right: 0, bottom: 0,
-                width: 'min(80vw, 300px)', zIndex: 49,
-                background: 'var(--bg-primary)',
-                borderLeft: '1px solid var(--border)',
-                boxShadow: '-20px 0 60px rgba(0,0,0,0.4)',
-                display: 'flex', flexDirection: 'column',
-                padding: '1.5rem',
-                overflowY: 'auto',
-              }}
+              key="mob-drawer"
+              className="mob-drawer"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             >
-              {/* Drawer header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                <span className="text-gradient" style={{ fontWeight: 800, fontSize: '1.1rem' }}>{siteName}</span>
-                <button onClick={() => setMenuOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', display: 'flex' }}>
-                  <X size={22} />
+              {/* ── Drawer header ── */}
+              <div className="mob-drawer-header">
+                <div className="mob-drawer-header-bg" />
+                {user ? (
+                  <div className="mob-user-card">
+                    <div className="mob-avatar">{initials}</div>
+                    <div>
+                      <div className="mob-user-name">{user.name}</div>
+                      <div className="mob-user-email">{user.email}</div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mob-brand-header">
+                    <div className="mob-brand-dot" />
+                    <span className="mob-brand-name">{siteName}</span>
+                  </div>
+                )}
+
+                <button className="mob-close-btn" onClick={() => setMenuOpen(false)} aria-label="Close menu">
+                  <motion.div animate={{ rotate: menuOpen ? 0 : -90 }} transition={{ duration: 0.3 }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                      <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </motion.div>
                 </button>
               </div>
 
-              {/* Nav links */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1 }}>
-                {NAV_LINKS.map(({ to, label }, i) => (
-                  <motion.div
-                    key={to}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                  >
-                    <Link
-                      to={to}
-                      className={`nav-item ${isActive(to)}`}
-                      style={{
-                        display: 'block', padding: '0.85rem 1rem',
-                        borderRadius: '10px', fontSize: '1rem', fontWeight: 600,
-                        background: isActive(to) ? 'rgba(99,102,241,0.1)' : 'transparent',
-                        color: isActive(to) ? 'var(--accent-primary)' : 'var(--text-primary)',
-                        borderLeft: isActive(to) ? '3px solid var(--accent-primary)' : '3px solid transparent',
-                      }}
+              {/* ── Nav links ── */}
+              <nav className="mob-nav">
+                {NAV_LINKS.map(({ to, label, icon: Icon }, i) => {
+                  const active = isActive(to);
+                  return (
+                    <motion.div
+                      key={to}
+                      initial={{ opacity: 0, x: 24 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.06 + i * 0.055, type: 'spring', damping: 22, stiffness: 260 }}
                     >
-                      {label}
-                    </Link>
-                  </motion.div>
-                ))}
+                      <Link to={to} className={`mob-nav-item ${active ? 'active' : ''}`}>
+                        <span className="mob-nav-icon-wrap">
+                          <Icon size={18} strokeWidth={active ? 2.2 : 1.8} />
+                        </span>
+                        <span className="mob-nav-label">{label}</span>
+                        {active && (
+                          <motion.div
+                            layoutId="mob-active-pill"
+                            className="mob-active-pill"
+                            transition={{ type: 'spring', damping: 26, stiffness: 380 }}
+                          />
+                        )}
+                        <ChevronRight size={14} className="mob-nav-chevron" />
+                      </Link>
+                    </motion.div>
+                  );
+                })}
 
                 {user?.role === 'admin' && (
-                  <Link to="/admin" style={{
-                    display: 'block', padding: '0.85rem 1rem', borderRadius: '10px',
-                    fontSize: '1rem', fontWeight: 700, color: 'var(--accent-primary)',
-                    borderLeft: '3px solid var(--accent-primary)',
-                    background: 'rgba(99,102,241,0.1)',
-                  }}>Admin</Link>
+                  <motion.div
+                    initial={{ opacity: 0, x: 24 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.06 + NAV_LINKS.length * 0.055, type: 'spring', damping: 22, stiffness: 260 }}
+                  >
+                    <Link to="/admin" className={`mob-nav-item admin ${isActive('/admin') ? 'active' : ''}`}>
+                      <span className="mob-nav-icon-wrap admin">
+                        <ShieldCheck size={18} strokeWidth={2} />
+                      </span>
+                      <span className="mob-nav-label">Admin Panel</span>
+                      <ChevronRight size={14} className="mob-nav-chevron" />
+                    </Link>
+                  </motion.div>
+                )}
+              </nav>
+
+              {/* ── Divider ── */}
+              <div className="mob-divider" />
+
+              {/* ── Auth section ── */}
+              <div className="mob-auth">
+                {user ? (
+                  <>
+                    <Link to="/profile" className="mob-auth-link">
+                      <User size={16} />
+                      <span>My Profile</span>
+                    </Link>
+                    <Link to="/settings" className="mob-auth-link">
+                      <Settings size={16} />
+                      <span>Settings</span>
+                    </Link>
+                    <motion.button
+                      className="mob-logout-btn"
+                      whileTap={{ scale: 0.97 }}
+                      onClick={logout}
+                    >
+                      <LogOut size={16} />
+                      <span>Sign Out</span>
+                    </motion.button>
+                  </>
+                ) : (
+                  <Link to="/login" className="mob-signin-btn">
+                    Sign In
+                    <ChevronRight size={16} />
+                  </Link>
                 )}
               </div>
 
-              {/* Bottom: auth */}
-              <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {user ? (
-                  <>
-                    <Link to="/profile" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', borderRadius: '10px', background: 'var(--bg-secondary)', color: 'var(--text-primary)', fontWeight: 600 }}>
-                      👤 {user.name}
-                    </Link>
-                    <Link to="/settings" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', borderRadius: '10px', color: 'var(--text-secondary)', fontWeight: 600 }}>
-                      <Settings size={16} /> Settings
-                    </Link>
-                    <button onClick={logout} className="btn btn-outline" style={{ width: '100%', padding: '0.75rem' }}>Logout</button>
-                  </>
-                ) : (
-                  <Link to="/login" className="btn btn-primary" style={{ width: '100%', padding: '0.85rem', textAlign: 'center', fontSize: '1rem' }}>Sign In</Link>
-                )}
+              {/* ── Footer tag ── */}
+              <div className="mob-drawer-footer">
+                <span>{siteName} © {new Date().getFullYear()}</span>
               </div>
             </motion.div>
           </>

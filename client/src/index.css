@@ -331,24 +331,381 @@ button {
   align-items: center;
 }
 
-/* Mobile right-side controls — hidden on desktop */
+/* ── Mobile controls ──────────────────────────────────────── */
 .nav-mobile-right {
   display: none;
   align-items: center;
   gap: 0.5rem;
 }
 
-.hamburger-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  line-height: 0;
-}
-
 @media (max-width: 768px) {
   .nav-links-desktop { display: none; }
   .nav-mobile-right  { display: flex; }
+}
+
+/* Theme button — mobile */
+.mob-theme-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* Hamburger button */
+.mob-ham-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: background 0.25s, border-color 0.25s;
+  flex-shrink: 0;
+}
+.mob-ham-btn.open {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.4);
+  color: var(--accent-primary);
+}
+
+/* Animated hamburger bars */
+.ham-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 20px;
+}
+.ham-icon span {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transform-origin: center;
+}
+
+/* ── Overlay ──────────────────────────────────────────────── */
+.mob-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 98;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* ── Drawer ───────────────────────────────────────────────── */
+.mob-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(82vw, 320px);
+  z-index: 99;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-primary);
+  border-left: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: -24px 0 80px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Drawer header ────────────────────────────────────────── */
+.mob-drawer-header {
+  position: relative;
+  padding: 1.5rem 1.25rem 1.5rem;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.mob-drawer-header-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(99,102,241,0.18) 0%, rgba(16,185,129,0.08) 60%, transparent 100%);
+  pointer-events: none;
+}
+.mob-drawer-header-bg::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(99,102,241,0.4), transparent);
+}
+
+/* User card in header */
+.mob-user-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.mob-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #6366f1, #10b981);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(99,102,241,0.4);
+}
+
+.mob-user-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.mob-user-email {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-top: 0.15rem;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Brand header (no user) */
+.mob-brand-header {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 0.25rem;
+}
+
+.mob-brand-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #10b981);
+  box-shadow: 0 0 12px rgba(99,102,241,0.6);
+  flex-shrink: 0;
+}
+
+.mob-brand-name {
+  font-weight: 800;
+  font-size: 1.1rem;
+  background: linear-gradient(90deg, #6366f1, #10b981);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Close button */
+.mob-close-btn {
+  position: absolute;
+  top: 1.1rem;
+  right: 1.1rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.mob-close-btn:hover {
+  background: rgba(239,68,68,0.15);
+  color: #f87171;
+  border-color: rgba(239,68,68,0.3);
+}
+
+/* ── Nav links ────────────────────────────────────────────── */
+.mob-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem 0.75rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.mob-nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: 14px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: color 0.2s, background 0.2s;
+  overflow: hidden;
+}
+
+.mob-nav-item:hover {
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.05);
+}
+
+.mob-nav-item.active {
+  color: var(--accent-primary);
+  background: rgba(99,102,241,0.1);
+}
+.mob-nav-item.admin {
+  color: var(--accent-primary);
+}
+
+.mob-nav-icon-wrap {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.mob-nav-item.active .mob-nav-icon-wrap {
+  background: rgba(99,102,241,0.2);
+  border-color: rgba(99,102,241,0.35);
+}
+.mob-nav-icon-wrap.admin {
+  background: rgba(99,102,241,0.15);
+  border-color: rgba(99,102,241,0.3);
+}
+
+.mob-nav-label {
+  flex: 1;
+}
+
+.mob-active-pill {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  background: linear-gradient(90deg, rgba(99,102,241,0.12) 0%, rgba(16,185,129,0.06) 100%);
+  border: 1px solid rgba(99,102,241,0.2);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.mob-nav-chevron {
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.2s, transform 0.2s;
+  color: var(--accent-primary);
+  flex-shrink: 0;
+}
+.mob-nav-item:hover .mob-nav-chevron,
+.mob-nav-item.active .mob-nav-chevron {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ── Divider ──────────────────────────────────────────────── */
+.mob-divider {
+  height: 1px;
+  margin: 0.75rem 1rem;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  flex-shrink: 0;
+}
+
+/* ── Auth section ─────────────────────────────────────────── */
+.mob-auth {
+  padding: 0 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.mob-auth-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: color 0.2s, background 0.2s;
+}
+.mob-auth-link:hover {
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.05);
+}
+
+.mob-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 12px;
+  color: #f87171;
+  font-weight: 600;
+  font-size: 0.9rem;
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.15);
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.2s, border-color 0.2s;
+  margin-top: 0.15rem;
+}
+.mob-logout-btn:hover {
+  background: rgba(239,68,68,0.15);
+  border-color: rgba(239,68,68,0.28);
+}
+
+.mob-signin-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  box-shadow: 0 4px 20px rgba(99,102,241,0.4);
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+.mob-signin-btn:hover {
+  box-shadow: 0 6px 28px rgba(99,102,241,0.55);
+  transform: translateY(-1px);
+}
+
+/* ── Drawer footer ────────────────────────────────────────── */
+.mob-drawer-footer {
+  padding: 0.9rem 1.25rem;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  opacity: 0.5;
+  text-align: center;
+  flex-shrink: 0;
+  letter-spacing: 0.03em;
 }
 
 .nav-item {
