@@ -324,6 +324,33 @@ button {
   align-items: center;
 }
 
+/* Desktop nav — hide on mobile */
+.nav-links-desktop {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+/* Mobile right-side controls — hidden on desktop */
+.nav-mobile-right {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburger-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  line-height: 0;
+}
+
+@media (max-width: 768px) {
+  .nav-links-desktop { display: none; }
+  .nav-mobile-right  { display: flex; }
+}
+
 .nav-item {
   color: var(--text-secondary);
   font-weight: 500;
@@ -1734,7 +1761,7 @@ textarea.input { resize: vertical; }
 .pf-results { flex: 1; min-width: 0; }
 .pf-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
   gap: 1.25rem;
 }
 .pf-list { display: flex; flex-direction: column; gap: 0.75rem; }
@@ -5593,3 +5620,157 @@ select:focus {
 /* ============================================================
    END BLOG SYSTEM STYLES
    ============================================================ */
+
+/* ============================================================
+   MOBILE RESPONSIVE — Global phone/tablet fixes
+   ============================================================ */
+
+/* ── Container padding on mobile ── */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .section-pad {
+    padding: 4rem 0;
+  }
+}
+
+/* ── Hero section ── */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 5rem 0 3.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-section {
+    padding: 4rem 0 3rem;
+  }
+
+  /* Hero title */
+  .hero-section h1 {
+    font-size: clamp(1.9rem, 8vw, 2.8rem) !important;
+    line-height: 1.15 !important;
+  }
+
+  /* Hero subtitle */
+  .hero-section p {
+    font-size: clamp(0.95rem, 4vw, 1.1rem) !important;
+  }
+
+  /* CTA buttons stack */
+  .hero-section .flex {
+    flex-wrap: wrap;
+  }
+}
+
+/* ── Prop firms grid ── */
+@media (max-width: 640px) {
+  /* The auto-fill grid with minmax(320px) overflows — force single column */
+  [style*="minmax(320px"], [style*="minmax(300px"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Prop firm compare table ── */
+@media (max-width: 768px) {
+  .pf-compare-table-wrap,
+  .compare-modal-body {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ── Stats row ── */
+@media (max-width: 640px) {
+  .stats-row {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ── Section headings ── */
+@media (max-width: 640px) {
+  .section-title,
+  h2.text-4xl,
+  h2[style*="font-size: 2"] {
+    font-size: clamp(1.6rem, 6vw, 2rem) !important;
+  }
+}
+
+/* ── Cards — prevent overflow ── */
+@media (max-width: 640px) {
+  .card {
+    padding: 1.25rem !important;
+  }
+}
+
+/* ── Firm card grid ── */
+@media (max-width: 900px) {
+  .pf-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .pf-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Courses grid ── */
+@media (max-width: 900px) {
+  .courses-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .courses-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Auth pages ── */
+@media (max-width: 480px) {
+  .auth-card,
+  .login-card,
+  .register-card {
+    margin: 1rem;
+    padding: 1.75rem 1.25rem !important;
+    border-radius: 16px !important;
+  }
+}
+
+/* ── Navbar — tighter padding on mobile ── */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.65rem 0;
+  }
+}
+
+/* ── Mobile drawer z-index safety ── */
+@media (max-width: 768px) {
+  body.menu-open {
+    overflow: hidden;
+  }
+}
+
+/* ── Buttons on mobile ── */
+@media (max-width: 400px) {
+  .btn {
+    padding: 0.55rem 1rem !important;
+    font-size: 0.875rem !important;
+  }
+}
+
+/* ── Tables horizontal scroll ── */
+@media (max-width: 768px) {
+  .table-responsive,
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
