@@ -6585,3 +6585,42 @@ html { scroll-behavior: smooth; }
   will-change: transform;
   animation: shimmerBeam 4s linear infinite;
 }
+
+/* ══════════════════════════════════════════════════════════
+   CURSOR — pure DOM, rAF-driven, zero Framer Motion
+   ══════════════════════════════════════════════════════════ */
+.cur-blob {
+  position: fixed;
+  top: 0; left: 0;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,102,241,0.11) 0%, transparent 68%);
+  filter: blur(2px);
+  pointer-events: none;
+  z-index: 9996;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+.cur-dot {
+  position: fixed;
+  top: 0; left: 0;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--accent-primary, #6366f1);
+  box-shadow: 0 0 10px rgba(99,102,241,0.7);
+  pointer-events: none;
+  z-index: 9999;
+  will-change: transform;
+  backface-visibility: hidden;
+  transition: width 0.18s, height 0.18s, background 0.18s, box-shadow 0.18s, border-radius 0.18s;
+}
+/* Hover state via data attribute */
+.cur-dot[data-hover="1"] {
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  box-shadow: 0 0 0 2px var(--accent-primary, #6366f1), 0 0 18px rgba(99,102,241,0.45);
+  border-radius: 50%;
+  margin-top: -8px;
+  margin-left: -8px;
+}

@@ -48,8 +48,8 @@ const AnimatedBlob = ({ color1, color2, delay = 0, style = {} }) => (
     style={{
       position: 'absolute',
       background: `radial-gradient(circle at center, ${color1}, ${color2}, transparent)`,
-      filter: 'blur(90px)',
-      opacity: 0.32,
+      filter: 'blur(55px)',
+      opacity: 0.28,
       zIndex: 0,
       pointerEvents: 'none',
       borderRadius: '50%',
@@ -218,35 +218,19 @@ const Home = () => {
   return (
     <div style={{ overflow: 'hidden' }}>
 
-      {/* ── Background Atmosphere ───────────────────────── */}
+      {/* ── Background Atmosphere — 2 static blobs, no JS ── */}
       <AnimatedBlob
-        color1="rgba(16,185,129,0.6)"
-        color2="rgba(16,185,129,0.1)"
+        color1="rgba(16,185,129,0.45)"
+        color2="rgba(16,185,129,0.05)"
         delay={0}
-        style={{ width: '500px', height: '500px', top: '-10%', left: '-8%' }}
+        style={{ width: '380px', height: '380px', top: '-8%', left: '-6%' }}
       />
       <AnimatedBlob
-        color1="rgba(37,99,235,0.55)"
-        color2="rgba(37,99,235,0.05)"
-        delay={4}
-        style={{ width: '600px', height: '600px', top: '5%', right: '-12%' }}
+        color1="rgba(37,99,235,0.4)"
+        color2="rgba(37,99,235,0.04)"
+        delay={5}
+        style={{ width: '420px', height: '420px', top: '4%', right: '-10%' }}
       />
-      <AnimatedBlob
-        color1="rgba(99,102,241,0.4)"
-        color2="rgba(99,102,241,0.05)"
-        delay={8}
-        style={{ width: '400px', height: '400px', top: '40%', left: '45%' }}
-      />
-
-      {/* Floating particles */}
-      {[
-        { x: 10, y: 15, delay: 0, size: '5px' },
-        { x: 85, y: 20, delay: 1.2, size: '4px' },
-        { x: 50, y: 8,  delay: 0.6, size: '6px' },
-        { x: 25, y: 70, delay: 2,   size: '4px' },
-        { x: 75, y: 65, delay: 1.5, size: '5px' },
-        { x: 60, y: 85, delay: 0.9, size: '3px' },
-      ].map((p, i) => <Particle key={i} {...p} />)}
 
       {/* ── Hero ──────────────────────────────────────────── */}
       <section
@@ -387,7 +371,6 @@ const Home = () => {
 
       {/* ── SECTION 1 — Prop Firms ───────────────────────── */}
       <section style={{ padding: '8rem 0', position: 'relative', overflow: 'hidden' }}>
-        <FloatOrb color="rgba(16,185,129,0.1)" size="500px" style={{ bottom:'-10%', left:'25%' }} />
         <div className="container" style={{ position:'relative', zIndex:1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5rem', flexWrap: 'wrap' }}>
 
@@ -528,8 +511,6 @@ const Home = () => {
 
       {/* ── SECTION 3 — Courses ──────────────────────────── */}
       <section style={{ padding: '8rem 0', position: 'relative', overflow: 'hidden' }}>
-        <FloatOrb color="rgba(37,99,235,0.12)" size="500px" style={{ top:'10%', right:'-6%' }} />
-        <FloatOrb color="rgba(139,92,246,0.08)" size="300px" style={{ bottom:'0%', left:'20%' }} />
         <div className="container" style={{ position:'relative', zIndex:1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5rem', flexWrap: 'wrap' }}>
 
@@ -581,7 +562,6 @@ const Home = () => {
 
       {/* ── SECTION 4 — Blog ─────────────────────────────── */}
       <section style={{ padding: '8rem 0', position: 'relative', overflow: 'hidden', textAlign: 'center' }}>
-        <FloatOrb color="rgba(99,102,241,0.1)" size="600px" style={{ top:'-20%', left:'50%', transform:'translateX(-50%)' }} />
         <div className="container" style={{ maxWidth: '860px', position: 'relative', zIndex: 1 }}>
           <motion.div initial="hidden" whileInView="visible" viewport={{ once:true, margin:'-60px' }} variants={vFadeUp2}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', padding: '5px 16px', borderRadius: '99px', color: '#818cf8', fontWeight: 700, fontSize: '0.82rem', marginBottom: '1.5rem' }}>
