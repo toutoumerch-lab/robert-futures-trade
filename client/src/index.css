@@ -6381,3 +6381,148 @@ select:focus {
   }
   .ftr-legal-links { gap: 1rem; }
 }
+
+/* ══════════════════════════════════════════════════════════
+   PREMIUM ANIMATIONS — cursor, cards, nav, reveals
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Custom cursor: hide native on desktop ── */
+@media (pointer: fine) {
+  body, a, button, [role="button"] { cursor: none !important; }
+  input, textarea, select          { cursor: text !important; }
+}
+
+/* ── Nav item — animated underline slide ── */
+.nav-item {
+  position: relative;
+}
+.nav-item::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary));
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nav-item:hover::after,
+.nav-item.active::after { width: 100%; }
+
+/* ── Card lift & glow on hover ── */
+.card,
+.pf-card,
+.crs-grid-card,
+.crs-list-card,
+.bl-card,
+.bl-post-card,
+.blg-card {
+  transition:
+    transform 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.3s ease !important;
+}
+
+.card:hover,
+.pf-card:hover,
+.crs-grid-card:hover,
+.bl-card:hover,
+.bl-post-card:hover,
+.blg-card:hover {
+  transform: translateY(-8px) scale(1.012) !important;
+  box-shadow:
+    0 28px 60px rgba(0,0,0,0.3),
+    0 0 0 1px rgba(99,102,241,0.22),
+    0 0 40px rgba(99,102,241,0.08) !important;
+  border-color: rgba(99,102,241,0.28) !important;
+  z-index: 2;
+}
+
+/* ── Button press feel ── */
+.btn:active { transform: scale(0.96) !important; }
+
+/* ── Section reveal keyframe ── */
+@keyframes sectionReveal {
+  from { opacity: 0; transform: translateY(36px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.reveal-up {
+  animation: sectionReveal 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Staggered grid children ── */
+.stagger-grid > * {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: sectionReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.stagger-grid > *:nth-child(1)  { animation-delay: 0.05s; }
+.stagger-grid > *:nth-child(2)  { animation-delay: 0.11s; }
+.stagger-grid > *:nth-child(3)  { animation-delay: 0.17s; }
+.stagger-grid > *:nth-child(4)  { animation-delay: 0.23s; }
+.stagger-grid > *:nth-child(5)  { animation-delay: 0.29s; }
+.stagger-grid > *:nth-child(6)  { animation-delay: 0.35s; }
+.stagger-grid > *:nth-child(7)  { animation-delay: 0.41s; }
+.stagger-grid > *:nth-child(8)  { animation-delay: 0.47s; }
+.stagger-grid > *:nth-child(n+9){ animation-delay: 0.52s; }
+
+/* ── Smooth image hover zoom ── */
+.img-zoom-wrap { overflow: hidden; border-radius: inherit; }
+.img-zoom-wrap img {
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.img-zoom-wrap:hover img { transform: scale(1.06); }
+
+/* ── Glowing focus rings ── */
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.25), 0 0 0 1px rgba(99,102,241,0.5) !important;
+  border-color: rgba(99,102,241,0.6) !important;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+/* ── Link hover glow ── */
+.btn-primary {
+  transition:
+    transform 0.25s cubic-bezier(0.16,1,0.3,1),
+    box-shadow 0.25s cubic-bezier(0.16,1,0.3,1),
+    opacity 0.2s !important;
+}
+.btn-primary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 28px rgba(99,102,241,0.45) !important;
+}
+
+/* ── Shimmer on loading cards ── */
+@keyframes shimmerSlide {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%);  }
+}
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+.skeleton-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%);
+  animation: shimmerSlide 1.5s infinite;
+}
+
+/* ── Page transition: smooth scroll reset ── */
+html { scroll-behavior: smooth; }
+
+/* ── Disable animations on reduced-motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .card, .pf-card, .crs-grid-card, .bl-card, .bl-post-card, .blg-card {
+    transition: none !important;
+  }
+  .card:hover, .pf-card:hover, .crs-grid-card:hover {
+    transform: none !important;
+  }
+  .stagger-grid > * { animation: none !important; opacity: 1 !important; }
+}

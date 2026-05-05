@@ -8,6 +8,8 @@ import { ToastProvider } from './context/ToastContext';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import PromotionBanner from './components/layout/PromotionBanner';
+import CursorGlow    from './components/common/CursorGlow';
+import ScrollProgress from './components/common/ScrollProgress';
 
 // Pages
 import Home from './pages/Home';
@@ -35,13 +37,12 @@ import TermsOfService from './pages/TermsOfService';
 import CookiePolicy from './pages/CookiePolicyPage';
 import PrivacyPolicy from './pages/PrivacyPolicyPage';
 
+const pageEnter = { opacity: 0, y: 28, scale: 0.985 };
+const pageShow  = { opacity: 1, y: 0,  scale: 1,     transition: { duration: 0.52, ease: [0.16, 1, 0.3, 1] } };
+const pageExit  = { opacity: 0, y: -14, scale: 0.99,  transition: { duration: 0.24, ease: [0.7, 0, 1, 1] } };
+
 const PageWrapper = ({ children }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 10 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -6 }}
-    transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-  >
+  <motion.div initial={pageEnter} animate={pageShow} exit={pageExit}>
     {children}
   </motion.div>
 );
@@ -50,6 +51,8 @@ const AppContent = () => {
   const location = useLocation();
   return (
     <div className="app-container">
+      <CursorGlow />
+      <ScrollProgress />
       <Navbar />
       <PromotionBanner />
       <main className="main-content">
