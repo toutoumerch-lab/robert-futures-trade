@@ -84,6 +84,7 @@ const getPropFirms = async (req, res) => {
           '[]'::json
         ) as platforms
       FROM prop_firms
+      WHERE hidden = FALSE OR hidden IS NULL
       ORDER BY
         CASE status_color
           WHEN 'green'  THEN 1
@@ -385,6 +386,21 @@ const deletePropFirm = async (req, res) => {
   }
 };
 
+const toggleHidden = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      'UPDATE prop_firms SET hidden = NOT hidden WHERE id = $1 RETURNING id, name, hidden',
+      [id]
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error toggling visibility:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
 const getPlatforms = async (req, res) => {
   try {
     const result = await pool.query('SELECT name FROM platforms ORDER BY name ASC');
@@ -449,4 +465,4 @@ const upsertGroupImage = async (req, res) => {
   }
 };
 
-module.exports = { getPropFirms, getPropFirmsAdmin, createPropFirm, bulkCreatePropFirms, updatePropFirm, deletePropFirm, getPlatforms, getGroups, patchGroupName, upsertGroupImage };
+module.exports = { getPropFirms, getPropFirmsAdmin, createPropFirm, bulkCreatePropFirms, updatePropFirm, deletePropFirm, toggleHidden, getPlatforms, getGroups, patchGroupName, upsertGroupImage };

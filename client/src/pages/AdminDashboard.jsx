@@ -1642,6 +1642,11 @@ const PropFirmsTab = () => {
     fetchFirms();
   };
 
+  const toggleHidden = async (id) => {
+    await axios.patch(`${import.meta.env.VITE_API_URL}/api/prop-firms/${id}/hidden`);
+    fetchFirms();
+  };
+
   const getStatusTheme = (status) => {
     switch (status) {
       case 'green': return {
@@ -1769,10 +1774,11 @@ const PropFirmsTab = () => {
                     <tbody>
                       {groupFirms.map(f => (
                         <tr key={f.id}>
-                          <td style={{ fontWeight: 600 }}>
+                          <td style={{ fontWeight: 600, opacity: f.hidden ? 0.45 : 1 }}>
                             {f.name}
                             {f.featured && <Star size={14} style={{ display: 'inline', color: '#f59e0b', fill: '#f59e0b', verticalAlign: 'middle', marginLeft: '4px' }} />}
                             {f.group_name && <span style={{ marginLeft: '8px', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '99px', background: 'rgba(37,99,235,0.1)', color: '#2563eb', fontWeight: 700 }}>{f.group_name}</span>}
+                            {f.hidden && <span style={{ marginLeft: '8px', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '99px', background: 'rgba(107,114,128,0.15)', color: 'var(--text-secondary)', fontWeight: 700 }}>Hidden</span>}
                           </td>
                           <td>{f.rating ? `${f.rating} / 5` : '-'}</td>
                           <td>
@@ -1783,6 +1789,7 @@ const PropFirmsTab = () => {
                             <button className="action-btn" style={{backgroundColor: 'var(--bg-tertiary)'}} onClick={() => setViewingFirm(f)}>View</button>
                             <button className="action-btn" onClick={() => openEdit(f)}>Edit</button>
                             <button className="action-btn" style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.12), rgba(59,130,246,0.12))', color: '#2563eb', border: '1px solid rgba(37,99,235,0.2)' }} onClick={() => { setGroupingFirm(f); setGroupModalValue(f.group_name || ''); setGroupModalMode(f.group_name ? 'existing' : 'existing'); }}><Layers size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '3px' }} />Group</button>
+                            <button className="action-btn" style={{ background: f.hidden ? 'rgba(16,185,129,0.1)' : 'rgba(107,114,128,0.1)', color: f.hidden ? '#10b981' : 'var(--text-secondary)', border: `1px solid ${f.hidden ? 'rgba(16,185,129,0.25)' : 'rgba(107,114,128,0.2)'}` }} onClick={() => toggleHidden(f.id)}>{f.hidden ? 'Show' : 'Hide'}</button>
                             <button className="action-btn danger" onClick={() => deleteFirm(f.id)}>Delete</button>
                           </td>
                         </tr>
