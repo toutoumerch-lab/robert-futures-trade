@@ -670,6 +670,21 @@ const firms = [
   },
 ];
 
+const linkPlatforms = async (client, firmId, platformsStr) => {
+  if (!platformsStr) return;
+  const names = platformsStr.split(',').map(s => s.trim()).filter(Boolean);
+  for (const name of names) {
+    await client.query('INSERT INTO platforms (name) VALUES ($1) ON CONFLICT (name) DO NOTHING', [name]);
+    const r = await client.query('SELECT id FROM platforms WHERE name = $1', [name]);
+    if (r.rows.length > 0) {
+      await client.query(
+        'INSERT INTO prop_firm_platforms (prop_firm_id, platform_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+        [firmId, r.rows[0].id]
+      );
+    }
+  }
+};
+
 const importFirms = async () => {
   const client = await pool.connect();
   let inserted = 0;
@@ -687,30 +702,33 @@ const importFirms = async () => {
       const score = firm.overall_score;
       const color = statusColor(score);
 
-      await client.query(`
+      const result = await client.query(`
         INSERT INTO prop_firms (
-          name, importance, featured, rating, overall_score, platforms, account_category,
+          name, importance, featured, rating, overall_score, account_category,
           fifty_k_all_in, fifty_k_initial_cost, without_discount_usd, discount_usd, discount_percent,
           activation_fee, max_accounts, profit_split, max_withdrawal, profit_target,
           drawdown_limit, dll, buffer, buffer_amount, days_to_pass, days_to_payout,
           eval, pa, reset_fee, dca, news, bots, copy_trade, vpn, micro_scalping,
           discount_code, status_color, group_name
         ) VALUES (
-          $1,$2,$3,$4,$5,$6,$7,
-          $8,$9,$10,$11,$12,
-          $13,$14,$15,$16,$17,
-          $18,$19,$20,$21,$22,$23,
-          $24,$25,$26,$27,$28,$29,$30,$31,$32,
-          $33,$34,$35
-        )
+          $1,$2,$3,$4,$5,$6,
+          $7,$8,$9,$10,$11,
+          $12,$13,$14,$15,$16,
+          $17,$18,$19,$20,$21,$22,
+          $23,$24,$25,$26,$27,$28,$29,$30,$31,
+          $32,$33,$34
+        ) RETURNING id
       `, [
-        firm.name, firm.importance || 'medium', firm.featured || false, score, score, firm.platforms, firm.account_category,
+        firm.name, firm.importance || 'medium', firm.featured || false, score, score, firm.account_category,
         firm.fifty_k_all_in, firm.fifty_k_initial_cost, firm.without_discount_usd, firm.discount_usd, firm.discount_percent,
         firm.activation_fee || 0, firm.max_accounts, firm.profit_split, firm.max_withdrawal, firm.profit_target,
         firm.drawdown_limit, firm.dll, firm.buffer || false, firm.buffer_amount, firm.days_to_pass, firm.days_to_payout,
         firm.eval, firm.pa, firm.reset_fee, firm.dca, firm.news, firm.bots, firm.copy_trade, firm.vpn, firm.micro_scalping,
         firm.discount_code, color, firm.group_name,
       ]);
+
+      const firmId = result.rows[0].id;
+      await linkPlatforms(client, firmId, firm.platforms);
 
       console.log(`✅  Inserted: ${firm.name}`);
       inserted++;

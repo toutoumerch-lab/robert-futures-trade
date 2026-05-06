@@ -83,7 +83,17 @@ const getPropFirms = async (req, res) => {
            WHERE pfp.prop_firm_id = prop_firms.id),
           '[]'::json
         ) as platforms
-      FROM prop_firms ORDER BY created_at DESC
+      FROM prop_firms
+      ORDER BY
+        CASE status_color
+          WHEN 'green'  THEN 1
+          WHEN 'blue'   THEN 2
+          WHEN 'yellow' THEN 3
+          WHEN 'red'    THEN 4
+          ELSE 5
+        END,
+        overall_score DESC NULLS LAST,
+        created_at DESC
     `);
     res.json(result.rows);
   } catch (error) {

@@ -6,11 +6,10 @@ const migrate = async () => {
   try {
     await client.query(`
       ALTER TABLE prop_firms
-      ADD COLUMN IF NOT EXISTS platforms   TEXT,
       ADD COLUMN IF NOT EXISTS group_name  TEXT,
       ADD COLUMN IF NOT EXISTS updated_at  TIMESTAMP DEFAULT NOW();
     `);
-    console.log('✅  Missing columns added: platforms, group_name, updated_at');
+    console.log('✅  Missing columns added: group_name, updated_at');
   } catch (err) {
     console.error('❌  Error:', err.message);
   } finally {
