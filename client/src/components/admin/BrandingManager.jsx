@@ -216,9 +216,9 @@ const BrandingManager = () => {
   // ── Contact state
   const [newContactEmail, setNewContactEmail] = useState(contactEmail || 'admin@roberttrades.com');
 
-  // ── Analytics state
-  const { gaTrackingId } = useBranding();
-  const [newGaId, setNewGaId] = useState(gaTrackingId || '');
+  // ── Tag Manager state
+  const { gtmContainerId } = useBranding();
+  const [newGtmId, setNewGtmId] = useState(gtmContainerId || '');
 
   // YouTube home page button URLs
   const { youtubeWatchUrl, youtubeSubscribeUrl } = useBranding();
@@ -252,7 +252,7 @@ const BrandingManager = () => {
   useEffect(() => { setNewYtWatch(youtubeWatchUrl); },     [youtubeWatchUrl]);
   useEffect(() => { setNewYtSubscribe(youtubeSubscribeUrl); }, [youtubeSubscribeUrl]);
   useEffect(() => { setNewContactEmail(contactEmail || 'admin@roberttrades.com'); }, [contactEmail]);
-  useEffect(() => { setNewGaId(gaTrackingId || ''); }, [gaTrackingId]);
+  useEffect(() => { setNewGtmId(gtmContainerId || ''); }, [gtmContainerId]);
 
   useEffect(() => {
     if (!isDirty) {
@@ -365,7 +365,7 @@ const BrandingManager = () => {
         youtube_watch_url:     newYtWatch     || '',
         youtube_subscribe_url: newYtSubscribe || '',
         contact_email:    newContactEmail || '',
-        ga_tracking_id:   newGaId || '',
+        gtm_container_id: newGtmId || '',
       }, config);
 
       // Upload logo
@@ -886,16 +886,16 @@ const BrandingManager = () => {
           )}
         </div>
 
-        {/* ── Google Analytics Section ── */}
+        {/* ── Google Tag Manager Section ── */}
         <div className="branding-section">
           <button type="button" className="branding-section-header" onClick={() => toggleSection('analytics')}>
             <div className="branding-section-title">
-              <div className="branding-section-icon" style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+              <div className="branding-section-icon" style={{ background: 'linear-gradient(135deg, #4285f4, #34a853)' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 17h3v3"/><path d="M17 14h3"/></svg>
               </div>
               <div>
-                <h3>Google Analytics</h3>
-                <p>Tracking ID (G-XXXXXXXXXX)</p>
+                <h3>Google Tag Manager</h3>
+                <p>Container ID (GTM-XXXXXXX)</p>
               </div>
             </div>
             <div className={`branding-section-chevron ${openSection === 'analytics' ? 'open' : ''}`}>
@@ -906,45 +906,45 @@ const BrandingManager = () => {
           {openSection === 'analytics' && (
             <div className="branding-section-body">
               <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '1.25rem', lineHeight: 1.6 }}>
-                Connect your site to Google Analytics 4 (GA4) to track visitors, traffic sources, and engagement.{' '}
+                Connect Google Tag Manager to manage all your tracking pixels (GA4, Facebook, TikTok, etc.) from one dashboard — no code changes needed.{' '}
                 <a
-                  href="https://analytics.google.com"
+                  href="https://tagmanager.google.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: '#f97316', fontWeight: 600, textDecoration: 'underline' }}
+                  style={{ color: '#4285f4', fontWeight: 600, textDecoration: 'underline' }}
                 >
                   Click here to get started
                 </a>
-                . You will be given a Measurement ID in the format <code style={{ background: 'var(--bg-tertiary)', padding: '1px 6px', borderRadius: 4, fontSize: '0.8rem' }}>G-XXXXXXXXXX</code> — copy and paste it below.
+                . You will be given a Container ID in the format <code style={{ background: 'var(--bg-tertiary)', padding: '1px 6px', borderRadius: 4, fontSize: '0.8rem' }}>GTM-XXXXXXX</code> — copy and paste it below.
               </p>
               <div className="form-group">
                 <label className="mb-2 block font-medium" style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-                  Measurement ID
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4285f4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 17h3v3"/><path d="M17 14h3"/></svg>
+                  Container ID
                 </label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="G-XXXXXXXXXX"
-                    value={newGaId}
-                    onChange={e => { setNewGaId(e.target.value.trim()); setIsDirty(true); }}
+                    placeholder="GTM-XXXXXXX"
+                    value={newGtmId}
+                    onChange={e => { setNewGtmId(e.target.value.trim()); setIsDirty(true); }}
                     style={{ flex: 1, fontFamily: 'monospace', letterSpacing: '0.05em' }}
                   />
-                  {newGaId && (
-                    <button type="button" className="color-reset-btn" onClick={() => { setNewGaId(''); setIsDirty(true); }} title="Disable Analytics">
+                  {newGtmId && (
+                    <button type="button" className="color-reset-btn" onClick={() => { setNewGtmId(''); setIsDirty(true); }} title="Disable Tag Manager">
                       <RotateCcw size={13} />
                     </button>
                   )}
                 </div>
-                {newGaId && (
+                {newGtmId && (
                   <p style={{ fontSize: '0.75rem', color: '#10b981', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <Check size={12} /> Analytics active — tracking ID: <strong>{newGaId}</strong>
+                    <Check size={12} /> GTM active — container: <strong>{newGtmId}</strong>
                   </p>
                 )}
-                {!newGaId && (
+                {!newGtmId && (
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
-                    Analytics disabled — no tracking script will load.
+                    Tag Manager disabled — no tracking scripts will load.
                   </p>
                 )}
               </div>

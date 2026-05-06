@@ -141,13 +141,13 @@ const updateSettings = async (req, res) => {
       }
     }
 
-    // \u2014 Google Analytics Tracking ID (clearable)
-    if (req.body.ga_tracking_id !== undefined) {
-      const val = req.body.ga_tracking_id;
+    // \u2014 Google Tag Manager Container ID (clearable)
+    if (req.body.gtm_container_id !== undefined) {
+      const val = req.body.gtm_container_id;
       if (val === '' || val === null) {
-        await remove('ga_tracking_id');
+        await remove('gtm_container_id');
       } else {
-        await upsert('ga_tracking_id', val);
+        await upsert('gtm_container_id', val);
       }
     }
 
