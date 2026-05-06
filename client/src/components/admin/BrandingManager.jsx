@@ -216,9 +216,10 @@ const BrandingManager = () => {
   // ── Contact state
   const [newContactEmail, setNewContactEmail] = useState(contactEmail || 'admin@roberttrades.com');
 
-  // ── Tag Manager state
-  const { gtmContainerId } = useBranding();
+  // ── Tag Manager & Analytics state
+  const { gtmContainerId, gaTrackingId } = useBranding();
   const [newGtmId, setNewGtmId] = useState(gtmContainerId || '');
+  const [newGaId, setNewGaId] = useState(gaTrackingId || '');
 
   // YouTube home page button URLs
   const { youtubeWatchUrl, youtubeSubscribeUrl } = useBranding();
@@ -253,6 +254,7 @@ const BrandingManager = () => {
   useEffect(() => { setNewYtSubscribe(youtubeSubscribeUrl); }, [youtubeSubscribeUrl]);
   useEffect(() => { setNewContactEmail(contactEmail || 'admin@roberttrades.com'); }, [contactEmail]);
   useEffect(() => { setNewGtmId(gtmContainerId || ''); }, [gtmContainerId]);
+  useEffect(() => { setNewGaId(gaTrackingId || ''); }, [gaTrackingId]);
 
   useEffect(() => {
     if (!isDirty) {
@@ -366,6 +368,7 @@ const BrandingManager = () => {
         youtube_subscribe_url: newYtSubscribe || '',
         contact_email:    newContactEmail || '',
         gtm_container_id: newGtmId || '',
+        ga_tracking_id:   newGaId  || '',
       }, config);
 
       // Upload logo
@@ -945,6 +948,36 @@ const BrandingManager = () => {
                 {!newGtmId && (
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
                     Tag Manager disabled — no tracking scripts will load.
+                  </p>
+                )}
+              </div>
+
+              <div className="form-group" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
+                <label className="mb-2 block font-medium" style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                  Google Analytics 4 — Measurement ID
+                </label>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
+                  Optional — use this if you want direct GA4 tracking without GTM. Format: <code style={{ background: 'var(--bg-tertiary)', padding: '1px 6px', borderRadius: 4, fontSize: '0.8rem' }}>G-XXXXXXXXXX</code>
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="G-XXXXXXXXXX"
+                    value={newGaId}
+                    onChange={e => { setNewGaId(e.target.value.trim()); setIsDirty(true); }}
+                    style={{ flex: 1, fontFamily: 'monospace', letterSpacing: '0.05em' }}
+                  />
+                  {newGaId && (
+                    <button type="button" className="color-reset-btn" onClick={() => { setNewGaId(''); setIsDirty(true); }} title="Disable GA">
+                      <RotateCcw size={13} />
+                    </button>
+                  )}
+                </div>
+                {newGaId && (
+                  <p style={{ fontSize: '0.75rem', color: '#10b981', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Check size={12} /> GA4 active — tracking ID: <strong>{newGaId}</strong>
                   </p>
                 )}
               </div>
