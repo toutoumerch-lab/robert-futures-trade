@@ -8,7 +8,6 @@ import { ToastProvider } from './context/ToastContext';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import PromotionBanner from './components/layout/PromotionBanner';
-import CursorGlow    from './components/common/CursorGlow';
 import ScrollProgress from './components/common/ScrollProgress';
 
 // Pages
@@ -51,7 +50,6 @@ const AppContent = () => {
   const location = useLocation();
   return (
     <div className="app-container">
-      <CursorGlow />
       <ScrollProgress />
       <Navbar />
       <PromotionBanner />

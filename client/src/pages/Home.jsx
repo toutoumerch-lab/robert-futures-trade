@@ -320,16 +320,9 @@ const Home = () => {
             </motion.p>
 
             {/* CTAs */}
-            <motion.div variants={itemVariants} style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-              <Link to="/courses" className="btn btn-primary" style={{ padding: '1rem 2.5rem', fontSize: '1.05rem' }}>
-                Scale Your Skills <ArrowRight size={16} />
-              </Link>
-              <Link
-                to="/prop-firms"
-                className="btn btn-outline"
-                style={{ padding: '1rem 2.5rem', fontSize: '1.05rem' }}
-              >
-                Compare Firms
+            <motion.div variants={itemVariants} style={{ display: 'flex', justifyContent: 'center' }}>
+              <Link to="/prop-firms" className="btn-hero-glow">
+                Compare Firms <ArrowRight size={17} />
               </Link>
             </motion.div>
 
