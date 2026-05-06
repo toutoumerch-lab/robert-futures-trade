@@ -123,6 +123,9 @@ export const BrandingProvider = ({ children }) => {
   // Contact email
   const [contactEmail, setContactEmail] = useState(() => localStorage.getItem('branding_contact_email') || 'admin@roberttrades.com');
 
+  // Google Analytics
+  const [gaTrackingId, setGaTrackingId] = useState(() => localStorage.getItem('branding_ga_id') || '');
+
   const [loading, setLoading] = useState(true);
 
   const fetchSettings = async () => {
@@ -198,6 +201,12 @@ export const BrandingProvider = ({ children }) => {
       setAndCache(setYoutubeSubscribeUrl, 'branding_yt_subscribe', d.youtube_subscribe_url || 'https://www.youtube.com/@RobertFuturesTrades?sub_confirmation=1');
       setAndCache(setContactEmail,        'branding_contact_email', d.contact_email        || 'admin@roberttrades.com');
 
+      // — Google Analytics
+      const gaId = d.ga_tracking_id || '';
+      setGaTrackingId(gaId);
+      if (gaId) { localStorage.setItem('branding_ga_id', gaId); }
+      else { localStorage.removeItem('branding_ga_id'); }
+
     } catch (error) {
       console.error('Error fetching branding settings:', error);
     } finally {
@@ -208,6 +217,21 @@ export const BrandingProvider = ({ children }) => {
   useEffect(() => {
     if (siteName) document.title = siteName;
   }, [siteName]);
+
+  useEffect(() => {
+    document.getElementById('ga-script')?.remove();
+    document.getElementById('ga-inline')?.remove();
+    if (!gaTrackingId) return;
+    const s = document.createElement('script');
+    s.id = 'ga-script';
+    s.async = true;
+    s.src = `https://www.googletagmanager.com/gtag/js?id=${gaTrackingId}`;
+    document.head.appendChild(s);
+    const inline = document.createElement('script');
+    inline.id = 'ga-inline';
+    inline.text = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaTrackingId}');`;
+    document.head.appendChild(inline);
+  }, [gaTrackingId]);
 
   useEffect(() => {
     // Apply cached values immediately before API loads
@@ -325,6 +349,8 @@ export const BrandingProvider = ({ children }) => {
       youtubeWatchUrl, youtubeSubscribeUrl,
       // Contact
       contactEmail,
+      // Analytics
+      gaTrackingId,
     }}>
       {children}
     </BrandingContext.Provider>

@@ -141,6 +141,16 @@ const updateSettings = async (req, res) => {
       }
     }
 
+    // \u2014 Google Analytics Tracking ID (clearable)
+    if (req.body.ga_tracking_id !== undefined) {
+      const val = req.body.ga_tracking_id;
+      if (val === '' || val === null) {
+        await remove('ga_tracking_id');
+      } else {
+        await upsert('ga_tracking_id', val);
+      }
+    }
+
     res.json({ message: 'Settings updated successfully' });
   } catch (error) {
     console.error('Error updating settings:', error);
