@@ -206,6 +206,10 @@ export const BrandingProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    if (siteName) document.title = siteName;
+  }, [siteName]);
+
+  useEffect(() => {
     // Apply cached values immediately before API loads
     const cachedFavicon = localStorage.getItem('branding_site_favicon');
     if (cachedFavicon) applyFavicon(cachedFavicon);
