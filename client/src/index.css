@@ -6497,33 +6497,35 @@ input:focus, textarea:focus, select:focus {
   padding: 1rem 2.75rem;
   font-size: 1.08rem;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
   border-radius: 50px;
   border: none;
   text-decoration: none;
   color: #fff;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 60%, #a855f7 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 50%, #3b82f6 100%);
   box-shadow:
-    0 0 18px rgba(99,102,241,0.55),
-    0 0 40px rgba(139,92,246,0.35),
-    0 4px 24px rgba(99,102,241,0.4);
-  animation: heroGlowPulse 2.8s ease-in-out infinite;
+    0 0 20px rgba(14,165,233,0.7),
+    0 0 50px rgba(37,99,235,0.45),
+    0 4px 28px rgba(59,130,246,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.15);
+  animation: heroGlowPulse 2.4s ease-in-out infinite;
   transition: transform 0.28s cubic-bezier(0.16,1,0.3,1), box-shadow 0.28s cubic-bezier(0.16,1,0.3,1);
   cursor: pointer;
 }
 .btn-hero-glow:hover {
-  transform: translateY(-3px) scale(1.04);
+  transform: translateY(-4px) scale(1.05);
   box-shadow:
-    0 0 28px rgba(99,102,241,0.75),
-    0 0 60px rgba(139,92,246,0.5),
-    0 8px 32px rgba(99,102,241,0.55);
+    0 0 35px rgba(14,165,233,0.95),
+    0 0 80px rgba(37,99,235,0.65),
+    0 10px 40px rgba(59,130,246,0.7),
+    inset 0 1px 0 rgba(255,255,255,0.2);
   animation-play-state: paused;
   color: #fff;
   text-decoration: none;
 }
 @keyframes heroGlowPulse {
-  0%, 100% { box-shadow: 0 0 18px rgba(99,102,241,0.55), 0 0 40px rgba(139,92,246,0.35), 0 4px 24px rgba(99,102,241,0.4); }
-  50%       { box-shadow: 0 0 30px rgba(99,102,241,0.8), 0 0 60px rgba(139,92,246,0.55), 0 6px 32px rgba(99,102,241,0.6); }
+  0%, 100% { box-shadow: 0 0 20px rgba(14,165,233,0.7), 0 0 50px rgba(37,99,235,0.45), 0 4px 28px rgba(59,130,246,0.5), inset 0 1px 0 rgba(255,255,255,0.15); }
+  50%       { box-shadow: 0 0 35px rgba(14,165,233,0.95), 0 0 75px rgba(37,99,235,0.65), 0 6px 40px rgba(59,130,246,0.7), inset 0 1px 0 rgba(255,255,255,0.2); }
 }
 
 /* ── Shimmer on loading cards ── */
