@@ -9,7 +9,7 @@ const API = import.meta.env.VITE_API_URL;
 const PLATFORMS = [
   'NinjaTrader', 'Tradovate', 'TradingView', 'Rithmic', 'Quantower',
   'TradeStation', 'Sierra Chart', 'ATAS', 'Bookmap', 'MetaTrader 4',
-  'MetaTrader 5', 'cTrader', 'Webull', 'Interactive Brokers',
+  'MetaTrader 5', 'cTrader', 'Webull', 'Interactive Brokers','MotiveWave', 'Jigsaw','R|Trader Pro','Multicharts' 
 ];
 
 const SIZE_PRESETS = ['10K', '25K', '50K', '100K', '150K', '200K', '250K', '300K'];
