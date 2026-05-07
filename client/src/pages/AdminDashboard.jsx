@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';
 import BrandingManager from '../components/admin/BrandingManager';
+import PropFirmFormModal from '../components/admin/PropFirmFormModal';
 import MultiSelect from '../components/common/MultiSelect';
 import Toggle from '../components/common/Toggle';
 import {
@@ -1472,54 +1473,6 @@ const PropFirmsTab = () => {
     return g ? g.image_url : null;
   };
 
-  // ── Firm-level fields (shared across all plan sizes)
-  const firmInitialState = {
-    name: '', importance: 'Medium', featured: false, rating: '', website: '', affiliate_link: '',
-    twitter: '', discord: '', last_checked: '', is_affiliate: false,
-    discount_code: '', overall_score: '', platforms: [], account_category: '',
-    status_color: 'green', copy_trade: false, vpn: false,
-    notes: '', logo_url: '', imageFile: null, group_name: '',
-    dca: false, news: false, bots: false, micro_scalping: false,
-  };
-
-  // ── Per-plan-size fields
-  const makePlanSize = () => ({
-    _key: Date.now() + Math.random(),
-    plan_size: '', price: '', activation_fee: '', reset_fee: '',
-    profit_target: '', profit_split: '', drawdown_limit: '', dll: '',
-    max_withdrawal: '', days_to_pass: '', days_to_payout: '',
-    eval: '', pa: '', max_accounts: '',
-    buffer: false, buffer_amount: '',
-    fifty_k_all_in: '', fifty_k_initial_cost: '',
-    without_discount_usd: '', discount_usd: '', discount_percent: '',
-  });
-
-  const [firmData, setFirmData] = useState(firmInitialState);
-  const [planName, setPlanName] = useState('');
-  const [planSizes, setPlanSizes] = useState([makePlanSize()]);
-
-  const updatePlan = (idx, patch) =>
-    setPlanSizes(prev => prev.map((ps, i) => {
-      if (i !== idx) return ps;
-      const merged = { ...ps, ...patch };
-      // Auto-calculate derived fields whenever relevant inputs change
-      const withoutDisc = parseFloat(merged.without_discount_usd) || 0;
-      const discPct     = parseFloat(merged.discount_percent) || 0;
-      const actFee      = parseFloat(merged.activation_fee) || 0;
-      if (withoutDisc > 0) {
-        const discUsd = +(withoutDisc * discPct / 100).toFixed(2);
-        const price   = +(withoutDisc - discUsd).toFixed(2);
-        const allIn   = +(price + actFee).toFixed(2);
-        return {
-          ...merged,
-          discount_usd:         String(discUsd),
-          price:                String(price),
-          fifty_k_all_in:       String(allIn),
-          fifty_k_initial_cost: String(price),
-        };
-      }
-      return merged;
-    }));
 
   const fetchFirms = useCallback(() => {
     setLoading(true);
@@ -1541,45 +1494,11 @@ const PropFirmsTab = () => {
 
   const openCreate = () => {
     setEditing(null);
-    setFirmData(firmInitialState);
-    setPlanName('');
-    setPlanSizes([makePlanSize()]);
     setShowModal(true);
   };
 
   const openEdit = (f) => {
     setEditing(f);
-    setFirmData({
-      name: f.name || '', importance: f.importance || 'Medium', featured: f.featured || false,
-      rating: f.rating || '', website: f.website || '', affiliate_link: f.affiliate_link || '',
-      twitter: f.twitter || '', discord: f.discord || '',
-      last_checked: f.last_checked ? new Date(f.last_checked).toISOString().split('T')[0] : '',
-      is_affiliate: f.is_affiliate || false,
-      discount_code: f.discount_code || '', overall_score: f.overall_score || '',
-      platforms: Array.isArray(f.platforms) ? f.platforms : [], account_category: f.account_category || '',
-      status_color: f.status_color || 'green',
-      copy_trade: !!f.copy_trade, vpn: !!f.vpn,
-      notes: f.notes || '', logo_url: f.logo_url || '', imageFile: null,
-      group_name: f.group_name || '',
-      dca: f.dca || false, news: f.news || false, bots: f.bots || false, micro_scalping: f.micro_scalping || false,
-    });
-    setPlanName(f.plan_name || '');
-    setPlanSizes([{
-      _key: Date.now(),
-      plan_size: f.plan_size || '',
-      price: f.price || '',
-      activation_fee: f.activation_fee || '',
-      reset_fee: f.reset_fee != null ? String(f.reset_fee) : '',
-      profit_target: f.profit_target || '', profit_split: f.profit_split || '',
-      drawdown_limit: f.drawdown_limit || '', dll: f.dll || '',
-      max_withdrawal: f.max_withdrawal || '', days_to_pass: f.days_to_pass || '',
-      days_to_payout: f.days_to_payout || '', eval: f.eval || '', pa: f.pa || '',
-      max_accounts: f.max_accounts || '',
-      buffer: !!f.buffer, buffer_amount: f.buffer_amount != null ? String(f.buffer_amount) : '',
-      fifty_k_all_in: f.fifty_k_all_in || '', fifty_k_initial_cost: f.fifty_k_initial_cost || '',
-      without_discount_usd: f.without_discount_usd || '', discount_usd: f.discount_usd || '',
-      discount_percent: f.discount_percent || '',
-    }]);
     setShowModal(true);
   };
 
@@ -1597,7 +1516,7 @@ const PropFirmsTab = () => {
         const data = XLSX.utils.sheet_to_json(ws);
         
         const mappedData = data.map(row => {
-          const mapped = { ...firmInitialState, price: '', activation_fee: '', profit_split: '', max_withdrawal: '', profit_target: '', drawdown_limit: '', days_to_pass: '', days_to_payout: '', reset_fee: '', eval: '', pa: '', dll: '', max_accounts: '', fifty_k_all_in: '', fifty_k_initial_cost: '', without_discount_usd: '', discount_usd: '', discount_percent: '' };
+          const mapped = { name: '', importance: 'Medium', featured: false, rating: '', website: '', affiliate_link: '', twitter: '', discord: '', last_checked: '', is_affiliate: false, discount_code: '', overall_score: '', platforms: [], account_category: '', status_color: 'green', copy_trade: false, vpn: false, notes: '', logo_url: '', imageFile: null, group_name: '', dca: false, news: false, bots: false, micro_scalping: false, price: '', activation_fee: '', profit_split: '', max_withdrawal: '', profit_target: '', drawdown_limit: '', days_to_pass: '', days_to_payout: '', reset_fee: '', eval: '', pa: '', dll: '', max_accounts: '', fifty_k_all_in: '', fifty_k_initial_cost: '', without_discount_usd: '', discount_usd: '', discount_percent: '' };
           for (const key in row) {
             const k = key.toLowerCase().trim();
             if (k.includes('name')) mapped.name = row[key];
@@ -1628,42 +1547,6 @@ const PropFirmsTab = () => {
     }
   };
 
-  const handleSave = async (e) => {
-    e.preventDefault();
-
-    const buildFormData = (ps) => {
-      const fd = new FormData();
-      Object.keys(firmData).forEach(key => {
-        if (key === 'platforms') fd.append(key, JSON.stringify(firmData[key]));
-        else if (key === 'imageFile') { if (firmData[key] instanceof File) fd.append('logo', firmData[key]); }
-        else fd.append(key, firmData[key] ?? '');
-      });
-      fd.append('plan_name', planName);
-      Object.keys(ps).forEach(key => {
-        if (key === '_key') return;
-        fd.append(key, ps[key] ?? '');
-      });
-      return fd;
-    };
-
-    try {
-      if (editing) {
-        await axios.put(`${import.meta.env.VITE_API_URL}/api/prop-firms/${editing.id}`, buildFormData(planSizes[0]));
-      } else {
-        for (const ps of planSizes) {
-          await axios.post(`${import.meta.env.VITE_API_URL}/api/prop-firms`, buildFormData(ps));
-        }
-      }
-      setShowModal(false);
-      fetchFirms();
-      axios.get(`${import.meta.env.VITE_API_URL}/api/prop-firms/groups`)
-        .then(res => setAvailableGroups(res.data))
-        .catch(console.error);
-    } catch (err) {
-      console.error("API Save Error:", err);
-      alert('Failed to save: ' + (err.response?.data?.message || err.message || 'Unknown error'));
-    }
-  };
 
 
   const deleteFirm = async (id) => {
@@ -1950,194 +1833,17 @@ const PropFirmsTab = () => {
         )}
       </div>
       {showModal && (
-        <Modal title={editing ? `Edit: ${firmData.name || 'Prop Firm'}` : 'Add New Prop Firm'} onClose={() => setShowModal(false)} style={{ maxWidth: '1200px', width: '95vw' }}>
-          <form onSubmit={handleSave} className="modal-form" style={{ position: 'relative' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem', alignItems: 'start' }}>
-
-              {/* ── LEFT COLUMN ── */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-
-              {/* ── LEVEL 1: PROP FIRM ── */}
-              <div className="form-section" style={{ border: '2px solid rgba(37,99,235,0.25)', borderRadius: '14px', padding: '1.25rem', background: 'rgba(37,99,235,0.03)' }}>
-                <h3 className="form-section-title" style={{ color: '#2563eb', marginBottom: '1rem' }}>
-                  <Building2 size={18} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '8px' }} />
-                  Prop Firm
-                </h3>
-
-                {/* Logo */}
-                <div className="form-group" style={{ border: '2px dashed var(--border-color)', borderRadius: 'var(--radius)', padding: '1.25rem', textAlign: 'center', position: 'relative', overflow: 'hidden', marginBottom: '1rem' }}>
-                  <label className="form-label" style={{ marginBottom: '0.75rem', display: 'block' }}>Logo (SVG, PNG, JPG, WebP)</label>
-                  {(firmData.imageFile || firmData.logo_url) ? (
-                    <div style={{ position: 'relative', width: '100px', height: '100px', margin: '0 auto 0.75rem', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <img src={firmData.imageFile ? URL.createObjectURL(firmData.imageFile) : `${import.meta.env.VITE_API_URL}${firmData.logo_url}`} alt="Logo" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
-                      <button type="button" onClick={() => setFirmData({ ...firmData, imageFile: null, logo_url: '' })} style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '50%', width: '22px', height: '22px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={11} /></button>
-                    </div>
-                  ) : (
-                    <div style={{ margin: '0.5rem 0', pointerEvents: 'none' }}>
-                      <svg style={{ width: '40px', height: '40px', color: 'var(--text-secondary)', margin: '0 auto 0.5rem' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                      <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Click to upload</p>
-                    </div>
-                  )}
-                  <input type="file" accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml" onChange={e => { if (e.target.files?.[0]) setFirmData({ ...firmData, imageFile: e.target.files[0] }); }} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} />
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                  <Field label="Firm Name (required)" required value={firmData.name} onChange={e => setFirmData({ ...firmData, name: e.target.value })} placeholder="e.g. FTMO" />
-                  <div className="form-group">
-                    <label className="form-label">Status</label>
-                    <select className="input" value={firmData.status_color} onChange={e => setFirmData({ ...firmData, status_color: e.target.value })}>
-                      <option value="green">● Green (Top Ranked)</option>
-                      <option value="blue">● Blue (Community Trusted)</option>
-                      <option value="yellow">● Yellow (New / Building Trust)</option>
-                      <option value="red">● Red (Avoid / Possible Scam)</option>
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Group Name</label>
-                    <input className="input" list="group-name-list" value={firmData.group_name} onChange={e => setFirmData({ ...firmData, group_name: e.target.value })} placeholder="Select or type a group..." />
-                    <datalist id="group-name-list">{availableGroups.map(g => <option key={g.name} value={g.name} />)}</datalist>
-                  </div>
-                  <Field label="Account Category" value={firmData.account_category} onChange={e => setFirmData({ ...firmData, account_category: e.target.value })} placeholder="e.g. Futures, Forex" />
-                  <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                    <label className="form-label">Supported Platforms</label>
-                    <MultiSelect options={availablePlatforms} value={firmData.platforms} onChange={v => setFirmData({ ...firmData, platforms: v })} placeholder="Select or type to add..." />
-                  </div>
-                  <Field label="Overall Score" type="number" step="0.1" value={firmData.overall_score} onChange={e => setFirmData({ ...firmData, overall_score: e.target.value })} placeholder="e.g. 9.5" />
-                  <Field label="Rating (Trustpilot)" type="number" step="0.1" value={firmData.rating} onChange={e => setFirmData({ ...firmData, rating: e.target.value })} placeholder="e.g. 4.8" />
-                  <Field label="Discount Code" value={firmData.discount_code} onChange={e => setFirmData({ ...firmData, discount_code: e.target.value })} placeholder="e.g. SAVE20" />
-                  <Field label="Website URL" type="url" value={firmData.website} onChange={e => setFirmData({ ...firmData, website: e.target.value })} placeholder="https://..." />
-                </div>
-
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '1rem' }}>
-                  <Toggle label="Featured" checked={firmData.featured} onChange={v => setFirmData({ ...firmData, featured: v })} />
-                  <Toggle label="Is Affiliate" checked={firmData.is_affiliate} onChange={v => setFirmData({ ...firmData, is_affiliate: v })} />
-                  <Toggle label="Copy Trade" checked={firmData.copy_trade} onChange={v => setFirmData({ ...firmData, copy_trade: v })} />
-                  <Toggle label="VPN" checked={firmData.vpn} onChange={v => setFirmData({ ...firmData, vpn: v })} />
-                  <Toggle label="DCA" checked={firmData.dca} onChange={v => setFirmData({ ...firmData, dca: v })} />
-                  <Toggle label="News Trading" checked={firmData.news} onChange={v => setFirmData({ ...firmData, news: v })} />
-                  <Toggle label="Bots" checked={firmData.bots} onChange={v => setFirmData({ ...firmData, bots: v })} />
-                  <Toggle label="MicroScalping" checked={firmData.micro_scalping} onChange={v => setFirmData({ ...firmData, micro_scalping: v })} />
-                </div>
-                <div style={{ marginTop: '0.75rem' }}>
-                  <Field label="Administrative Notes" as="textarea" value={firmData.notes} onChange={e => setFirmData({ ...firmData, notes: e.target.value })} placeholder="Internal notes..." />
-                </div>
-              </div>
-              </div>{/* end left column */}
-
-              {/* ── RIGHT COLUMN ── */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-
-              {/* ── LEVEL 2: PLAN NAME ── */}
-              <div className="form-section" style={{ border: '2px solid rgba(16,185,129,0.25)', borderRadius: '14px', padding: '1.25rem', background: 'rgba(16,185,129,0.03)' }}>
-                <h3 className="form-section-title" style={{ color: '#10b981', marginBottom: '1rem' }}>
-                  <Layers size={18} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '8px' }} />
-                  Plan Name
-                </h3>
-                <Field label="Plan Name" value={planName} onChange={e => setPlanName(e.target.value)} placeholder="e.g. 2-Step Evaluation, Instant Funding, 1-Step..." />
-              </div>
-
-              {/* ── LEVEL 3: PLAN SIZES ── */}
-              <div className="form-section" style={{ border: '2px solid rgba(245,158,11,0.25)', borderRadius: '14px', padding: '1.25rem', background: 'rgba(245,158,11,0.02)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                  <h3 className="form-section-title" style={{ color: '#f59e0b', margin: 0 }}>
-                    <DollarSign size={18} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '8px' }} />
-                    Plan Sizes
-                    <span style={{ marginLeft: '8px', background: 'rgba(245,158,11,0.15)', color: '#f59e0b', padding: '2px 10px', borderRadius: '99px', fontSize: '0.72rem', fontWeight: 800 }}>{planSizes.length}</span>
-                  </h3>
-                  <button type="button" onClick={() => setPlanSizes(prev => [...prev, makePlanSize()])} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(245,158,11,0.1)', color: '#f59e0b', border: '1px dashed rgba(245,158,11,0.4)', borderRadius: '8px', padding: '0.4rem 0.85rem', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}>
-                    <Plus size={14} /> Add Plan Size
-                  </button>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {planSizes.map((ps, idx) => (
-                    <div key={ps._key} style={{ border: '1px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden', background: 'var(--bg-primary)' }}>
-                      {/* Plan Size Header */}
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.7rem 1rem', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                          <span style={{ background: 'rgba(245,158,11,0.15)', color: '#f59e0b', width: '26px', height: '26px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.78rem', flexShrink: 0 }}>{idx + 1}</span>
-                          <input
-                            className="input"
-                            style={{ width: '140px', fontWeight: 800, fontSize: '0.95rem' }}
-                            placeholder="Size (e.g. 50K)"
-                            value={ps.plan_size}
-                            onChange={e => updatePlan(idx, { plan_size: e.target.value })}
-                          />
-                        </div>
-                        {planSizes.length > 1 && (
-                          <button type="button" onClick={() => setPlanSizes(prev => prev.filter((_, i) => i !== idx))} style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#ef4444', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', padding: '0.3rem 0.6rem', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 700 }}>
-                            <Trash2 size={12} /> Remove
-                          </button>
-                        )}
-                      </div>
-
-                      {/* Plan Size Fields */}
-                      <div style={{ padding: '1rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '0.75rem' }}>
-                        {/* ── Admin fills these 3 ── */}
-                        <Field label="Without Discount (USD)" type="number" value={ps.without_discount_usd} onChange={e => updatePlan(idx, { without_discount_usd: e.target.value })} placeholder="e.g. 199" />
-                        <Field label="Discount (%)" type="number" value={ps.discount_percent} onChange={e => updatePlan(idx, { discount_percent: e.target.value })} placeholder="e.g. 15" />
-                        <Field label="Activation Fee" type="number" value={ps.activation_fee} onChange={e => updatePlan(idx, { activation_fee: e.target.value })} placeholder="e.g. 140" />
-                        <Field label="Reset Fee" type="text" value={ps.reset_fee} onChange={e => updatePlan(idx, { reset_fee: e.target.value })} placeholder="e.g. 50" />
-                        {/* ── Auto-calculated (read-only) ── */}
-                        <div className="form-group">
-                          <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            Discount (USD) <span style={{ fontSize: '0.7rem', background: 'rgba(16,185,129,0.12)', color: '#10b981', padding: '1px 6px', borderRadius: '99px', fontWeight: 700 }}>auto</span>
-                          </label>
-                          <input className="input" readOnly value={ps.discount_usd || '—'} style={{ opacity: 0.6, cursor: 'not-allowed', background: 'var(--bg-tertiary)' }} />
-                        </div>
-                        <div className="form-group">
-                          <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            Price (USD) <span style={{ fontSize: '0.7rem', background: 'rgba(16,185,129,0.12)', color: '#10b981', padding: '1px 6px', borderRadius: '99px', fontWeight: 700 }}>auto</span>
-                          </label>
-                          <input className="input" readOnly value={ps.price || '—'} style={{ opacity: 0.6, cursor: 'not-allowed', background: 'var(--bg-tertiary)' }} />
-                        </div>
-                        <div className="form-group">
-                          <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            All In (USD) <span style={{ fontSize: '0.7rem', background: 'rgba(16,185,129,0.12)', color: '#10b981', padding: '1px 6px', borderRadius: '99px', fontWeight: 700 }}>auto</span>
-                          </label>
-                          <input className="input" readOnly value={ps.fifty_k_all_in || '—'} style={{ opacity: 0.6, cursor: 'not-allowed', background: 'var(--bg-tertiary)' }} />
-                        </div>
-                        <div className="form-group">
-                          <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            Initial Cost (USD) <span style={{ fontSize: '0.7rem', background: 'rgba(16,185,129,0.12)', color: '#10b981', padding: '1px 6px', borderRadius: '99px', fontWeight: 700 }}>auto</span>
-                          </label>
-                          <input className="input" readOnly value={ps.fifty_k_initial_cost || '—'} style={{ opacity: 0.6, cursor: 'not-allowed', background: 'var(--bg-tertiary)' }} />
-                        </div>
-                        <Field label="Profit Target" value={ps.profit_target} onChange={e => updatePlan(idx, { profit_target: e.target.value })} placeholder="e.g. $4,000" />
-                        <Field label="Profit Split" value={ps.profit_split} onChange={e => updatePlan(idx, { profit_split: e.target.value })} placeholder="e.g. 90%" />
-                        <Field label="Drawdown & Amt" value={ps.drawdown_limit} onChange={e => updatePlan(idx, { drawdown_limit: e.target.value })} placeholder="e.g. EOD, $2,000" />
-                        <Field label="DLL (Daily Loss Limit)" value={ps.dll} onChange={e => updatePlan(idx, { dll: e.target.value })} placeholder="e.g. $1,200" />
-                        <Field label="Max Withdrawal" value={ps.max_withdrawal} onChange={e => updatePlan(idx, { max_withdrawal: e.target.value })} placeholder="e.g. (1-6) $2,000" />
-                        <Field label="Days to Pass" value={ps.days_to_pass} onChange={e => updatePlan(idx, { days_to_pass: e.target.value })} placeholder="e.g. N/A" />
-                        <Field label="Days to Payout" value={ps.days_to_payout} onChange={e => updatePlan(idx, { days_to_payout: e.target.value })} placeholder="e.g. 14" />
-                        <Field label="Eval (%)" value={ps.eval} onChange={e => updatePlan(idx, { eval: e.target.value })} placeholder="e.g. 1 Step" />
-                        <Field label="PA (%)" value={ps.pa} onChange={e => updatePlan(idx, { pa: e.target.value })} placeholder="e.g. Trailing" />
-                        <Field label="Max Accounts" value={ps.max_accounts} onChange={e => updatePlan(idx, { max_accounts: e.target.value })} placeholder="e.g. 20" />
-                        <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-                          <Toggle label="Buffer Support" checked={ps.buffer} onChange={v => updatePlan(idx, { buffer: v, buffer_amount: v ? ps.buffer_amount : '' })} />
-                          {ps.buffer && (
-                            <div style={{ flex: 1, minWidth: '200px' }}>
-                              <Field label="Buffer Amount" value={ps.buffer_amount} onChange={e => updatePlan(idx, { buffer_amount: e.target.value })} placeholder="e.g. $1000 or 10%" required />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              </div>{/* end right column */}
-
-            </div>{/* end grid */}
-
-            <div className="modal-footer" style={{ position: 'sticky', bottom: '-24px', background: 'var(--bg-secondary)', zIndex: 100, marginTop: '1.5rem', paddingTop: '1rem', paddingBottom: '1rem', borderTop: '1px solid var(--border)' }}>
-              <Button type="button" variant="outline" onClick={() => setShowModal(false)}>Cancel</Button>
-              <Button type="submit">
-                {editing ? 'Save Changes' : planSizes.length > 1 ? `Add ${planSizes.length} Plans` : 'Add Firm'}
-              </Button>
-            </div>
-          </form>
-        </Modal>
+        <PropFirmFormModal
+          editing={editing}
+          availableGroups={availableGroups}
+          onClose={() => setShowModal(false)}
+          onSaved={() => {
+            fetchFirms();
+            axios.get(`${import.meta.env.VITE_API_URL}/api/prop-firms/groups`)
+              .then(res => setAvailableGroups(res.data))
+              .catch(console.error);
+          }}
+        />
       )}
       {importPreview && (
         <Modal title="Import Preview" onClose={() => setImportPreview(null)}>
