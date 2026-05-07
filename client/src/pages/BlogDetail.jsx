@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import SEO from '../components/common/SEO';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -148,6 +149,23 @@ const BlogDetail = () => {
 
   return (
     <>
+      <SEO
+        title={post.title}
+        description={post.content ? post.content.slice(0, 155).replace(/\n/g, ' ') + '…' : undefined}
+        url={`/blog/${id}`}
+        image={post.image_url ? `https://roberttrades.com${post.image_url}` : undefined}
+        type="article"
+        structuredData={{
+          '@context': 'https://schema.org',
+          '@type': 'BlogPosting',
+          headline: post.title,
+          url: `https://roberttrades.com/blog/${id}`,
+          datePublished: post.created_at,
+          author: { '@type': 'Organization', name: 'Robert Trades' },
+          description: post.content ? post.content.slice(0, 155) : '',
+          image: post.image_url ? `https://roberttrades.com${post.image_url}` : undefined,
+        }}
+      />
       {/* ── Reading progress bar ─────────────────────────────────────────── */}
       <div className="reading-progress-bar" style={{ width: `${scrollPct}%` }} />
 

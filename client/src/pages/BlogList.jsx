@@ -1,6 +1,7 @@
 import React, {
   useState, useEffect, useCallback, useRef, useMemo,
 } from 'react';
+import SEO from '../components/common/SEO';
 import { Link, useNavigate }      from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios                       from 'axios';
@@ -338,6 +339,18 @@ const BlogList = () => {
 
   return (
     <div className="blg-page">
+      <SEO
+        title="Trading Blog — Tips, Strategies & Market Insights"
+        description="Read the latest futures trading articles, prop firm news, and strategy guides from Robert Trades."
+        url="/blog"
+        structuredData={{
+          '@context': 'https://schema.org',
+          '@type': 'Blog',
+          name: 'Robert Trades Blog',
+          url: 'https://roberttrades.com/blog',
+          description: 'Futures trading tips, strategies, and prop firm insights.',
+        }}
+      />
       <div className="container">
 
         {/* ── PAGE HEADER ──────────────────────────────────────── */}

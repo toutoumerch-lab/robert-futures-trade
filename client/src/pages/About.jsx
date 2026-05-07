@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import SEO from '../components/common/SEO';
 import { Link } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import axios from 'axios';
@@ -228,6 +229,11 @@ export default function About() {
 
   return (
     <div style={{ background: 'var(--bg-primary)', minHeight: '100vh', overflowX: 'hidden' }}>
+      <SEO
+        title="About Robert Trades"
+        description="Learn about Robert Trades — the story, the mission, and the team behind the #1 futures trading education platform for serious traders."
+        url="/about"
+      />
 
       {/* ══ HERO ══════════════════════════════════════════════════ */}
       <section style={{ position: 'relative', padding: '7rem 0 6rem', overflow: 'hidden' }}>

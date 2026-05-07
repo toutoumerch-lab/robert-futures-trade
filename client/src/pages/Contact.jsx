@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import SEO from '../components/common/SEO';
 import { motion, useInView } from 'framer-motion';
 import axios from 'axios';
 import { useBranding } from '../context/BrandingContext';
@@ -219,6 +220,11 @@ export default function Contact() {
 
   return (
     <div style={{ background: 'var(--bg-primary)', minHeight: '100vh', overflowX: 'hidden' }}>
+      <SEO
+        title="Contact Us"
+        description="Get in touch with the Robert Trades team. We're here to help with courses, prop firm questions, and anything trading-related."
+        url="/contact"
+      />
 
       {/* ══ HERO ══════════════════════════════════════════════════ */}
       <section style={{ position: 'relative', padding: '7rem 0 5rem', overflow: 'hidden' }}>

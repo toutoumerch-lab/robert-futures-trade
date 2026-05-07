@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import SEO from '../components/common/SEO';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
@@ -265,6 +266,17 @@ const CourseList = () => {
 
   return (
     <div>
+      <SEO
+        title="Futures Trading Courses — Learn to Trade Like a Pro"
+        description="Explore Robert Trades' futures trading courses. From beginner fundamentals to advanced strategies — step-by-step video lessons built for results."
+        url="/courses"
+        structuredData={{
+          '@context': 'https://schema.org',
+          '@type': 'ItemList',
+          name: 'Futures Trading Courses by Robert Trades',
+          url: 'https://roberttrades.com/courses',
+        }}
+      />
       {/* ── Hero Banner ──────────────────────────────────────────── */}
       <section className="page-hero" style={{ padding: '6rem 0', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(180deg, rgba(37,99,235,0.05) 0%, transparent 100%)', zIndex: 0 }} />

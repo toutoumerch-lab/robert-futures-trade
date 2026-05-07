@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import SEO from '../components/common/SEO';
 import { motion, useInView, useAnimation } from 'framer-motion';
 import Card from '../components/common/Card';
 import Reveal from '../components/common/Reveal';
@@ -217,6 +218,18 @@ const Home = () => {
 
   return (
     <div style={{ overflow: 'hidden' }}>
+      <SEO
+        url="/"
+        type="website"
+        structuredData={{
+          '@context': 'https://schema.org',
+          '@type': 'Organization',
+          name: 'Robert Trades',
+          url: 'https://roberttrades.com',
+          description: 'Futures trading education, prop firm reviews, and trader community.',
+          sameAs: ['https://www.youtube.com/@RobertTrades'],
+        }}
+      />
 
       {/* ── Background Atmosphere — 2 static blobs, no JS ── */}
       <AnimatedBlob

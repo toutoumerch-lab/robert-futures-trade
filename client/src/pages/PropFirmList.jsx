@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import SEO from '../components/common/SEO';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
 import { LayoutGrid, List, Search, SlidersHorizontal, X, Star, ExternalLink, Copy, Check, Filter, Heart, GitCompareArrows, Zap, TrendingUp, ChevronDown, ChevronRight, Shield, DollarSign, Activity, Clock, Bot, Newspaper, Globe, BarChart3, Trophy, Gem, Tag, Ticket, Target, TrendingDown, Calendar, User, ClipboardList, Wrench, Lock, Banknote, Building2, FileText, Pencil, Landmark, ChevronUp, Settings, Timer } from 'lucide-react';
@@ -862,6 +863,18 @@ const PropFirmList = () => {
 
   return (
     <div>
+      <SEO
+        title="Prop Firm Reviews & Comparisons 2025 — Futures Trading"
+        description="Compare the best prop trading firms for futures traders. Unbiased reviews, pricing, rules, and discount codes — updated regularly by Robert Trades."
+        url="/prop-firms"
+        structuredData={{
+          '@context': 'https://schema.org',
+          '@type': 'ItemList',
+          name: 'Prop Firm Comparisons — Robert Trades',
+          url: 'https://roberttrades.com/prop-firms',
+          description: 'Unbiased prop firm reviews and comparisons for futures traders.',
+        }}
+      />
       {/* Hero */}
       <section className="page-hero">
         <div className="page-hero-bg" />

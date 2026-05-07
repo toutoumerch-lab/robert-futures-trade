@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import SEO from '../components/common/SEO';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -246,6 +247,22 @@ const CourseDetail = () => {
 
   return (
     <div style={{ padding: '0 0 6rem 0' }}>
+      {course && (
+        <SEO
+          title={course.title}
+          description={course.description ? course.description.slice(0, 155) + '…' : `Learn ${course.title} with Robert Trades. Step-by-step video lessons for futures traders.`}
+          url={`/courses/${id}`}
+          type="article"
+          structuredData={{
+            '@context': 'https://schema.org',
+            '@type': 'Course',
+            name: course.title,
+            description: course.description || '',
+            url: `https://roberttrades.com/courses/${id}`,
+            provider: { '@type': 'Organization', name: 'Robert Trades', url: 'https://roberttrades.com' },
+          }}
+        />
+      )}
        {/* Breadcrumbs Header */}
        <div style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', padding: '1.5rem 0' }}>
          <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
