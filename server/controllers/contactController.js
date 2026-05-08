@@ -66,18 +66,30 @@ const sendContactMessage = async (req, res) => {
     </div>
   `;
 
-  const result = await sendMail(
+  try {
+    // Save to database first to ensure the message is never lost even if email fails
+    await pool.query(
+      'INSERT INTO contact_messages (name, email, subject, message) VALUES ($1, $2, $3, $4)',
+      [name, email, subjectLabel, message]
+    );
+  } catch (dbErr) {
+    console.error('[Contact] Failed to save message to DB:', dbErr);
+    // Continue anyway to try sending the email
+  }
+
+  // Send email asynchronously in the background to prevent 504 Gateway Timeouts
+  sendMail(
     toEmail,
     `[Contact Form] ${subjectLabel} — from ${name}`,
     html,
-    { replyTo: email }   // reply goes directly to the person who filled the form
-  );
+    { replyTo: email }
+  ).then(result => {
+    if (!result.success) {
+      console.error('[Contact] Email send failed:', result.error?.message);
+    }
+  }).catch(err => console.error('[Contact] Unhandled email error:', err));
 
-  if (!result.success) {
-    console.error('[Contact] Email send failed:', result.error?.message);
-    return res.status(500).json({ error: 'Failed to send message. Please try again later.' });
-  }
-
+  // Return success immediately to the user
   res.json({ message: 'Message sent successfully.' });
 };
 
