@@ -104,15 +104,14 @@ const register = async (req, res) => {
       );
     }
 
-    // Send email via SMTP (as requested, Resend removed)
-    const mailResult = await sendMail(
-      email,
-      'Your verification code – Robert Trades',
-      otpEmailHtml(name, verificationCode)
-    );
+    // Send email via SMTP (as requested) with a timeout to prevent 504
+    const mailResult = await Promise.race([
+      sendMail(email, 'Your verification code – Robert Trades', otpEmailHtml(name, verificationCode)),
+      new Promise(resolve => setTimeout(() => resolve({ success: false, error: 'Network timeout' }), 8000))
+    ]);
 
     if (!mailResult.success) {
-      console.log(`\n=== [MAIL FAILURE] DEV OTP for ${email}: ${verificationCode} ===\n`);
+      console.log(`\n=== [SMTP MAIL FAILURE] DEV OTP for ${email}: ${verificationCode} (Error: ${mailResult.error}) ===\n`);
     }
 
     res.status(201).json({
