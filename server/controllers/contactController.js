@@ -93,4 +93,28 @@ const sendContactMessage = async (req, res) => {
   res.json({ message: 'Message sent successfully.' });
 };
 
-module.exports = { sendContactMessage };
+/* ── GET /api/contact/admin ── */
+const getContactMessages = async (_req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM contact_messages ORDER BY created_at DESC'
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('[Contact] Failed to fetch messages:', err);
+    res.status(500).json({ error: 'Failed to fetch messages.' });
+  }
+};
+
+/* ── DELETE /api/contact/admin/:id ── */
+const deleteContactMessage = async (req, res) => {
+  try {
+    await pool.query('DELETE FROM contact_messages WHERE id = $1', [req.params.id]);
+    res.json({ message: 'Deleted.' });
+  } catch (err) {
+    console.error('[Contact] Failed to delete message:', err);
+    res.status(500).json({ error: 'Failed to delete message.' });
+  }
+};
+
+module.exports = { sendContactMessage, getContactMessages, deleteContactMessage };

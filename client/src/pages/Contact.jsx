@@ -40,14 +40,6 @@ const CONTACT_CARDS_BASE = [
     action: null,       // filled dynamically from branding
   },
   {
-    icon: MessageSquare,
-    title: 'Discord Community',
-    value: 'Join the Server',
-    sub: '400+ active traders',
-    hue: '265',
-    action: null, // filled dynamically from branding
-  },
-  {
     icon: Clock,
     title: 'Support Hours',
     value: 'Mon – Fri, 9am – 6pm',
@@ -154,11 +146,8 @@ export default function Contact() {
 
   // Inject dynamic values into contact cards
   const CONTACT_CARDS = CONTACT_CARDS_BASE.map(card => {
-    if (card.title === 'Discord Community') {
-      return { ...card, action: socialDiscord || null };
-    }
     if (card.title === 'Email Us') {
-      const email = contactEmail || 'admin@roberttrades.com';
+      const email = contactEmail || 'support@roberttrades.com';
       return { ...card, value: email, action: `mailto:${email}` };
     }
     return card;

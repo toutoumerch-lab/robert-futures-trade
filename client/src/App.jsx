@@ -27,6 +27,7 @@ import CourseList from './pages/CourseList';
 import CourseDetail from './pages/CourseDetail';
 import CourseLearn from './pages/CourseLearn';
 import PropFirmList from './pages/PropFirmList';
+import PropFirmDetail from './pages/PropFirmDetail';
 import PaymentSuccess from './pages/PaymentSuccess';
 import About from './pages/About';
 import Contact from './pages/Contact';
@@ -74,7 +75,8 @@ const AppContent = () => {
             <Route path="/courses"        element={<PageWrapper><CourseList /></PageWrapper>} />
             <Route path="/courses/:id"    element={<PageWrapper><CourseDetail /></PageWrapper>} />
             <Route path="/course/:id/learn" element={<PageWrapper><CourseLearn /></PageWrapper>} />
-            <Route path="/prop-firms"     element={<PageWrapper><PropFirmList /></PageWrapper>} />
+            <Route path="/prop-firms"           element={<PageWrapper><PropFirmList /></PageWrapper>} />
+            <Route path="/prop-firms/:firmName" element={<PageWrapper><PropFirmDetail /></PageWrapper>} />
             <Route path="/about"           element={<PageWrapper><About /></PageWrapper>} />
             <Route path="/contact"         element={<PageWrapper><Contact /></PageWrapper>} />
             <Route path="/terms"           element={<PageWrapper><TermsOfService /></PageWrapper>} />

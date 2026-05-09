@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import SEO from '../components/common/SEO';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
@@ -715,7 +716,7 @@ const PropFirmList = () => {
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState('cost');
   const [viewLayout, setViewLayout] = useState(() => localStorage.getItem('pf_layout') || 'grid');
-  const [viewingFirm, setViewingFirm] = useState(null);
+  const navigate = useNavigate();
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -906,7 +907,7 @@ const PropFirmList = () => {
           <>
             {/* ── Toolbar ── */}
             <div className="pf-toolbar">
-              <SmartSearch firms={firms} searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSelectFirm={f => setViewingFirm(f)} />
+              <SmartSearch firms={firms} searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSelectFirm={f => navigate(`/prop-firms/${encodeURIComponent(f.name)}`)} />
 
               <div className="pf-sort-group">
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', fontWeight: 600 }}>Sort:</span>
@@ -1065,7 +1066,7 @@ const PropFirmList = () => {
 
                 {/* Results count */}
                 <div className="pf-filter-results">
-                  <span>{filtered.length}</span> of {firms.length} firms
+                  <span>{[...new Set(filtered.map(f => f.name))].length}</span> of {[...new Set(firms.map(f => f.name))].length} firms
                 </div>
               </div>
 
@@ -1079,10 +1080,25 @@ const PropFirmList = () => {
                     <button className="btn btn-outline mt-4" onClick={clearFilters}>Clear Filters</button>
                   </div>
                 ) : (() => {
-                  // Group sorted firms by group_name
+                  // Deduplicate by firm name — one card per firm (lowest price row as representative)
+                  const seenMap = new Map();
+                  sorted.forEach(f => {
+                    if (!seenMap.has(f.name)) {
+                      seenMap.set(f.name, f);
+                    } else {
+                      // Keep the row with the lowest effective price
+                      const prev = seenMap.get(f.name);
+                      const prevPrice = Number(prev.price || prev.fifty_k_initial_cost || 9999);
+                      const currPrice = Number(f.price || f.fifty_k_initial_cost || 9999);
+                      if (currPrice < prevPrice) seenMap.set(f.name, f);
+                    }
+                  });
+                  const dedupedSorted = Array.from(seenMap.values());
+
+                  // Group deduplicated firms by group_name
                   const groupMap = {};
                   const groupOrder = [];
-                  sorted.forEach(f => {
+                  dedupedSorted.forEach(f => {
                     const key = f.group_name || '__ungrouped__';
                     if (!groupMap[key]) { groupMap[key] = []; groupOrder.push(key); }
                     groupMap[key].push(f);
@@ -1093,7 +1109,7 @@ const PropFirmList = () => {
                       {firmsList.map((firm, i) => (
                         <div key={firm.id} style={{ animationDelay: `${(startIdx + i) * 0.05}s` }}>
                           <FirmGridCard
-                            firm={firm} onClick={() => { setViewingFirm(firm); trackClick(firm.id, 'view'); }}
+                            firm={firm} onClick={() => { trackClick(firm.id, 'view'); navigate(`/prop-firms/${encodeURIComponent(firm.name)}`); }}
                             isComparing={compareIds.includes(firm.id)} onToggleCompare={toggleCompare}
                             isFav={favorites.includes(firm.id)} onToggleFav={toggleFav}
                             compareDisabled={compareIds.length >= 4}
@@ -1107,7 +1123,7 @@ const PropFirmList = () => {
                       {firmsList.map((firm, i) => (
                         <div key={firm.id} style={{ animationDelay: `${(startIdx + i) * 0.04}s` }}>
                           <FirmListRow
-                            firm={firm} onClick={() => { setViewingFirm(firm); trackClick(firm.id, 'view'); }}
+                            firm={firm} onClick={() => { trackClick(firm.id, 'view'); navigate(`/prop-firms/${encodeURIComponent(firm.name)}`); }}
                             isComparing={compareIds.includes(firm.id)} onToggleCompare={toggleCompare}
                             isFav={favorites.includes(firm.id)} onToggleFav={toggleFav}
                             compareDisabled={compareIds.length >= 4}
@@ -1118,9 +1134,9 @@ const PropFirmList = () => {
                     </div>
                   );
 
-                  // If no grouping exists at all, render flat like before
+                  // If no grouping exists at all, render flat
                   const hasAnyGroup = groupOrder.some(k => k !== '__ungrouped__');
-                  if (!hasAnyGroup) return renderCards(sorted);
+                  if (!hasAnyGroup) return renderCards(dedupedSorted);
 
                   let runningIdx = 0;
                   return groupOrder.map(key => {
@@ -1201,121 +1217,6 @@ const PropFirmList = () => {
       {/* ── Compare Modal ── */}
       {showCompare && <CompareModal firms={compareFirms} onClose={() => setShowCompare(false)} onRemoveFirm={(id) => setCompareIds(prev => prev.filter(x => x !== id))} onTrackWebsite={(id) => trackClick(id, 'website')} />}
 
-      {/* ── Detail Modal ── */}
-      {viewingFirm && createPortal(
-        <div style={{ position: 'fixed', inset: 0, zIndex: 999999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', animation: 'fadeIn 0.2s ease-out' }} onClick={() => setViewingFirm(null)}>
-          <style>{`@keyframes fadeIn{from{opacity:0}to{opacity:1}} @keyframes slideUp{from{opacity:0;transform:translateY(30px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}} .modal-content-glass::-webkit-scrollbar{width:0}`}</style>
-          <div className="modal-content-glass" style={{ background: 'var(--bg-primary)', width: '100%', maxWidth: '950px', maxHeight: '90vh', borderRadius: '32px', overflowY: 'auto', boxShadow: '0 40px 80px -20px rgba(0,0,0,0.5)', cursor: 'auto', animation: 'slideUp 0.4s cubic-bezier(0.16,1,0.3,1)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'rgba(var(--bg-primary-rgb), 0.85)', backdropFilter: 'blur(24px)' }}>
-              <div style={{ height: '4px', background: 'linear-gradient(90deg, #10b981, #3b82f6, #3b82f6, #f97316)', width: '100%', opacity: 0.8 }} />
-              <div style={{ padding: '2rem 3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.75rem' }}>
-                  {viewingFirm.logo_url && (
-                    <div style={{ width: '80px', height: '80px', borderRadius: '24px', overflow: 'hidden', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)' }}>
-                      <img src={`${API}${viewingFirm.logo_url}`} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '10px' }} />
-                    </div>
-                  )}
-                  <div>
-                    <h2 style={{ fontSize: '2.5rem', fontWeight: 900, margin: 0, letterSpacing: '-1px', lineHeight: 1 }}>{viewingFirm.name}</h2>
-                    <div className="flex items-center gap-4 mt-2">
-                      {viewingFirm.rating && <span style={{ color: 'var(--text-secondary)', fontWeight: 600, fontSize: '15px', display: 'flex', alignItems: 'center', gap: '6px' }}><Star size={16} fill="#f59e0b" stroke="#f59e0b" /> {viewingFirm.rating} Trust Score</span>}
-                      {viewingFirm.featured && <span style={{ background: 'rgba(249,115,22,0.1)', color: '#f97316', padding: '4px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase' }}>Featured</span>}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-col items-end gap-3">
-                  <button onClick={() => setViewingFirm(null)} style={{ background: 'var(--bg-secondary)', border: 'none', width: 40, height: 40, borderRadius: '50%', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}><X size={16} /></button>
-                  {viewingFirm.website && (
-                    <a href={viewingFirm.website} target="_blank" rel="noreferrer" style={{ background: 'linear-gradient(135deg, var(--accent-secondary), var(--accent-primary))', color: '#fff', padding: '0.75rem 1.5rem', borderRadius: '99px', fontWeight: 700, textDecoration: 'none', boxShadow: '0 8px 25px -5px rgba(59,130,246,0.4)', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      Visit Official Site <ExternalLink size={15} />
-                    </a>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div style={{ padding: '3rem', display: 'flex', flexDirection: 'column', gap: '4rem' }}>
-              <div>
-                <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem' }}><Building2 size={20} style={{ color: "var(--accent-primary)" }} /> Basic Information</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
-                  <div style={{ background: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '20px' }}>
-                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', display: 'block', marginBottom: '0.5rem' }}>Account Category</span>
-                    <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{viewingFirm.account_category || '-'}</span>
-                  </div>
-                  <div style={{ background: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '20px' }}>
-                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', display: 'block', marginBottom: '0.5rem' }}>Trustpilot Rating</span>
-                    <span style={{ fontSize: '1.25rem', fontWeight: 800 }}><Star size={18} fill="#f59e0b" stroke="#f59e0b" /> {viewingFirm.rating ? `${viewingFirm.rating} / 5` : '-'}</span>
-                  </div>
-                  <div style={{ background: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '20px', gridColumn: '1 / -1' }}>
-                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', display: 'block', marginBottom: '1rem' }}>Supported Platforms</span>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                      {viewingFirm.platforms?.length > 0 ? viewingFirm.platforms.map(p => (
-                        <span key={p} style={{ background: 'var(--bg-primary)', padding: '0.6rem 1.2rem', borderRadius: '99px', fontSize: '0.9rem', fontWeight: 700, border: '1px solid var(--border-color)' }}>{p}</span>
-                      )) : <span style={{ color: 'var(--text-secondary)' }}>No platforms listed</span>}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '1.25rem' }}>
-                  <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', margin: 0 }}><DollarSign size={20} style={{ color: "var(--accent-primary)" }} /> Pricing Details</h4>
-                  {viewingFirm.discount_code && <CopyBadge code={viewingFirm.discount_code} />}
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
-                  <StatBox label="Activation Fee" value={viewingFirm.activation_fee != null && viewingFirm.activation_fee !== '' ? `$${viewingFirm.activation_fee}` : '-'} />
-                  <StatBox label="Reset Fee" value={viewingFirm.reset_fee != null && viewingFirm.reset_fee !== '' ? (isNaN(viewingFirm.reset_fee) ? viewingFirm.reset_fee : `$${viewingFirm.reset_fee}`) : '-'} />
-                  <StatBox label="50K All In" value={viewingFirm.fifty_k_all_in != null && viewingFirm.fifty_k_all_in !== '' ? `$${viewingFirm.fifty_k_all_in}` : '-'} />
-                  <StatBox label="50K Initial Cost" value={viewingFirm.fifty_k_initial_cost != null && viewingFirm.fifty_k_initial_cost !== '' ? `$${viewingFirm.fifty_k_initial_cost}` : '-'} />
-                  <StatBox label="Without Discount" value={viewingFirm.without_discount_usd != null && viewingFirm.without_discount_usd !== '' ? `$${viewingFirm.without_discount_usd}` : '-'} />
-                  <StatBox label="Discount" value={viewingFirm.discount_usd != null && viewingFirm.discount_usd !== '' ? `$${viewingFirm.discount_usd} ${viewingFirm.discount_percent ? '(' + viewingFirm.discount_percent + '%)' : ''}` : '-'} highlight />
-                </div>
-              </div>
-              <div>
-                <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem' }}><Settings size={20} style={{ color: "var(--accent-primary)" }} /> Trading Rules & Metrics</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                  <StatBox label="Profit Target" value={viewingFirm.profit_target} />
-                  <StatBox label="Profit Split" value={viewingFirm.profit_split} highlight />
-                  <StatBox label="Daily Loss Limit" value={viewingFirm.dll} />
-                  <StatBox label="Max Withdrawal" value={viewingFirm.max_withdrawal} />
-                  <StatBox label="Drawdown" value={viewingFirm.drawdown_limit} />
-                  <StatBox label="Days to Pass" value={viewingFirm.days_to_pass} />
-                  <StatBox label="Days to Payout" value={viewingFirm.days_to_payout} />
-                  <StatBox label="Eval (%)" value={viewingFirm.eval} />
-                  <StatBox label="PA (%)" value={viewingFirm.pa} />
-                  <StatBox label="Max Accounts" value={viewingFirm.max_accounts} />
-                </div>
-              </div>
-              <div>
-                <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '1.25rem' }}><Wrench size={20} style={{ color: "var(--accent-primary)" }} /> Feature Support</h4>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-                  {['buffer', 'copy_trade', 'vpn', 'dca', 'news', 'bots', 'micro_scalping'].map(feat => {
-                    const isEnabled = viewingFirm[feat];
-                    const label = feat === 'buffer' && isEnabled
-                      ? `BUFFER (${viewingFirm.buffer_amount || 'N/A'})`
-                      : feat.replace(/_/g, ' ').toUpperCase();
-                    return (
-                      <span key={feat} style={{
-                        padding: '0.6rem 1.2rem', borderRadius: '12px', fontSize: '13px', fontWeight: 700,
-                        background: isEnabled ? 'rgba(16,185,129,0.1)' : 'var(--bg-secondary)',
-                        color: isEnabled ? '#10b981' : 'var(--text-secondary)',
-                        border: `1px solid ${isEnabled ? 'rgba(16,185,129,0.2)' : 'var(--border-color)'}`
-                      }}>
-                        {isEnabled ? <Check size={14} /> : <X size={14} />} {label}
-                      </span>
-                    );
-                  })}
-                </div>
-              </div>
-              {viewingFirm.notes && (
-                <div style={{ padding: '2rem', background: 'var(--bg-secondary)', borderRadius: '24px', fontSize: '16px', lineHeight: 1.8, color: 'var(--text-secondary)' }}>
-                  <strong style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-primary)', marginBottom: '1rem', fontSize: '1.1rem', fontWeight: 800 }}><Pencil size={18} style={{ color: "var(--accent-primary)" }} /> Author Notes</strong>
-                  {viewingFirm.notes}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
     </div>
   );
 };

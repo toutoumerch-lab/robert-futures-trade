@@ -145,11 +145,11 @@ const createPropFirm = async (req, res) => {
         buffer, buffer_amount, eval, pa, reset_fee, copy_trade, vpn, max_accounts, dll, 
         fifty_k_all_in, fifty_k_initial_cost, without_discount_usd, discount_usd, discount_percent,
         dca, news, bots, micro_scalping,
-        status_color, logo_url, group_name
+        status_color, logo_url, group_name, plan_name, plan_size
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, 
         $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, 
-        $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43
+        $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43, $44, $45
       ) RETURNING *`,
       [
         /* $1  name             */ text(body.name),
@@ -194,7 +194,9 @@ const createPropFirm = async (req, res) => {
         /* $40 micro_scalping   */ parseBool(body.micro_scalping),// DB: boolean
         /* $41 status_color     */ body.status_color || 'green',  // DB: varchar
         /* $42 logo_url         */ logo_url,                      // DB: text
-        /* $43 group_name       */ text(body.group_name)           // DB: text
+        /* $43 group_name       */ text(body.group_name),          // DB: text
+        /* $44 plan_name        */ text(body.plan_name),           // DB: text
+        /* $45 plan_size        */ text(body.plan_size)            // DB: text
       ]
     );
 
@@ -301,8 +303,9 @@ const updatePropFirm = async (req, res) => {
         copy_trade=$28, vpn=$29, max_accounts=$30, dll=$31, 
         fifty_k_all_in=$32, fifty_k_initial_cost=$33, without_discount_usd=$34, 
         discount_usd=$35, discount_percent=$36, dca=$37, news=$38, bots=$39, 
-        micro_scalping=$40, status_color=$41, logo_url=$42, group_name=$43
-      WHERE id=$44 RETURNING *`,
+        micro_scalping=$40, status_color=$41, logo_url=$42, group_name=$43,
+        plan_name=$44, plan_size=$45
+      WHERE id=$46 RETURNING *`,
       [
         /* $1  name             */ text(body.name),
         /* $2  importance       */ text(body.importance),       // DB: text
@@ -347,7 +350,9 @@ const updatePropFirm = async (req, res) => {
         /* $41 status_color     */ body.status_color || 'green',  // DB: varchar
         /* $42 logo_url         */ logo_url,                      // DB: text
         /* $43 group_name       */ text(body.group_name),          // DB: text
-        /* $44 id               */ id
+        /* $44 plan_name        */ text(body.plan_name),           // DB: text
+        /* $45 plan_size        */ text(body.plan_size),           // DB: text
+        /* $46 id               */ id
       ]
     );
 
@@ -465,4 +470,72 @@ const upsertGroupImage = async (req, res) => {
   }
 };
 
-module.exports = { getPropFirms, getPropFirmsAdmin, createPropFirm, bulkCreatePropFirms, updatePropFirm, deletePropFirm, toggleHidden, getPlatforms, getGroups, patchGroupName, upsertGroupImage };
+/* ── GET /api/prop-firms/by-name/:name — all rows for one firm (public) ── */
+const getPropFirmByName = async (req, res) => {
+  try {
+    const name = decodeURIComponent(req.params.name);
+    const result = await pool.query(
+      `SELECT
+         id, name, importance, featured, rating, website, affiliate_link, twitter, discord,
+         last_checked, is_affiliate, discount_code, overall_score,
+         account_category, price, activation_fee, profit_split,
+         max_withdrawal, profit_target, drawdown_limit, days_to_pass, days_to_payout, notes,
+         buffer, buffer_amount, eval, pa, reset_fee, copy_trade, vpn, max_accounts, dll,
+         fifty_k_all_in, fifty_k_initial_cost, without_discount_usd, discount_usd, discount_percent,
+         dca, news, bots, micro_scalping,
+         logo_url, created_at, group_name, status_color, hidden, plan_name, plan_size,
+         COALESCE(
+           (SELECT json_agg(p.name)
+            FROM prop_firm_platforms pfp
+            JOIN platforms p ON pfp.platform_id = p.id
+            WHERE pfp.prop_firm_id = prop_firms.id),
+           '[]'::json
+         ) AS platforms
+       FROM prop_firms
+       WHERE LOWER(name) = LOWER($1)
+         AND (hidden = FALSE OR hidden IS NULL)
+       ORDER BY created_at ASC, id ASC`,
+      [name]
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'Prop firm not found.' });
+    res.json(result.rows);
+  } catch (err) {
+    console.error('[PropFirm Detail]', err);
+    res.status(500).json({ error: 'Server error.' });
+  }
+};
+
+/* ── GET /api/prop-firms/admin-by-name/:name — all rows incl. hidden (admin edit) ── */
+const getAllByName = async (req, res) => {
+  try {
+    const name = decodeURIComponent(req.params.name);
+    const result = await pool.query(
+      `SELECT
+         id, name, importance, featured, rating, website, affiliate_link, twitter, discord,
+         last_checked, is_affiliate, discount_code, overall_score,
+         account_category, price, activation_fee, profit_split,
+         max_withdrawal, profit_target, drawdown_limit, days_to_pass, days_to_payout, notes,
+         buffer, buffer_amount, eval, pa, reset_fee, copy_trade, vpn, max_accounts, dll,
+         fifty_k_all_in, fifty_k_initial_cost, without_discount_usd, discount_usd, discount_percent,
+         dca, news, bots, micro_scalping,
+         logo_url, created_at, group_name, status_color, hidden, plan_name, plan_size,
+         COALESCE(
+           (SELECT json_agg(p.name)
+            FROM prop_firm_platforms pfp
+            JOIN platforms p ON pfp.platform_id = p.id
+            WHERE pfp.prop_firm_id = prop_firms.id),
+           '[]'::json
+         ) AS platforms
+       FROM prop_firms
+       WHERE LOWER(name) = LOWER($1)
+       ORDER BY created_at ASC, id ASC`,
+      [name]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('[getAllByName]', err);
+    res.status(500).json({ error: 'Server error.' });
+  }
+};
+
+module.exports = { getPropFirms, getPropFirmsAdmin, getPropFirmByName, getAllByName, createPropFirm, bulkCreatePropFirms, updatePropFirm, deletePropFirm, toggleHidden, getPlatforms, getGroups, patchGroupName, upsertGroupImage };

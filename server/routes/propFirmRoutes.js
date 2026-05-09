@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getPropFirms, getPropFirmsAdmin, createPropFirm, bulkCreatePropFirms, updatePropFirm, deletePropFirm, toggleHidden, getPlatforms, getGroups, patchGroupName, upsertGroupImage } = require('../controllers/propFirmController');
+const { getPropFirms, getPropFirmsAdmin, getPropFirmByName, getAllByName, createPropFirm, bulkCreatePropFirms, updatePropFirm, deletePropFirm, toggleHidden, getPlatforms, getGroups, patchGroupName, upsertGroupImage } = require('../controllers/propFirmController');
 const { authenticateToken, isAdmin, optionalAuth } = require('../middleware/auth');
 const uploadPropFirm = require('../middleware/uploadPropFirm');
 const uploadGroupLogo = require('../middleware/uploadGroupLogo');
@@ -8,6 +8,8 @@ const { trackPropFirmClick } = require('../controllers/analyticsController');
 
 router.get('/platforms', getPlatforms);
 router.get('/groups', getGroups);
+router.get('/by-name/:name', getPropFirmByName);
+router.get('/admin-by-name/:name', authenticateToken, isAdmin, getAllByName);
 router.get('/', getPropFirms);
 router.get('/admin', authenticateToken, isAdmin, getPropFirmsAdmin);
 router.post('/bulk', authenticateToken, isAdmin, bulkCreatePropFirms);

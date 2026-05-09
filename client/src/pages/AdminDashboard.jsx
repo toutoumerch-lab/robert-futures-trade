@@ -1624,10 +1624,20 @@ const PropFirmsTab = () => {
       </div>
       <div className="admin-table-wrap">
         {(() => {
-          // Group firms by group_name
+          // Deduplicate by firm name — one row per unique firm
+          const seenNames = new Map();
+          firms.forEach(f => {
+            if (!seenNames.has(f.name)) seenNames.set(f.name, f);
+          });
+          const uniqueFirms = Array.from(seenNames.values());
+          // Count sizes per firm name (number of DB rows)
+          const sizeCounts = {};
+          firms.forEach(f => { sizeCounts[f.name] = (sizeCounts[f.name] || 0) + 1; });
+
+          // Group unique firms by group_name
           const grouped = {};
           const order = [];
-          firms.forEach(f => {
+          uniqueFirms.forEach(f => {
             const key = f.group_name || '__ungrouped__';
             if (!grouped[key]) { grouped[key] = []; order.push(key); }
             grouped[key].push(f);
@@ -1687,11 +1697,12 @@ const PropFirmsTab = () => {
                     <tbody>
                       {groupFirms.map(f => (
                         <tr key={f.id}>
-                          <td style={{ fontWeight: 600, opacity: f.hidden ? 0.45 : 1 }}>
+                        <td style={{ fontWeight: 600, opacity: f.hidden ? 0.45 : 1 }}>
                             {f.name}
                             {f.featured && <Star size={14} style={{ display: 'inline', color: '#f59e0b', fill: '#f59e0b', verticalAlign: 'middle', marginLeft: '4px' }} />}
                             {f.group_name && <span style={{ marginLeft: '8px', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '99px', background: 'rgba(37,99,235,0.1)', color: '#2563eb', fontWeight: 700 }}>{f.group_name}</span>}
                             {f.hidden && <span style={{ marginLeft: '8px', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '99px', background: 'rgba(107,114,128,0.15)', color: 'var(--text-secondary)', fontWeight: 700 }}>Hidden</span>}
+                            {(sizeCounts[f.name] || 1) > 1 && <span style={{ marginLeft: '8px', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '99px', background: 'rgba(16,185,129,0.1)', color: '#10b981', fontWeight: 700 }}>{sizeCounts[f.name]} sizes</span>}
                           </td>
                           <td>{f.rating ? `${f.rating} / 5` : '-'}</td>
                           <td>
@@ -1699,7 +1710,7 @@ const PropFirmsTab = () => {
                               title={f.status_color === 'green' ? 'Top Ranked' : f.status_color === 'blue' ? 'Community Trusted' : f.status_color === 'yellow' ? 'New / Building Trust' : 'Avoid / Possible Scam'} />
                           </td>
                           <td className="table-actions">
-                            <button className="action-btn" style={{backgroundColor: 'var(--bg-tertiary)'}} onClick={() => setViewingFirm(f)}>View</button>
+
                             <button className="action-btn" onClick={() => openEdit(f)}>Edit</button>
                             <button className="action-btn" style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.12), rgba(59,130,246,0.12))', color: '#2563eb', border: '1px solid rgba(37,99,235,0.2)' }} onClick={() => { setGroupingFirm(f); setGroupModalValue(f.group_name || ''); setGroupModalMode(f.group_name ? 'existing' : 'existing'); }}><Layers size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '3px' }} />Group</button>
                             <button className="action-btn" style={{ background: f.hidden ? 'rgba(16,185,129,0.1)' : 'rgba(107,114,128,0.1)', color: f.hidden ? '#10b981' : 'var(--text-secondary)', border: `1px solid ${f.hidden ? 'rgba(16,185,129,0.25)' : 'rgba(107,114,128,0.2)'}` }} onClick={() => toggleHidden(f.id)}>{f.hidden ? 'Show' : 'Hide'}</button>
@@ -2382,6 +2393,103 @@ const ReviewsTab = () => {
   );
 };
 
+// ──────────────────── Messages Tab ────────────────────
+const MessagesTab = () => {
+  const API = import.meta.env.VITE_API_URL;
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [expanded, setExpanded] = useState(null);
+
+  const fetchMessages = useCallback(async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get(`${API}/api/contact/admin`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setMessages(res.data);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }, [API]);
+
+  useEffect(() => { fetchMessages(); }, [fetchMessages]);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this message?')) return;
+    const token = localStorage.getItem('token');
+    await axios.delete(`${API}/api/contact/admin/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setMessages(prev => prev.filter(m => m.id !== id));
+    if (expanded === id) setExpanded(null);
+  };
+
+  if (loading) return <div className="tab-loading">Loading messages…</div>;
+  if (!messages.length) return (
+    <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
+      <MessageSquare size={40} style={{ opacity: 0.3, marginBottom: '1rem' }} />
+      <p>No messages yet.</p>
+    </div>
+  );
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Contact Messages</h2>
+        <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{messages.length} message{messages.length !== 1 ? 's' : ''}</span>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        {messages.map(m => (
+          <div key={m.id} style={{ border: '1px solid var(--border-color)', borderRadius: '10px', overflow: 'hidden', background: 'var(--bg-secondary)' }}>
+            <div
+              style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.9rem 1rem', cursor: 'pointer' }}
+              onClick={() => setExpanded(expanded === m.id ? null : m.id)}
+            >
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <MessageSquare size={16} color="#3b82f6" />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{m.name}</span>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{m.email}</span>
+                </div>
+                <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                  <span style={{ background: 'rgba(59,130,246,0.12)', color: '#60a5fa', borderRadius: '4px', padding: '1px 7px', fontSize: '0.75rem', marginRight: '0.5rem' }}>{m.subject}</span>
+                  {new Date(m.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                <button
+                  onClick={e => { e.stopPropagation(); handleDelete(m.id); }}
+                  style={{ background: 'rgba(239,68,68,0.1)', border: 'none', borderRadius: '6px', color: '#ef4444', cursor: 'pointer', padding: '5px 8px', display: 'flex', alignItems: 'center' }}
+                  title="Delete"
+                >
+                  <Trash2 size={14} />
+                </button>
+                {expanded === m.id ? <ChevronUp size={16} color="var(--text-secondary)" /> : <ChevronDown size={16} color="var(--text-secondary)" />}
+              </div>
+            </div>
+            {expanded === m.id && (
+              <div style={{ padding: '0 1rem 1rem 1rem', borderTop: '1px solid var(--border-color)' }}>
+                <p style={{ marginTop: '0.75rem', fontSize: '0.88rem', lineHeight: 1.7, color: 'var(--text-primary)', whiteSpace: 'pre-wrap' }}>{m.message}</p>
+                <a
+                  href={`mailto:${m.email}?subject=Re: ${encodeURIComponent(m.subject)}`}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '0.75rem', fontSize: '0.82rem', color: '#3b82f6', textDecoration: 'none', background: 'rgba(59,130,246,0.1)', padding: '5px 12px', borderRadius: '6px' }}
+                >
+                  Reply to {m.name}
+                </a>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // ──────────────────── Main Admin Dashboard ────────────────────
 const TABS = [
   { id: 'users',      label: 'Users',      Icon: Users,         color: '#8b5cf6' },
@@ -2391,6 +2499,7 @@ const TABS = [
   { id: 'promos',     label: 'Promotions',  Icon: PartyPopper,   color: '#3b82f6' },
   { id: 'branding',   label: 'Branding',    Icon: Palette,       color: '#06b6d4' },
   { id: 'reviews',    label: 'Reviews',     Icon: Star,          color: '#f59e0b' },
+  { id: 'messages',   label: 'Messages',    Icon: MessageSquare, color: '#10b981' },
 ];
 
 const AdminDashboard = () => {
@@ -2496,6 +2605,7 @@ const AdminDashboard = () => {
             {activeTab === 'promos'     && <PromotionsTab />}
             {activeTab === 'branding'   && <BrandingManager />}
             {activeTab === 'reviews'    && <ReviewsTab />}
+            {activeTab === 'messages'   && <MessagesTab />}
           </Card>
         </div>
       </div>
