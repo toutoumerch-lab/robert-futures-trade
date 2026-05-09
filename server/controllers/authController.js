@@ -104,19 +104,21 @@ const register = async (req, res) => {
       );
     }
 
-    const mailResult = await sendMail(
-      email,
-      'Your verification code – Robert Trades',
-      otpEmailHtml(name, verificationCode)
-    );
+    // Send email with a timeout to prevent hanging the request
+    const mailResult = await Promise.race([
+      sendMail(email, 'Your verification code – Robert Trades', otpEmailHtml(name, verificationCode)),
+      new Promise(resolve => setTimeout(() => resolve({ success: false, error: 'Timeout' }), 5000))
+    ]);
 
     if (!mailResult.success) {
-      console.log(`\n=== DEV OTP for ${email}: ${verificationCode} ===\n`);
+      console.log(`\n=== [MAIL FAILURE] DEV OTP for ${email}: ${verificationCode} ===\n`);
     }
 
     res.status(201).json({
       message: 'Registration successful. Please check your email for your 6-digit verification code.',
       email,
+      // For testing in sandbox mode, we can include a hint if it's not production
+      devHint: !mailResult.success ? 'Email service in sandbox mode. Check server logs.' : undefined
     });
   } catch (error) {
     console.error('Register error:', error);
@@ -196,17 +198,19 @@ const resendOtp = async (req, res) => {
       [verificationCode, verificationExpires, user.id]
     );
 
-    const mailResult = await sendMail(
-      email,
-      'Your new verification code – Robert Trades',
-      otpEmailHtml(user.name, verificationCode)
-    );
+    const mailResult = await Promise.race([
+      sendMail(email, 'Your new verification code – Robert Trades', otpEmailHtml(user.name, verificationCode)),
+      new Promise(resolve => setTimeout(() => resolve({ success: false, error: 'Timeout' }), 5000))
+    ]);
 
     if (!mailResult.success) {
-      console.log(`\n=== DEV RESEND OTP for ${email}: ${verificationCode} ===\n`);
+      console.log(`\n=== [MAIL FAILURE] DEV RESEND OTP for ${email}: ${verificationCode} ===\n`);
     }
 
-    res.json({ message: 'Verification code resent successfully' });
+    res.json({ 
+      message: 'Verification code resent successfully',
+      devHint: !mailResult.success ? 'Email service in sandbox mode.' : undefined
+    });
   } catch (error) {
     console.error('Resend OTP error:', error);
     res.status(500).json({ error: 'Server error' });
