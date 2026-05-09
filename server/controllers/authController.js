@@ -71,8 +71,8 @@ const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString()
 const register = async (req, res) => {
   const { name, email, password } = req.body;
   try {
-    const userExists = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
-    if (userExists.rows.length > 0) {
+    const userExists = await pool.query('SELECT id, is_verified FROM users WHERE email = $1', [email]);
+    if (userExists.rows.length > 0 && userExists.rows[0].is_verified) {
       return res.status(400).json({ error: 'User already exists' });
     }
 
@@ -85,14 +85,24 @@ const register = async (req, res) => {
     const ip  = getClientIp(req);
     const geo = await lookupCountry(ip);
 
-    await pool.query(
-      `INSERT INTO users
-         (name, email, password_hash, role, country, country_code, is_verified, verification_code, verification_code_expires)
-       VALUES ($1, $2, $3, $4, $5, $6, false, $7, $8)`,
-      [name, email, password_hash, 'user',
-       geo?.country ?? null, geo?.country_code ?? null,
-       verificationCode, verificationExpires]
-    );
+    if (userExists.rows.length > 0) {
+      // Unverified user retrying — update their record
+      await pool.query(
+        `UPDATE users
+         SET name = $1, password_hash = $2, verification_code = $3, verification_code_expires = $4
+         WHERE email = $5`,
+        [name, password_hash, verificationCode, verificationExpires, email]
+      );
+    } else {
+      await pool.query(
+        `INSERT INTO users
+           (name, email, password_hash, role, country, country_code, is_verified, verification_code, verification_code_expires)
+         VALUES ($1, $2, $3, $4, $5, $6, false, $7, $8)`,
+        [name, email, password_hash, 'user',
+         geo?.country ?? null, geo?.country_code ?? null,
+         verificationCode, verificationExpires]
+      );
+    }
 
     const mailResult = await sendSmtpMail(
       email,
