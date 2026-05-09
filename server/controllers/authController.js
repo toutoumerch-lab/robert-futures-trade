@@ -104,7 +104,7 @@ const register = async (req, res) => {
       );
     }
 
-    const mailResult = await sendSmtpMail(
+    const mailResult = await sendMail(
       email,
       'Your verification code – Robert Trades',
       otpEmailHtml(name, verificationCode)
@@ -196,7 +196,7 @@ const resendOtp = async (req, res) => {
       [verificationCode, verificationExpires, user.id]
     );
 
-    const mailResult = await sendSmtpMail(
+    const mailResult = await sendMail(
       email,
       'Your new verification code – Robert Trades',
       otpEmailHtml(user.name, verificationCode)
