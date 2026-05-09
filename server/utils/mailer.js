@@ -2,16 +2,11 @@ const nodemailer = require('nodemailer');
 
 // Primary SMTP Transporter (Gmail / Google Workspace)
 const smtpTransporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true, // use SSL
+  service: 'gmail',
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_APP_PASSWORD,
   },
-  connectionTimeout: 5000, // 5 seconds
-  greetingTimeout: 5000,
-  socketTimeout: 5000,
 });
 
 /**
