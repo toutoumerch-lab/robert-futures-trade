@@ -358,7 +358,7 @@ const CoursesTab = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '2rem' }}>
         {courses.map(c => (
           <div key={c.id} style={{ background: 'var(--bg-secondary)', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.15)' }} className="hover:-translate-y-2 hover:shadow-[0_20px_40px_-10px_rgba(59,130,246,0.15)] hover:border-[var(--accent-primary)]">
-            <div style={{ height: '180px', width: '100%', background: c.image_url ? `url(http://localhost:5001${c.image_url}) center/cover` : 'linear-gradient(135deg, var(--bg-tertiary), rgba(255,255,255,0.02))', position: 'relative' }}>
+            <div style={{ height: '180px', width: '100%', background: c.image_url ? `url(${import.meta.env.VITE_API_URL}${c.image_url}) center/cover` : 'linear-gradient(135deg, var(--bg-tertiary), rgba(255,255,255,0.02))', position: 'relative' }}>
               <div style={{ position: 'absolute', top: '16px', right: '16px', background: c.is_free ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, var(--bg-primary), var(--bg-secondary))', border: c.is_free ? 'none' : '1px solid var(--border)', padding: '6px 16px', borderRadius: '99px', color: c.is_free ? 'white' : 'var(--text-primary)', fontWeight: 800, fontSize: '0.85rem', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }}>
                 {c.is_free ? 'FREE' : `$${c.price}`}
               </div>

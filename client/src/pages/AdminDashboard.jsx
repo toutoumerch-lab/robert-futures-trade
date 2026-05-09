@@ -378,7 +378,7 @@ const PostsTab = ({ adminUser }) => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
           {posts.map(p => (
             <div key={p.id} style={{ background: 'var(--bg-secondary)', borderRadius: '20px', overflow: 'hidden', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', transition: 'all 0.3s ease', boxShadow: '0 8px 24px -8px rgba(0,0,0,0.15)' }}>
-              <div style={{ height: '160px', background: p.image_url ? `url(http://localhost:5001${p.image_url}) center/cover` : 'linear-gradient(135deg, var(--bg-tertiary), rgba(37,99,235,0.08))', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ height: '160px', background: p.image_url ? `url(${import.meta.env.VITE_API_URL}${p.image_url}) center/cover` : 'linear-gradient(135deg, var(--bg-tertiary), rgba(37,99,235,0.08))', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {!p.image_url && <FileText size={36} style={{ color: 'var(--accent-primary)', opacity: 0.4 }} />}
                 <div style={{ position: 'absolute', top: '12px', left: '12px', display: 'flex', gap: '8px' }}>
                   <span style={{ fontSize: '0.72rem', fontWeight: 800, padding: '4px 10px', borderRadius: '99px', background: p.is_published ? 'rgba(16,185,129,0.9)' : 'rgba(0,0,0,0.6)', color: '#fff', backdropFilter: 'blur(4px)' }}>
@@ -920,7 +920,7 @@ const CoursesTab = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '2rem' }}>
         {courses.map(c => (
           <div key={c.id} style={{ background: 'var(--bg-secondary)', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.15)' }}>
-            <div style={{ height: '180px', width: '100%', backgroundImage: c.image_url ? `url(http://localhost:5001${c.image_url})` : 'linear-gradient(135deg, var(--bg-tertiary), rgba(255,255,255,0.02))', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', position: 'relative' }}>
+            <div style={{ height: '180px', width: '100%', backgroundImage: c.image_url ? `url(${import.meta.env.VITE_API_URL}${c.image_url})` : 'linear-gradient(135deg, var(--bg-tertiary), rgba(255,255,255,0.02))', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', position: 'relative' }}>
               <div style={{ position: 'absolute', top: '16px', right: '16px', background: c.is_free ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, var(--bg-primary), var(--bg-secondary))', border: c.is_free ? 'none' : '1px solid var(--border)', padding: '6px 16px', borderRadius: '99px', color: c.is_free ? 'white' : 'var(--text-primary)', fontWeight: 800, fontSize: '0.85rem', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }}>
                 {c.is_free ? 'FREE' : `$${c.price}`}
               </div>

@@ -89,7 +89,7 @@ const GridCard = ({ course, navigate, ratings }) => (
     <div style={{
       height: '200px', width: '100%', position: 'relative',
       backgroundImage: course.image_url
-        ? `url(http://localhost:5001${course.image_url})`
+        ? `url(${import.meta.env.VITE_API_URL}${course.image_url})`
         : 'linear-gradient(135deg, var(--bg-tertiary), rgba(255,255,255,0.02))',
       backgroundSize: 'cover', backgroundPosition: 'center',
     }}>
@@ -144,7 +144,7 @@ const ListCard = ({ course, navigate, ratings }) => (
     <div style={{
       width:'220px', minWidth:'220px', flexShrink:0, position:'relative',
       backgroundImage: course.image_url
-        ? `url(http://localhost:5001${course.image_url})`
+        ? `url(${import.meta.env.VITE_API_URL}${course.image_url})`
         : 'linear-gradient(135deg,var(--bg-tertiary),rgba(255,255,255,0.02))',
       backgroundSize:'cover', backgroundPosition:'center',
     }}>
@@ -327,7 +327,7 @@ const CourseList = () => {
                         onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-secondary)'}
                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                       >
-                        <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: res.image_url ? `url(http://localhost:5001${res.image_url}) center/cover` : 'var(--bg-secondary)', flexShrink: 0, border: '1px solid var(--border)' }}/>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: res.image_url ? `url(${import.meta.env.VITE_API_URL}${res.image_url}) center/cover` : 'var(--bg-secondary)', flexShrink: 0, border: '1px solid var(--border)' }}/>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{res.title}</div>
                           <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '2px' }}>{res.category || 'General'} · {res.level || 'Beginner'} · {res.is_free ? 'FREE' : `$${res.price}`}</div>
