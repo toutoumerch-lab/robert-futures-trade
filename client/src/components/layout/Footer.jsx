@@ -149,7 +149,7 @@ const Footer = () => {
           <h4 className="ftr-col-title">Company</h4>
           <FooterLink to="/about"><Info size={13} /> About Us</FooterLink>
           <FooterLink to="/contact"><Mail size={13} /> Contact</FooterLink>
-          <FooterLink to="#"><Shield size={13} /> Privacy Policy</FooterLink>
+          <FooterLink to="/privacy"><Shield size={13} /> Privacy Policy</FooterLink>
         </div>
       </div>
 
