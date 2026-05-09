@@ -10,8 +10,8 @@ const sendMail = async (to, subject, html, { replyTo } = {}) => {
 
     const resend = new Resend(process.env.RESEND_API_KEY);
     
-    // Fallback 'from' address if not specified or unverified
-    const fromAddress = process.env.RESEND_FROM || 'Robert Trades <onboarding@resend.dev>';
+    // Using onboarding@resend.dev as requested by the user
+    const fromAddress = 'Robert Trades <onboarding@resend.dev>';
 
     const payload = {
       from: fromAddress,
@@ -25,11 +25,10 @@ const sendMail = async (to, subject, html, { replyTo } = {}) => {
 
     if (error) {
       console.error('Resend API error:', error.message);
-      // If domain is unverified, Resend returns a 403 or validation error
       return { success: false, error: error.message };
     }
 
-    console.log('Email sent successfully via Resend API:', data?.id);
+    console.log('Email sent successfully via Resend API (Onboarding):', data?.id);
     return { success: true, messageId: data?.id };
   } catch (error) {
     console.error('Email send failed (Resend):', error.message);
@@ -39,7 +38,9 @@ const sendMail = async (to, subject, html, { replyTo } = {}) => {
 
 // SMTP Transporter kept only as a secondary fallback or legacy alias
 const smtpTransporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 2525, // Alternative port often open on VPS
+  secure: false,
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_APP_PASSWORD,
