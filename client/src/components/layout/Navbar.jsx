@@ -8,9 +8,9 @@ import { useBranding } from '../../context/BrandingContext';
 
 const NAV_LINKS = [
   { to: '/',           label: 'Home' },
-  { to: '/courses',    label: 'Courses' },
   { to: '/prop-firms', label: 'Prop Firms' },
   { to: '/blog',       label: 'Blog' },
+  { to: '/courses',    label: 'Courses' },
   { to: '/about',      label: 'About' },
   { to: '/contact',    label: 'Contact' },
 ];
