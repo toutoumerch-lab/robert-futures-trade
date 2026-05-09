@@ -640,7 +640,7 @@ const CoursesTab = () => {
   const initialForm = {
     title: '', description: '', price: '', 
     level: 'Beginner', duration: '', category: 'Futures Trading', 
-    is_free: false, video_url: '',
+    is_free: false, video_url: '', is_published: true,
     image: null, pdf_file: null, video_file: null
   };
   const [form, setForm] = useState(initialForm);
@@ -778,7 +778,10 @@ const CoursesTab = () => {
 
   const fetchCourses = useCallback(() => {
     setLoading(true);
-    axios.get(`${import.meta.env.VITE_API_URL}/api/courses`)
+    const token = localStorage.getItem('token');
+    axios.get(`${import.meta.env.VITE_API_URL}/api/courses`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
+    })
       .then(res => setCourses(res.data))
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -844,6 +847,7 @@ const CoursesTab = () => {
       category: c.category || 'Futures Trading',
       is_free: c.is_free || false,
       video_url: c.video_url || '',
+      is_published: c.is_published !== undefined ? c.is_published : true,
       image: null, pdf_file: null, video_file: null
     }); 
     setActiveTab('basic'); 
@@ -871,10 +875,12 @@ const CoursesTab = () => {
     formData.append('category', form.category);
     formData.append('is_free', form.is_free);
     formData.append('video_url', form.video_url);
+    formData.append('is_published', form.is_published !== undefined ? form.is_published : true);
+    if (form.remove_image) formData.append('remove_image', 'true');
 
     // Pass existing media URLs back so the backend preserves them if no new file
     if (editing) {
-      if (editing.image_url) formData.append('image_url', editing.image_url);
+      if (editing.image_url && !form.remove_image) formData.append('image_url', editing.image_url);
       if (editing.pdf_url) formData.append('pdf_url', editing.pdf_url);
       if (editing.video_file) formData.append('video_file', editing.video_file);
     }
@@ -885,13 +891,14 @@ const CoursesTab = () => {
     if (form.video_file) formData.append('video_file', form.video_file);
 
     try {
+      const token = localStorage.getItem('token');
       if (editing) {
         await axios.put(`${import.meta.env.VITE_API_URL}/api/courses/${editing.id}`, formData, {
-           headers: { 'Content-Type': 'multipart/form-data' }
+           headers: { Authorization: `Bearer ${token}` }
         });
       } else {
         await axios.post(`${import.meta.env.VITE_API_URL}/api/courses`, formData, {
-           headers: { 'Content-Type': 'multipart/form-data' }
+           headers: { Authorization: `Bearer ${token}` }
         });
       }
       setShowModal(false);
@@ -908,6 +915,33 @@ const CoursesTab = () => {
     fetchCourses();
   };
 
+  const toggleCoursePublish = async (course) => {
+    try {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('title', course.title || '');
+      formData.append('description', course.description || '');
+      formData.append('price', course.price || 0);
+      formData.append('level', course.level || 'Beginner');
+      formData.append('duration', course.duration || '');
+      formData.append('category', course.category || 'Trading');
+      formData.append('is_free', course.is_free || false);
+      formData.append('video_url', course.video_url || '');
+      formData.append('is_published', !course.is_published);
+      if (course.image_url) formData.append('image_url', course.image_url);
+      if (course.pdf_url) formData.append('pdf_url', course.pdf_url);
+      if (course.video_file) formData.append('video_file', course.video_file);
+      
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/courses/${course.id}`, formData, {
+         headers: { Authorization: `Bearer ${token}` }
+      });
+      setCourses(prev => prev.map(c => c.id === course.id ? { ...c, is_published: !course.is_published } : c));
+    } catch (err) {
+      console.error(err);
+      alert('Error updating course publish status.');
+    }
+  };
+
   if (loading) return <div className="tab-loading">Loading courses...</div>;
 
   return (
@@ -921,6 +955,11 @@ const CoursesTab = () => {
         {courses.map(c => (
           <div key={c.id} style={{ background: 'var(--bg-secondary)', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.15)' }}>
             <div style={{ height: '180px', width: '100%', backgroundImage: c.image_url ? `url(${import.meta.env.VITE_API_URL}${c.image_url})` : 'linear-gradient(135deg, var(--bg-tertiary), rgba(255,255,255,0.02))', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', position: 'relative' }}>
+              <div style={{ position: 'absolute', top: '16px', left: '16px', display: 'flex', gap: '8px' }}>
+                <span style={{ fontSize: '0.72rem', fontWeight: 800, padding: '4px 10px', borderRadius: '99px', background: c.is_published !== false ? 'rgba(16,185,129,0.9)' : 'rgba(0,0,0,0.6)', color: '#fff', backdropFilter: 'blur(4px)' }}>
+                  {c.is_published !== false ? 'Published' : 'Draft'}
+                </span>
+              </div>
               <div style={{ position: 'absolute', top: '16px', right: '16px', background: c.is_free ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, var(--bg-primary), var(--bg-secondary))', border: c.is_free ? 'none' : '1px solid var(--border)', padding: '6px 16px', borderRadius: '99px', color: c.is_free ? 'white' : 'var(--text-primary)', fontWeight: 800, fontSize: '0.85rem', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }}>
                 {c.is_free ? 'FREE' : `$${c.price}`}
               </div>
@@ -932,8 +971,11 @@ const CoursesTab = () => {
               </div>
               <h3 style={{ margin: '0 0 1.25rem 0', fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.3, letterSpacing: '-0.5px' }}>{c.title}</h3>
               
-              <div style={{ marginTop: 'auto', display: 'flex', gap: '10px' }}>
-                <button onClick={() => openEdit(c)} style={{ flex: 1, background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border)', padding: '0.7rem', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>Edit Course</button>
+              <div style={{ marginTop: 'auto', display: 'flex', gap: '8px' }}>
+                <button onClick={() => toggleCoursePublish(c)} style={{ flex: 1, padding: '0.7rem', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', border: 'none', background: c.is_published !== false ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)', color: c.is_published !== false ? '#ef4444' : '#10b981', transition: 'all 0.2s', fontSize: '0.85rem' }}>
+                  {c.is_published !== false ? 'Unpublish' : 'Publish'}
+                </button>
+                <button onClick={() => openEdit(c)} style={{ flex: 1, background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border)', padding: '0.7rem', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.85rem' }}>Edit</button>
                 <button onClick={() => deleteCourse(c.id)} style={{ padding: '0.7rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s', width: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="Delete Course"><Trash2 size={16} /></button>
               </div>
             </div>
@@ -1106,11 +1148,16 @@ const CoursesTab = () => {
                            </div>
                          );
                        })}
-            <Card style={{ textAlign: 'center', cursor: 'pointer', background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.2)' }} onClick={() => navigate('/admin/revenue')}>
-                <div style={{ fontSize: '1.5rem', marginBottom: '0.25rem', display: 'flex', justifyContent: 'center' }}><DollarSign size={24} style={{ color: '#10b981' }} /></div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 800 }}>Revenue ✨</div>
-            </Card>
-          </div>
+                     </div>
+                     
+                     <div style={{ background: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2rem' }}>
+                       <div>
+                         <div style={{ fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>Publish Course</div>
+                         <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Toggle to make this course visible to the public. If hidden, only admins can view it.</div>
+                       </div>
+                       <Toggle checked={form.is_published} onChange={() => setForm(f => ({ ...f, is_published: !f.is_published }))} />
+                     </div>
+
                    </div>
                  </div>
                )}
@@ -1145,16 +1192,24 @@ const CoursesTab = () => {
                      <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Upload a high-quality 16:9 thumbnail image (JPG/PNG)</p>
                      
                      {/* Current thumbnail preview */}
-                     {editing && editing.image_url && !form.image && (
+                     {editing && editing.image_url && !form.image && !form.remove_image && (
                        <div style={{ marginBottom: '1.5rem' }}>
                          <img src={`${import.meta.env.VITE_API_URL}${editing.image_url}`} alt="Current cover" style={{ width: '100%', maxWidth: '360px', aspectRatio: '16/9', objectFit: 'cover', borderRadius: '16px', border: '2px solid var(--border)', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }} />
                          <div style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: '#10b981', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Check size={14} /> Current cover image active</div>
+                         <button type="button" onClick={() => setForm({ ...form, remove_image: true })} style={{ marginTop: '0.5rem', padding: '0.4rem 0.8rem', background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px', margin: '0.5rem auto 0 auto' }}><Trash2 size={12} /> Remove Picture</button>
+                       </div>
+                     )}
+                     {editing && form.remove_image && !form.image && (
+                       <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(239,68,68,0.05)', border: '1px dashed rgba(239,68,68,0.3)', borderRadius: '12px' }}>
+                         <div style={{ fontSize: '0.85rem', color: '#ef4444', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Trash2 size={14} /> Cover image marked for deletion</div>
+                         <button type="button" onClick={() => setForm({ ...form, remove_image: false })} style={{ marginTop: '0.5rem', padding: '0.3rem 0.8rem', background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.75rem' }}>Undo</button>
                        </div>
                      )}
                      {form.image && (
                        <div style={{ marginBottom: '1.5rem' }}>
                          <img src={URL.createObjectURL(form.image)} alt="New cover preview" style={{ width: '100%', maxWidth: '360px', aspectRatio: '16/9', objectFit: 'cover', borderRadius: '16px', border: '2px solid var(--accent-primary)', boxShadow: '0 10px 25px rgba(37,99,235,0.2)' }} />
                          <div style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: 'var(--accent-primary)', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Upload size={14} /> New image selected (will replace on save)</div>
+                         <button type="button" onClick={() => setForm({ ...form, image: null })} style={{ marginTop: '0.5rem', padding: '0.4rem 0.8rem', background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px', margin: '0.5rem auto 0 auto' }}><X size={12} /> Clear selection</button>
                        </div>
                      )}
 

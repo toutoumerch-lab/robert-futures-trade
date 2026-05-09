@@ -2,7 +2,12 @@ const { pool } = require('../config/db');
 
 const getCourses = async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM courses ORDER BY created_at DESC');
+    const user = req.user;
+    let query = 'SELECT * FROM courses ORDER BY created_at DESC';
+    if (!user || user.role !== 'admin') {
+      query = 'SELECT * FROM courses WHERE is_published = true ORDER BY created_at DESC';
+    }
+    const result = await pool.query(query);
     res.json(result.rows);
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
@@ -108,13 +113,14 @@ const createCourse = async (req, res) => {
     // 2. Insert mapped payload exactly.
     const result = await pool.query(
       `INSERT INTO courses 
-        (title, description, price, image_url, level, duration, category, is_free, video_url, video_file, pdf_url) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+        (title, description, price, image_url, level, duration, category, is_free, video_url, video_file, pdf_url, is_published) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
       [
         title, description, finalPrice, finalImageUrl, 
         level || 'Beginner', duration, targetCategory, 
         is_free === 'true' || is_free === true, 
-        video_url, finalVideoFile, finalPdfUrl
+        video_url, finalVideoFile, finalPdfUrl,
+        req.body.is_published === 'true' || req.body.is_published === true || false
       ]
     );
     res.status(201).json(result.rows[0]);
@@ -136,6 +142,7 @@ const updateCourse = async (req, res) => {
 
     // Resolve file paths: use new upload > body fallback > existing DB value
     let finalImageUrl = req.body.image_url || existing.image_url;
+    if (req.body.remove_image === 'true') finalImageUrl = null;
     let finalPdfUrl = req.body.pdf_url || existing.pdf_url;
     let finalVideoFile = req.body.video_file || existing.video_file;
 
@@ -145,7 +152,7 @@ const updateCourse = async (req, res) => {
       if (req.files.video_file && req.files.video_file[0]) finalVideoFile = `/uploads/${req.files.video_file[0].filename}`;
     }
 
-    const finalPrice = price ? parseFloat(price) : 0;
+    const finalPrice = price !== undefined ? (price ? parseFloat(price) : 0) : existing.price;
     const targetCategory = category || 'Trading';
 
     // Maintain dynamic persistence logic universally
@@ -159,13 +166,14 @@ const updateCourse = async (req, res) => {
        SET 
          title=$1, description=$2, price=$3, image_url=$4, 
          level=$5, duration=$6, category=$7, is_free=$8, 
-         video_url=$9, video_file=$10, pdf_url=$11 
-       WHERE id=$12 RETURNING *`,
+         video_url=$9, video_file=$10, pdf_url=$11, is_published=$12
+       WHERE id=$13 RETURNING *`,
       [
-        title, description, finalPrice, finalImageUrl,
-        level || 'Beginner', duration, targetCategory, 
-        is_free === 'true' || is_free === true, 
+        title || existing.title, description || existing.description, finalPrice !== undefined ? finalPrice : existing.price, finalImageUrl,
+        level || existing.level || 'Beginner', duration || existing.duration, targetCategory || existing.category, 
+        is_free !== undefined ? (is_free === 'true' || is_free === true) : existing.is_free, 
         video_url || existing.video_url, finalVideoFile, finalPdfUrl, 
+        req.body.is_published !== undefined ? (req.body.is_published === 'true' || req.body.is_published === true) : existing.is_published,
         id
       ]
     );
@@ -192,7 +200,7 @@ const searchCourses = async (req, res) => {
     if (!q) return res.json([]);
     const searchQuery = `%${q}%`;
     const result = await pool.query(
-      'SELECT id, title, description, category, price, is_free, image_url, level, duration FROM courses WHERE title ILIKE $1 OR description ILIKE $1 OR category ILIKE $1 ORDER BY created_at DESC LIMIT 5',
+      'SELECT id, title, description, category, price, is_free, image_url, level, duration FROM courses WHERE (title ILIKE $1 OR description ILIKE $1 OR category ILIKE $1) AND is_published = true ORDER BY created_at DESC LIMIT 5',
       [searchQuery]
     );
     res.json(result.rows);

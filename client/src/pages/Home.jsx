@@ -545,15 +545,38 @@ const Home = () => {
 
             {/* Right — text */}
             <motion.div initial="hidden" whileInView="visible" viewport={{ once:true, margin:'-60px' }} variants={vFadeRight} style={{ flex:'1 1 340px' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(37,99,235,0.1)', border: '1px solid rgba(37,99,235,0.25)', padding: '5px 16px', borderRadius: '99px', color: 'var(--accent-primary)', fontWeight: 700, fontSize: '0.82rem', marginBottom: '1.5rem' }}>
-                <BookOpen size={14} /> Trading Education
+              <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '12px', marginBottom: '2rem' }}>
+                {/* Blurred text */}
+                <div style={{ filter: 'blur(5px)', pointerEvents: 'none', userSelect: 'none' }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(37,99,235,0.1)', border: '1px solid rgba(37,99,235,0.25)', padding: '5px 16px', borderRadius: '99px', color: 'var(--accent-primary)', fontWeight: 700, fontSize: '0.82rem', marginBottom: '1.5rem' }}>
+                    <BookOpen size={14} /> Trading Education
+                  </div>
+                  <h2 style={{ fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 900, letterSpacing: '-1px', lineHeight: 1.15, marginBottom: '1.25rem' }}>
+                    Learn to Trade Like<br /><span className="text-gradient">a Professional</span>
+                  </h2>
+                  <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, fontSize: '1.05rem', maxWidth: '480px' }}>
+                    From market structure to advanced scalping strategies — our courses are built for traders who are serious about getting funded and staying funded. Step-by-step, no fluff.
+                  </p>
+                </div>
+
+                {/* Coming Soon moving text */}
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                  <motion.span
+                    animate={{ x: ['-35%', '35%', '-35%'] }}
+                    transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+                    style={{
+                      fontSize: 'clamp(2.2rem, 5vw, 3.2rem)',
+                      fontWeight: 900,
+                      letterSpacing: '-1px',
+                      whiteSpace: 'nowrap',
+                      color: 'rgba(255,255,255,0.92)',
+                      textShadow: '0 0 40px rgba(37,99,235,0.7), 0 2px 24px rgba(0,0,0,0.9)',
+                    }}
+                  >
+                    Coming Soon...
+                  </motion.span>
+                </div>
               </div>
-              <h2 style={{ fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 900, letterSpacing: '-1px', lineHeight: 1.15, marginBottom: '1.25rem' }}>
-                Learn to Trade Like<br /><span className="text-gradient">a Professional</span>
-              </h2>
-              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, fontSize: '1.05rem', marginBottom: '2rem', maxWidth: '480px' }}>
-                From market structure to advanced scalping strategies — our courses are built for traders who are serious about getting funded and staying funded. Step-by-step, no fluff.
-              </p>
               <Link to="/courses"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.85rem 2rem', borderRadius: '12px', background: 'linear-gradient(135deg,var(--accent-secondary),var(--accent-primary))', color: '#fff', fontWeight: 800, fontSize: '0.95rem', textDecoration: 'none', boxShadow: '0 8px 24px rgba(37,99,235,0.35)' }}
               >

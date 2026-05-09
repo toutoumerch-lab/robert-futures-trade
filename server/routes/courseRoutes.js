@@ -28,7 +28,7 @@ const courseUploadFields = upload.fields([
   { name: 'video_file', maxCount: 1 }
 ]);
 
-router.get('/', getCourses);
+router.get('/', optionalAuth, getCourses);
 router.get('/search', searchCourses);
 router.get('/:id', optionalAuth, getCourse);
 router.post('/', authenticateToken, isAdmin, courseUploadFields, createCourse);

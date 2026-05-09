@@ -366,6 +366,16 @@ const PropFirmFormModal = ({ onClose, onSaved, availableGroups = [], editing = n
   const [logoUrl,      setLogoUrl]      = useState(editing?.logo_url || '');
   const [saving,       setSaving]       = useState(false);
   const [loadingRows,  setLoadingRows]  = useState(!!editing);
+
+  // Features
+  const [buffer,        setBuffer]        = useState(editing?.buffer || false);
+  const [copyTrade,     setCopyTrade]     = useState(editing?.copy_trade || false);
+  const [vpn,           setVpn]           = useState(editing?.vpn || false);
+  const [dca,           setDca]           = useState(editing?.dca || false);
+  const [news,          setNews]          = useState(editing?.news || false);
+  const [bots,          setBots]          = useState(editing?.bots || false);
+  const [microScalping, setMicroScalping] = useState(editing?.micro_scalping || false);
+
   // Track IDs of rows that existed at open time (to detect deletes)
   const [originalDbIds, setOriginalDbIds] = useState([]);
 
@@ -390,6 +400,15 @@ const PropFirmFormModal = ({ onClose, onSaved, availableGroups = [], editing = n
         setWebsite(first.website || '');
         setGroupName(first.group_name || '');
         setLogoUrl(first.logo_url || '');
+
+        setBuffer(first.buffer || false);
+        setCopyTrade(first.copy_trade || false);
+        setVpn(first.vpn || false);
+        setDca(first.dca || false);
+        setNews(first.news || false);
+        setBots(first.bots || false);
+        setMicroScalping(first.micro_scalping || false);
+
         // Build sizes from every DB row
         setOriginalDbIds(rows.map(r => r.id));
 
@@ -455,6 +474,15 @@ const PropFirmFormModal = ({ onClose, onSaved, availableGroups = [], editing = n
         fd.append('discount_code',        discountCode);
         fd.append('website',              website);
         fd.append('group_name',           groupName);
+        
+        fd.append('buffer',               buffer);
+        fd.append('copy_trade',           copyTrade);
+        fd.append('vpn',                  vpn);
+        fd.append('dca',                  dca);
+        fd.append('news',                 news);
+        fd.append('bots',                 bots);
+        fd.append('micro_scalping',       microScalping);
+
         // Plan + size identifiers stored in dedicated DB columns
         fd.append('plan_name',            plan.name || '');
         fd.append('plan_size',            size.label || '');
@@ -666,6 +694,48 @@ const PropFirmFormModal = ({ onClose, onSaved, availableGroups = [], editing = n
                   </label>
                 );
               })}
+            </div>
+          </div>
+
+          {/* Feature Support */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.6rem' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)' }}>Feature Support</span>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem' }}>
+              {[
+                { label: 'Buffer', key: 'buffer', val: buffer, set: setBuffer },
+                { label: 'Copy Trading', key: 'copyTrade', val: copyTrade, set: setCopyTrade },
+                { label: 'VPN Allowed', key: 'vpn', val: vpn, set: setVpn },
+                { label: 'DCA Strategy', key: 'dca', val: dca, set: setDca },
+                { label: 'News Trading', key: 'news', val: news, set: setNews },
+                { label: 'Trading Bots', key: 'bots', val: bots, set: setBots },
+                { label: 'Micro Scalping', key: 'microScalping', val: microScalping, set: setMicroScalping },
+              ].map(feat => (
+                <button
+                  key={feat.key}
+                  type="button"
+                  onClick={() => feat.set(!feat.val)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 14px',
+                    background: feat.val ? 'rgba(59,130,246,0.1)' : 'var(--bg-secondary)',
+                    border: `1px solid ${feat.val ? 'rgba(59,130,246,0.5)' : 'var(--border-color)'}`,
+                    borderRadius: '20px',
+                    color: feat.val ? '#3b82f6' : 'var(--text-secondary)',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s'
+                  }}
+                >
+                  <span style={{ fontSize: '1rem', lineHeight: 1 }}>{feat.val ? '✓' : '×'}</span>
+                  {feat.label}
+                </button>
+              ))}
             </div>
           </div>
 
