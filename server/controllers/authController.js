@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt    = require('jsonwebtoken');
 const https  = require('https');
 const crypto = require('crypto');
-const { sendMail } = require('../utils/mailer');
+const { sendMail, sendSmtpMail } = require('../utils/mailer');
 const { pool } = require('../config/db');
 
 /* ─────────────────────────────────────────────────────────────────
@@ -94,7 +94,7 @@ const register = async (req, res) => {
        verificationCode, verificationExpires]
     );
 
-    const mailResult = await sendMail(
+    const mailResult = await sendSmtpMail(
       email,
       'Your verification code – Robert Trades',
       otpEmailHtml(name, verificationCode)
@@ -186,7 +186,7 @@ const resendOtp = async (req, res) => {
       [verificationCode, verificationExpires, user.id]
     );
 
-    const mailResult = await sendMail(
+    const mailResult = await sendSmtpMail(
       email,
       'Your new verification code – Robert Trades',
       otpEmailHtml(user.name, verificationCode)

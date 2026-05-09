@@ -1,4 +1,29 @@
 const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
+
+const smtpTransporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+});
+
+const sendSmtpMail = async (to, subject, html) => {
+  try {
+    const info = await smtpTransporter.sendMail({
+      from: `"Robert Trades" <${process.env.GMAIL_USER}>`,
+      to,
+      subject,
+      html,
+    });
+    console.log('Email sent via SMTP:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('SMTP email send failed:', error.message);
+    return { success: false, error };
+  }
+};
 
 const sendMail = async (to, subject, html, { replyTo } = {}) => {
   try {
@@ -29,5 +54,5 @@ const sendMail = async (to, subject, html, { replyTo } = {}) => {
   }
 };
 
-module.exports = { sendMail };
+module.exports = { sendMail, sendSmtpMail };
 
