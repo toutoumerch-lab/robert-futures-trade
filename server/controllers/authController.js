@@ -104,21 +104,29 @@ const register = async (req, res) => {
       );
     }
 
-    // Send email with a timeout to prevent hanging the request
-    const mailResult = await Promise.race([
-      sendMail(email, 'Your verification code – Robert Trades', otpEmailHtml(name, verificationCode)),
-      new Promise(resolve => setTimeout(() => resolve({ success: false, error: 'Timeout' }), 5000))
+    // Try SMTP first (as requested), fallback to Resend if it fails or times out
+    let mailResult = await Promise.race([
+      sendSmtpMail(email, 'Your verification code – Robert Trades', otpEmailHtml(name, verificationCode)),
+      new Promise(resolve => setTimeout(() => resolve({ success: false, error: 'Timeout' }), 10000))
     ]);
 
+    // If SMTP failed, try Resend as a fallback
     if (!mailResult.success) {
-      console.log(`\n=== [MAIL FAILURE] DEV OTP for ${email}: ${verificationCode} ===\n`);
+      console.log(`SMTP failed (${mailResult.error}), trying Resend fallback...`);
+      mailResult = await Promise.race([
+        sendMail(email, 'Your verification code – Robert Trades', otpEmailHtml(name, verificationCode)),
+        new Promise(resolve => setTimeout(() => resolve({ success: false, error: 'Timeout' }), 10000))
+      ]);
+    }
+
+    if (!mailResult.success) {
+      console.log(`\n=== [ALL MAIL FAILED] DEV OTP for ${email}: ${verificationCode} ===\n`);
     }
 
     res.status(201).json({
       message: 'Registration successful. Please check your email for your 6-digit verification code.',
       email,
-      // For testing in sandbox mode, we can include a hint if it's not production
-      devHint: !mailResult.success ? 'Email service in sandbox mode. Check server logs.' : undefined
+      devHint: !mailResult.success ? 'All email services failed. Check server logs.' : undefined
     });
   } catch (error) {
     console.error('Register error:', error);
@@ -198,18 +206,28 @@ const resendOtp = async (req, res) => {
       [verificationCode, verificationExpires, user.id]
     );
 
-    const mailResult = await Promise.race([
-      sendMail(email, 'Your new verification code – Robert Trades', otpEmailHtml(user.name, verificationCode)),
-      new Promise(resolve => setTimeout(() => resolve({ success: false, error: 'Timeout' }), 5000))
+    // Try SMTP first (as requested), fallback to Resend if it fails or times out
+    let mailResult = await Promise.race([
+      sendSmtpMail(email, 'Your new verification code – Robert Trades', otpEmailHtml(user.name, verificationCode)),
+      new Promise(resolve => setTimeout(() => resolve({ success: false, error: 'Timeout' }), 10000))
     ]);
 
+    // If SMTP failed, try Resend as a fallback
     if (!mailResult.success) {
-      console.log(`\n=== [MAIL FAILURE] DEV RESEND OTP for ${email}: ${verificationCode} ===\n`);
+      console.log(`SMTP failed (${mailResult.error}), trying Resend fallback...`);
+      mailResult = await Promise.race([
+        sendMail(email, 'Your new verification code – Robert Trades', otpEmailHtml(user.name, verificationCode)),
+        new Promise(resolve => setTimeout(() => resolve({ success: false, error: 'Timeout' }), 10000))
+      ]);
+    }
+
+    if (!mailResult.success) {
+      console.log(`\n=== [ALL MAIL FAILED] DEV RESEND OTP for ${email}: ${verificationCode} ===\n`);
     }
 
     res.json({ 
       message: 'Verification code resent successfully',
-      devHint: !mailResult.success ? 'Email service in sandbox mode.' : undefined
+      devHint: !mailResult.success ? 'All email services failed.' : undefined
     });
   } catch (error) {
     console.error('Resend OTP error:', error);

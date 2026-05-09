@@ -2,11 +2,16 @@ const { Resend } = require('resend');
 const nodemailer = require('nodemailer');
 
 const smtpTransporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // true for 465, false for other ports
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_APP_PASSWORD,
   },
+  tls: {
+    rejectUnauthorized: false // Helps with some VPS network restrictions
+  }
 });
 
 const sendSmtpMail = async (to, subject, html) => {
@@ -21,7 +26,7 @@ const sendSmtpMail = async (to, subject, html) => {
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error('SMTP email send failed:', error.message);
-    return { success: false, error };
+    return { success: false, error: error.message };
   }
 };
 
