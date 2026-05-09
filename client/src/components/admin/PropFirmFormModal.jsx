@@ -9,7 +9,13 @@ const API = import.meta.env.VITE_API_URL;
 const PLATFORMS = [
   'NinjaTrader', 'Tradovate', 'TradingView', 'Rithmic', 'Quantower',
   'TradeStation', 'Sierra Chart', 'ATAS', 'Bookmap', 'MetaTrader 4',
-  'MetaTrader 5', 'cTrader', 'Webull', 'Interactive Brokers','MotiveWave', 'Jigsaw','R|Trader Pro','Multicharts' 
+  'MetaTrader 5', 'cTrader', 'Webull', 'Interactive Brokers', 'MotiveWave', 
+  'Jigsaw', 'R|Trader Pro', 'Multicharts', 'ProjectX', 'WealthCharts', 
+  'E8 Futures', 'Blackarrow', 'TradeSea', 'EdgeProX', 'Inside Edge', 
+  'Volfix.Net', 'Tiger Trade', 'Optimus Flow', 'MedVed Trader', 'Overcharts', 
+  'Finamark', 'Photon', 'Trade Navigator', 'Quick Screen Trading (QST)', 
+  'TSLAB', 'Onyx', 'Investor/RT', 'Volumetrica', 'VolBook', 'Deepcharts', 
+  'Volsys Prop', 'DX Feed', 'CQG', 'CTS T4', 'Motivewave Mobile'
 ];
 
 const SIZE_PRESETS = ['10K', '25K', '50K', '100K', '150K', '200K', '250K', '300K'];
