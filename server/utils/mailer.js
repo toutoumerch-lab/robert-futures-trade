@@ -29,7 +29,7 @@ const sendMail = async (to, subject, html, { replyTo } = {}) => {
   try {
     const resend = new Resend(process.env.RESEND_API_KEY);
 
-    const fromAddress = process.env.RESEND_FROM || `"Robert Trades" <noreply@roberttrades.com>`;
+    const fromAddress = process.env.RESEND_FROM || `Robert Trades <onboarding@resend.dev>`;
 
     const payload = {
       from: fromAddress,
