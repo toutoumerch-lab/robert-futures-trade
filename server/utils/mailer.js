@@ -1,6 +1,43 @@
+const { Resend } = require('resend');
 const nodemailer = require('nodemailer');
 
-// Primary SMTP Transporter (Gmail / Google Workspace)
+// Primary Mailer using Resend API (to bypass VPS port blocks)
+const sendMail = async (to, subject, html, { replyTo } = {}) => {
+  try {
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error('RESEND_API_KEY is missing in .env');
+    }
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    
+    // Fallback 'from' address if not specified or unverified
+    const fromAddress = process.env.RESEND_FROM || 'Robert Trades <onboarding@resend.dev>';
+
+    const payload = {
+      from: fromAddress,
+      to: Array.isArray(to) ? to : [to],
+      subject,
+      html,
+    };
+    if (replyTo) payload.reply_to = replyTo;
+
+    const { data, error } = await resend.emails.send(payload);
+
+    if (error) {
+      console.error('Resend API error:', error.message);
+      // If domain is unverified, Resend returns a 403 or validation error
+      return { success: false, error: error.message };
+    }
+
+    console.log('Email sent successfully via Resend API:', data?.id);
+    return { success: true, messageId: data?.id };
+  } catch (error) {
+    console.error('Email send failed (Resend):', error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+// SMTP Transporter kept only as a secondary fallback or legacy alias
 const smtpTransporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -9,29 +46,19 @@ const smtpTransporter = nodemailer.createTransport({
   },
 });
 
-/**
- * Sends an email using SMTP (Nodemailer)
- */
-const sendMail = async (to, subject, html, { replyTo } = {}) => {
+const sendSmtpMail = async (to, subject, html) => {
   try {
-    const payload = {
+    const info = await smtpTransporter.sendMail({
       from: `"Robert Trades" <${process.env.GMAIL_USER}>`,
       to,
       subject,
       html,
-    };
-    if (replyTo) payload.replyTo = replyTo;
-
-    const info = await smtpTransporter.sendMail(payload);
-    console.log('Email sent successfully via SMTP:', info.messageId);
+    });
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error('Email send failed (SMTP):', error.message);
+    console.error('SMTP fallback failed:', error.message);
     return { success: false, error: error.message };
   }
 };
-
-// Legacy alias for compatibility during migration
-const sendSmtpMail = sendMail;
 
 module.exports = { sendMail, sendSmtpMail };
