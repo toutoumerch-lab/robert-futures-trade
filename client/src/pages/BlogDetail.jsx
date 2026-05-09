@@ -110,12 +110,6 @@ const BlogDetail = () => {
     }
   };
 
-  // ── Render content with paragraph support ────────────────────────────────────
-  const renderContent = (content = '') =>
-    content.split('\n').filter(Boolean).map((para, i) => (
-      <p key={i} className="blog-prose-para">{para}</p>
-    ));
-
   // ── Loading ─────────────────────────────────────────────────────────────────
   if (loading) {
     return (
@@ -173,7 +167,7 @@ const BlogDetail = () => {
       {post.image_url && (
         <div className="blog-detail-cover">
           <img
-            src={`${import.meta.env.VITE_API_URL}${post.image_url}`}
+            src={post.image_url.startsWith('http') ? post.image_url : `${import.meta.env.VITE_API_URL}${post.image_url}`}
             alt={post.title}
             className="blog-detail-cover-img"
           />
@@ -222,9 +216,10 @@ const BlogDetail = () => {
           <div className="blog-divider" />
 
           {/* Prose content */}
-          <div className="blog-prose">
-            {renderContent(post.content)}
-          </div>
+          <div 
+            className="blog-prose"
+            dangerouslySetInnerHTML={{ __html: post.content || '' }}
+          />
 
           {/* ── Reactions bar ─────────────────────────────────────────── */}
           <div className="blog-reactions-bar">
