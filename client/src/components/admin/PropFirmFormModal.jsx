@@ -251,7 +251,7 @@ const PlanCard = ({ plan, onUpdate, onRemove, onCopy }) => {
 
         <select value={plan.type} onChange={e => onUpdate({ type: e.target.value })}
           style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '5px 8px', fontSize: '0.8rem', color: 'var(--text-primary)', outline: 'none' }}>
-          <option value="evaluation_funded">Eval + Funded</option>
+          <option value="evaluation_funded">Eval -&gt; Funded</option>
           <option value="straight_funded">Straight Funded</option>
           <option value="one_step">1-Step Evaluation</option>
           <option value="two_step">2-Step Evaluation</option>
