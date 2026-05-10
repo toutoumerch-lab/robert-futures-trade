@@ -45,7 +45,7 @@ const parseDrawdown = (dl) => {
 
 const planTypeLabel = (t) => {
   if (!t) return '—';
-  if (t === 'evaluation_funded') return 'Eval + Funded';
+  if (t === 'evaluation_funded') return 'Eval -> Funded';
   if (t === 'straight_funded')   return 'Straight Funded';
   if (t === 'one_step')          return '1-Step';
   if (t === 'two_step')          return '2-Step';
