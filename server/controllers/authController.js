@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt    = require('jsonwebtoken');
 const https  = require('https');
 const crypto = require('crypto');
-const { sendMail, sendSmtpMail } = require('../utils/mailer');
+const { sendMail } = require('../utils/mailer');
 const { pool } = require('../config/db');
 
 /* ─────────────────────────────────────────────────────────────────
