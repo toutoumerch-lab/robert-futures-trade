@@ -39,6 +39,20 @@ const rowToSize = (row) => {
   let notes = {};
   try { notes = JSON.parse(row.notes || '{}'); } catch (_) {}
   const dl = row.drawdown_limit || '';
+  const parseContracts = (str) => {
+    const res = { mini: '', micro: '' };
+    if (!str) return res;
+    const parts = str.split('/').map(s => s.trim());
+    parts.forEach(p => {
+      if (p.toLowerCase().includes('mini')) res.mini = p.replace(/[^0-9.]/g, '');
+      if (p.toLowerCase().includes('micro')) res.micro = p.replace(/[^0-9.]/g, '');
+    });
+    return res;
+  };
+
+  const evalContracts = parseContracts(row.eval);
+  const paContracts = parseContracts(row.pa);
+
   return {
     ...makeSize(row.plan_size || ''),
     _dbId:                    row.id,
@@ -54,8 +68,8 @@ const rowToSize = (row) => {
     funded_min_days:          String(row.days_to_payout || ''),
     funded_max_withdrawal:    String(row.max_withdrawal || ''),
     funded_profit_split:      String((row.profit_split || '').replace('%', '')),
-    eval_max_mini:            notes.eval_max_mini || '',
-    eval_max_micro:           notes.eval_max_micro || '',
+    eval_max_mini:            notes.eval_max_mini || evalContracts.mini,
+    eval_max_micro:           notes.eval_max_micro || evalContracts.micro,
     eval_consistency_percent: notes.eval_consistency || '',
     eval_max_inactive_days:   notes.eval_max_inactive || '',
     funded_dll:               notes.funded_dll || '',
@@ -65,7 +79,9 @@ const rowToSize = (row) => {
     funded_hold_news:         notes.funded_hold_news || 'Yes',
     funded_max_inactive_days: notes.funded_max_inactive || '',
     funded_max_allocation:    notes.funded_max_allocation || '',
-    eval_max_allocation:      String(row.max_accounts || ''),
+    funded_max_mini:          notes.funded_max_mini || paContracts.mini,
+    funded_max_micro:         notes.funded_max_micro || paContracts.micro,
+    eval_max_allocation:      notes.eval_max_allocation || String(row.max_accounts || ''),
   };
 };
 
@@ -520,6 +536,9 @@ const PropFirmFormModal = ({ onClose, onSaved, availableGroups = [], editing = n
           plan_variant:          plan.variant,
           eval_consistency:      size.eval_consistency_percent,
           eval_max_inactive:     size.eval_max_inactive_days,
+          eval_max_mini:         size.eval_max_mini,
+          eval_max_micro:        size.eval_max_micro,
+          eval_max_allocation:   size.eval_max_allocation,
           funded_dll:            size.funded_dll,
           funded_max_loss:       size.funded_max_loss,
           funded_consistency:    size.funded_consistency_percent,
@@ -527,6 +546,8 @@ const PropFirmFormModal = ({ onClose, onSaved, availableGroups = [], editing = n
           funded_hold_news:      size.funded_hold_news,
           funded_max_inactive:   size.funded_max_inactive_days,
           funded_max_allocation: size.funded_max_allocation,
+          funded_max_mini:       size.funded_max_mini,
+          funded_max_micro:      size.funded_max_micro,
         }));
         if (logo) fd.append('logo', logo);
         return fd;
