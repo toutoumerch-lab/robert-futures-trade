@@ -5607,8 +5607,6 @@ select:focus {
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
 }
 
 .blog-article-title {
@@ -6039,17 +6037,6 @@ select:focus {
 
 /* ── Blog Detail — Mobile Responsive ───────────────────────── */
 @media (max-width: 768px) {
-  /* Prevent any horizontal overflow on blog pages */
-  .blog-detail-cover,
-  .blog-article,
-  .blog-prose,
-  .blog-comments-section,
-  .blog-detail-wrap {
-    max-width: 100%;
-    overflow-x: hidden;
-    box-sizing: border-box;
-  }
-
   /* Cover image */
   .blog-detail-cover-img {
     width: 100%;
@@ -6062,13 +6049,22 @@ select:focus {
   /* Content wrap — proper padding so text isn't edge-to-edge */
   .blog-detail-wrap {
     width: 100%;
-    max-width: 100%;
+    max-width: 100vw;
     padding-top: 1.5rem;
     padding-bottom: 4rem;
     padding-left: 1.1rem;
     padding-right: 1.1rem;
     margin-left: 0;
     margin-right: 0;
+    box-sizing: border-box;
+  }
+
+  /* Article and prose — NO overflow:hidden so text is never clipped */
+  .blog-article,
+  .blog-prose,
+  .blog-comments-section {
+    width: 100%;
+    max-width: 100%;
     box-sizing: border-box;
   }
 
@@ -6229,13 +6225,12 @@ select:focus {
 @media (max-width: 640px) {
   .container {
     width: 100%;
-    max-width: 100%;
+    max-width: 100vw;
     padding-left: 1rem;
     padding-right: 1rem;
     margin-left: 0;
     margin-right: 0;
     box-sizing: border-box;
-    overflow-x: hidden;
   }
 
   .section-pad {
