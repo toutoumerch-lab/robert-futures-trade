@@ -28,7 +28,7 @@ const getPosts = async (req, res) => {
 
     const result = await pool.query(`
       SELECT
-        p.id, p.title, p.excerpt, p.category, p.image_url,
+        p.id, p.title, p.content, p.excerpt, p.category, p.image_url,
         p.is_published, p.read_time, p.created_at,
         u.name  AS author_name,
         u.email AS author_email,
