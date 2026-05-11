@@ -1095,15 +1095,6 @@ const PropFirmList = () => {
                   });
                   const dedupedSorted = Array.from(seenMap.values());
 
-                  // Group deduplicated firms by group_name
-                  const groupMap = {};
-                  const groupOrder = [];
-                  dedupedSorted.forEach(f => {
-                    const key = f.group_name || '__ungrouped__';
-                    if (!groupMap[key]) { groupMap[key] = []; groupOrder.push(key); }
-                    groupMap[key].push(f);
-                  });
-
                   const renderCards = (firmsList, startIdx = 0) => viewLayout === 'grid' ? (
                     <div className="pf-grid">
                       {firmsList.map((firm, i) => (
@@ -1134,58 +1125,7 @@ const PropFirmList = () => {
                     </div>
                   );
 
-                  // If no grouping exists at all, render flat
-                  const hasAnyGroup = groupOrder.some(k => k !== '__ungrouped__');
-                  if (!hasAnyGroup) return renderCards(dedupedSorted);
-
-                  let runningIdx = 0;
-                  return groupOrder.map(key => {
-                    const isUngrouped = key === '__ungrouped__';
-                    const groupFirms = groupMap[key];
-                    const startIdx = runningIdx;
-                    runningIdx += groupFirms.length;
-
-                    return (
-                      <div key={key} style={{ marginBottom: isUngrouped ? 0 : '1.5rem' }}>
-                        {!isUngrouped && (
-                          <div style={{
-                            display: 'flex', alignItems: 'center', gap: '12px',
-                            padding: '1rem 1.25rem', marginBottom: '1rem',
-                            background: 'linear-gradient(135deg, rgba(37,99,235,0.06), rgba(59,130,246,0.06))',
-                            borderRadius: '16px', border: '1px solid rgba(37,99,235,0.15)'
-                          }}>
-                            {(() => {
-                              const gData = groupsData.find(g => g.name === key);
-                              const groupImg = gData?.image_url;
-                              return groupImg ? (
-                                <img src={`${API}${groupImg}`} alt={key} style={{
-                                  width: 40, height: 40, borderRadius: 12, objectFit: 'cover',
-                                  border: '2px solid rgba(37,99,235,0.2)', boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                                  flexShrink: 0, transition: 'transform 0.2s'
-                                }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.1)'} onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'} />
-                              ) : (
-                                <div style={{
-                                  width: 40, height: 40, borderRadius: 12,
-                                  background: 'linear-gradient(135deg, #2563eb, #3b82f6)',
-                                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                  color: '#fff', fontWeight: 900, fontSize: '1.1rem', flexShrink: 0
-                                }}>{key.charAt(0).toUpperCase()}</div>
-                              );
-                            })()}
-                            <span style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--text-primary)', letterSpacing: '-0.3px' }}>{key}</span>
-                            <span style={{
-                              background: 'linear-gradient(135deg, rgba(37,99,235,0.15), rgba(59,130,246,0.15))',
-                              color: '#2563eb', padding: '3px 12px', borderRadius: '99px',
-                              fontSize: '0.75rem', fontWeight: 800
-                            }}>
-                              {groupFirms.length} plan{groupFirms.length !== 1 ? 's' : ''}
-                            </span>
-                          </div>
-                        )}
-                        {renderCards(groupFirms, startIdx)}
-                      </div>
-                    );
-                  });
+                  return renderCards(dedupedSorted);
                 })()}
               </div>
             </div>

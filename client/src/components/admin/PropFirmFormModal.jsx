@@ -653,11 +653,6 @@ const PropFirmFormModal = ({ onClose, onSaved, availableGroups = [], editing = n
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '5px' }}>Group</label>
-                <input className="input" list="pfm-groups" value={groupName} onChange={e => setGroupName(e.target.value)} placeholder="Group name..." style={{ padding: '7px 9px', fontSize: '0.85rem' }} />
-                <datalist id="pfm-groups">{availableGroups.map(g => <option key={g.name} value={g.name} />)}</datalist>
-              </div>
-              <div>
                 <label style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '5px' }}>Discount Code</label>
                 <input className="input" value={discountCode} onChange={e => setDiscountCode(e.target.value)} placeholder="e.g. RTF20" style={{ padding: '7px 9px', fontSize: '0.85rem' }} />
               </div>
