@@ -5604,15 +5604,24 @@ select:focus {
 /* ── Article ───────────────────────────────────────────────── */
 .blog-article {
   margin-bottom: 4rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .blog-article-title {
-  font-size: clamp(1.8rem, 4vw, 2.75rem);
+  font-size: clamp(1.4rem, 5vw, 2.75rem);
   font-weight: 900;
   letter-spacing: -0.03em;
   line-height: 1.15;
   color: var(--text-primary);
   margin: 0 0 1.5rem;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
 }
 
 .blog-article-meta {
@@ -5647,11 +5656,20 @@ select:focus {
   font-size: 1.1rem;
   line-height: 1.85;
   color: var(--text-secondary);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .blog-prose p {
   margin: 0 0 1.25rem;
   line-height: 1.85;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 .blog-prose br {
@@ -5666,6 +5684,10 @@ select:focus {
   font-weight: 800;
   line-height: 1.2;
   margin: 2rem 0 0.75rem;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
 }
 
 .blog-prose h1 { font-size: 2rem; }
