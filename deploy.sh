@@ -33,7 +33,7 @@ npm install --omit=dev
 
 echo "=== [6/8] Building React frontend ==="
 cd "$APP_DIR/client"
-npm install
+npm install --legacy-peer-deps
 npm run build
 
 echo "=== [7/8] Configuring Nginx ==="
