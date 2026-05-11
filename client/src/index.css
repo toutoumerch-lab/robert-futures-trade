@@ -5396,6 +5396,19 @@ select:focus {
   text-overflow: ellipsis;
 }
 
+.blog-article-title {
+  font-size: clamp(1.4rem, 5vw, 2.75rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: var(--text-primary);
+  margin: 0 0 1.25rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+}
+
 .bl-author-sub {
   font-size: 0.72rem;
   color: var(--text-secondary);
@@ -5675,11 +5688,12 @@ select:focus {
 .blog-prose blockquote,
 .blog-prose strong,
 .blog-prose em {
-  word-break: normal !important;
-  overflow-wrap: normal !important;
-  hyphens: none !important;
-  -webkit-hyphens: none !important;
-  -ms-hyphens: none !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+  hyphens: auto !important;
+  -webkit-hyphens: auto !important;
+  -ms-hyphens: auto !important;
   white-space: normal !important;
 }
 
@@ -6095,6 +6109,10 @@ select:focus {
     font-size: clamp(1.4rem, 6vw, 2rem);
     letter-spacing: -0.02em;
     margin: 0 0 1rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
   }
 
   /* Meta row — stack vertically on small screens */
