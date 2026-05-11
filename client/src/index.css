@@ -6009,6 +6009,154 @@ select:focus {
   margin: 1rem 0;
 }
 
+/* ── Blog Detail — Mobile Responsive ───────────────────────── */
+@media (max-width: 768px) {
+  /* Cover image */
+  .blog-detail-cover-img {
+    width: 100%;
+    height: auto;
+    max-height: 260px;
+    object-fit: cover;
+    border-radius: 0;
+  }
+
+  /* Content wrap — proper padding so text isn't edge-to-edge */
+  .blog-detail-wrap {
+    padding-top: 1.5rem;
+    padding-bottom: 4rem;
+    padding-left: 1.1rem;
+    padding-right: 1.1rem;
+  }
+
+  /* Back link */
+  .blog-back-link {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Title */
+  .blog-article-title {
+    font-size: clamp(1.4rem, 6vw, 2rem);
+    letter-spacing: -0.02em;
+    margin: 0 0 1rem;
+  }
+
+  /* Meta row — stack vertically on small screens */
+  .blog-article-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .blog-article-meta-right {
+    font-size: 0.78rem;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .blog-divider {
+    margin: 1.25rem 0;
+  }
+
+  /* Prose — more readable on mobile */
+  .blog-prose {
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+
+  .blog-prose p {
+    margin: 0 0 1rem;
+  }
+
+  .blog-prose h1 { font-size: 1.5rem; }
+  .blog-prose h2 { font-size: 1.3rem; }
+  .blog-prose h3 { font-size: 1.1rem; }
+  .blog-prose h4 { font-size: 1rem; }
+
+  .blog-prose h1, .blog-prose h2, .blog-prose h3,
+  .blog-prose h4, .blog-prose h5, .blog-prose h6 {
+    margin: 1.5rem 0 0.5rem;
+  }
+
+  .blog-prose blockquote {
+    padding: 0.6rem 1rem;
+    margin: 1rem 0;
+  }
+
+  .blog-prose ul, .blog-prose ol {
+    padding-left: 1.25rem;
+  }
+
+  /* Reactions bar */
+  .blog-reactions-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+    gap: 0.75rem;
+    border-radius: 14px;
+  }
+
+  .blog-reactions-btns {
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .blog-reaction-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  /* Comments */
+  .blog-comment-form {
+    gap: 0.6rem;
+  }
+
+  .blog-comment-input {
+    font-size: 0.9rem;
+    padding: 0.75rem 0.875rem;
+    border-radius: 12px;
+  }
+
+  .blog-comment-submit {
+    width: 100%;
+    justify-content: center;
+    padding: 0.7rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .blog-comment-body {
+    padding: 0.85rem 1rem;
+    border-radius: 12px;
+  }
+
+  .blog-comments-title {
+    font-size: 1.1rem;
+  }
+
+  /* Avatar sizes */
+  .blog-avatar {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 0.9rem !important;
+    flex-shrink: 0;
+  }
+
+  .blog-avatar.large {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .blog-avatar.small {
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 0.75rem !important;
+  }
+}
+
 /* ── Courses grid view — responsive ─────────────────────────── */
 @media (max-width: 1024px) {
   .crs-grid { grid-template-columns: repeat(2, 1fr) !important; }
