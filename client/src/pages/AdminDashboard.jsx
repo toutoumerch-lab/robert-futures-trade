@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 import * as XLSX from 'xlsx';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -442,7 +444,30 @@ const PostsTab = ({ adminUser }) => {
                   </div>
                   <div className="form-group">
                     <label className="form-label">Post Content</label>
-                    <textarea className="input" rows={14} value={form.content} onChange={e => setForm(f => ({ ...f, content: e.target.value }))} placeholder="Write your full article here. Use blank lines to separate paragraphs…" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.8, fontSize: '1rem' }} />
+                    <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1.5px solid var(--border)', background: '#fff' }}>
+                      <ReactQuill
+                        theme="snow"
+                        value={form.content}
+                        onChange={val => setForm(f => ({ ...f, content: val }))}
+                        placeholder="Write your full article here…"
+                        modules={{
+                          toolbar: [
+                            [{ header: [1, 2, 3, false] }],
+                            [{ font: [] }],
+                            [{ size: ['small', false, 'large', 'huge'] }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            [{ color: [] }, { background: [] }],
+                            [{ list: 'ordered' }, { list: 'bullet' }],
+                            [{ indent: '-1' }, { indent: '+1' }],
+                            [{ align: [] }],
+                            ['blockquote', 'code-block'],
+                            ['link', 'image'],
+                            ['clean'],
+                          ],
+                        }}
+                        style={{ minHeight: '320px' }}
+                      />
+                    </div>
                   </div>
                 </div>
               )}
