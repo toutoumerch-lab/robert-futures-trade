@@ -274,8 +274,14 @@ const PostsTab = ({ adminUser }) => {
 
   const openEdit = (p) => {
     setEditing(p);
+    // If content is plain text (no HTML tags), wrap paragraphs in <p> tags for Quill
+    const rawContent = p.content || '';
+    const isHtml = /<[a-z][\s\S]*>/i.test(rawContent);
+    const content = isHtml
+      ? rawContent
+      : rawContent.split(/\n\n+/).map(para => `<p>${para.replace(/\n/g, '<br>')}</p>`).join('');
     setForm({
-      title: p.title || '', content: p.content || '',
+      title: p.title || '', content,
       excerpt: p.excerpt || '', category: p.category || 'General',
       read_time: p.read_time || '', is_published: p.is_published || false,
       image: null,
@@ -446,6 +452,7 @@ const PostsTab = ({ adminUser }) => {
                     <label className="form-label">Post Content</label>
                     <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1.5px solid var(--border)', background: '#fff' }}>
                       <ReactQuill
+                        key={editing ? `edit-${editing.id}` : 'new-post'}
                         theme="snow"
                         value={form.content}
                         onChange={val => setForm(f => ({ ...f, content: val }))}
