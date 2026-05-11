@@ -1,8 +1,34 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
-import ReactQuill from 'react-quill-new';
+import ReactQuill, { Quill } from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
+
+// Register extended font list
+const Font = Quill.import('formats/font');
+Font.whitelist = [
+  'sans-serif', 'serif', 'monospace',
+  'arial', 'georgia', 'impact', 'tahoma',
+  'trebuchet', 'verdana', 'courier', 'comic-sans',
+  'open-sans', 'roboto', 'lato', 'oswald',
+];
+Quill.register(Font, true);
+
+const QUILL_MODULES = {
+  toolbar: [
+    [{ header: [1, 2, 3, 4, 5, 6, false] }],
+    [{ font: Font.whitelist }],
+    [{ size: ['small', false, 'large', 'huge'] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ color: ['', '#000000', '#ffffff', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ff0066', '#444444', '#666666', '#888888', '#aaaaaa', '#cccccc', '#eeeeee'] }, { background: ['', '#000000', '#ffffff', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ff0066', '#444444', '#666666', '#888888', '#aaaaaa', '#cccccc', '#eeeeee'] }],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    [{ indent: '-1' }, { indent: '+1' }],
+    [{ align: [] }],
+    ['blockquote', 'code-block'],
+    ['link', 'image'],
+    ['clean'],
+  ],
+};
 import * as XLSX from 'xlsx';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -457,21 +483,7 @@ const PostsTab = ({ adminUser }) => {
                         value={form.content}
                         onChange={val => setForm(f => ({ ...f, content: val }))}
                         placeholder="Write your full article here…"
-                        modules={{
-                          toolbar: [
-                            [{ header: [1, 2, 3, false] }],
-                            [{ font: [] }],
-                            [{ size: ['small', false, 'large', 'huge'] }],
-                            ['bold', 'italic', 'underline', 'strike'],
-                            [{ color: [] }, { background: [] }],
-                            [{ list: 'ordered' }, { list: 'bullet' }],
-                            [{ indent: '-1' }, { indent: '+1' }],
-                            [{ align: [] }],
-                            ['blockquote', 'code-block'],
-                            ['link', 'image'],
-                            ['clean'],
-                          ],
-                        }}
+                        modules={QUILL_MODULES}
                         style={{ minHeight: '320px' }}
                       />
                     </div>

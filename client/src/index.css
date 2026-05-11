@@ -6723,3 +6723,32 @@ html { scroll-behavior: smooth; }
   color: #3b82f6 !important;
 }
 
+/* Quill custom fonts */
+.ql-font-arial        { font-family: Arial, sans-serif; }
+.ql-font-georgia      { font-family: Georgia, serif; }
+.ql-font-impact       { font-family: Impact, sans-serif; }
+.ql-font-tahoma       { font-family: Tahoma, sans-serif; }
+.ql-font-trebuchet    { font-family: 'Trebuchet MS', sans-serif; }
+.ql-font-verdana      { font-family: Verdana, sans-serif; }
+.ql-font-courier      { font-family: 'Courier New', monospace; }
+.ql-font-comic-sans   { font-family: 'Comic Sans MS', cursive; }
+.ql-font-open-sans    { font-family: 'Open Sans', sans-serif; }
+.ql-font-roboto       { font-family: 'Roboto', sans-serif; }
+.ql-font-lato         { font-family: 'Lato', sans-serif; }
+.ql-font-oswald       { font-family: 'Oswald', sans-serif; }
+
+/* "No color" swatch — first swatch removes color */
+.ql-color-picker .ql-picker-options .ql-picker-item[data-value=''],
+.ql-background-picker .ql-picker-options .ql-picker-item[data-value=''] {
+  background: transparent !important;
+  border: 2px solid #ef4444 !important;
+  position: relative;
+}
+.ql-color-picker .ql-picker-options .ql-picker-item[data-value='']::after,
+.ql-background-picker .ql-picker-options .ql-picker-item[data-value='']::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom right, transparent calc(50% - 1px), #ef4444 calc(50% - 1px), #ef4444 calc(50% + 1px), transparent calc(50% + 1px));
+}
+
