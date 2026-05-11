@@ -28,7 +28,7 @@ const makeSize = (label = '') => ({
   eval_min_days: '', eval_dll: '', eval_profit_target: '', eval_max_loss: '',
   eval_drawdown_type: 'EOD', eval_max_mini: '', eval_max_micro: '',
   eval_max_allocation: '', eval_max_inactive_days: '', eval_consistency_percent: '',
-  funded_min_days: '', funded_winning_day: '', funded_max_withdrawal: '',
+  funded_days_to_payout: '', funded_min_days: '', funded_winning_day: '', funded_max_withdrawal: '',
   funded_max_loss: '', funded_dll: '', funded_consistency_percent: '',
   funded_max_mini: '', funded_max_micro: '', funded_max_allocation: '',
   funded_max_inactive_days: '', funded_hold_news: 'Yes', funded_profit_split: '',
@@ -65,7 +65,8 @@ const rowToSize = (row) => {
     eval_max_loss:            dl.includes('$') ? dl.replace(/^.*\$/, '').trim() : '',
     eval_drawdown_type:       dl.startsWith('Trailing') ? 'Trailing' : dl.startsWith('Static') ? 'Static' : 'EOD',
     eval_min_days:            String(row.days_to_pass || ''),
-    funded_min_days:          String(row.days_to_payout || ''),
+    funded_days_to_payout:    String(row.days_to_payout || ''),
+    funded_min_days:          notes.funded_min_days || '',
     funded_max_withdrawal:    String(row.max_withdrawal || ''),
     funded_profit_split:      String((row.profit_split || '').replace('%', '')),
     eval_max_mini:            notes.eval_max_mini || evalContracts.mini,
@@ -200,6 +201,7 @@ const SizeFields = ({ size, onUpdate, onCopyAll, showEval }) => {
       <div>
         <SectionLabel>Funded</SectionLabel>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.65rem' }}>
+          <Inp label="Days to Payout" value={size.funded_days_to_payout} onChange={e => u({ funded_days_to_payout: e.target.value })} onCopyAll={() => cp('funded_days_to_payout')} />
           <Inp label="Min trading days for payout" value={size.funded_min_days} onChange={e => u({ funded_min_days: e.target.value })} onCopyAll={() => cp('funded_min_days')} />
           <Inp label="Winning day (min profit)" value={size.funded_winning_day} onChange={e => u({ funded_winning_day: e.target.value })} prefix="$" onCopyAll={() => cp('funded_winning_day')} />
           <Inp label="Max Withdrawl" value={size.funded_max_withdrawal} onChange={e => u({ funded_max_withdrawal: e.target.value })} prefix="$" onCopyAll={() => cp('funded_max_withdrawal')} />
@@ -525,7 +527,7 @@ const PropFirmFormModal = ({ onClose, onSaved, availableGroups = [], editing = n
           ? `${size.eval_drawdown_type} $${size.eval_max_loss}`
           : (size.eval_drawdown_type || ''));
         fd.append('days_to_pass',         size.eval_min_days);
-        fd.append('days_to_payout',       size.funded_min_days);
+        fd.append('days_to_payout',       size.funded_days_to_payout);
         fd.append('max_withdrawal',       size.funded_max_withdrawal);
         fd.append('profit_split',         size.funded_profit_split ? `${size.funded_profit_split}%` : '');
         fd.append('eval',                 [size.eval_max_mini && `${size.eval_max_mini} Mini`, size.eval_max_micro && `${size.eval_max_micro} Micro`].filter(Boolean).join(' / '));
@@ -548,8 +550,13 @@ const PropFirmFormModal = ({ onClose, onSaved, availableGroups = [], editing = n
           funded_max_allocation: size.funded_max_allocation,
           funded_max_mini:       size.funded_max_mini,
           funded_max_micro:      size.funded_max_micro,
+          funded_min_days:       size.funded_min_days,
         }));
-        if (logo) fd.append('logo', logo);
+        if (logo) {
+          fd.append('logo', logo);
+        } else if (logoUrl) {
+          fd.append('logo_url', logoUrl);
+        }
         return fd;
       };
 
