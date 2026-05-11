@@ -1733,68 +1733,14 @@ const PropFirmsTab = () => {
           const sizeCounts = {};
           firms.forEach(f => { sizeCounts[f.name] = (sizeCounts[f.name] || 0) + 1; });
 
-          // Group unique firms by group_name
-          const grouped = {};
-          const order = [];
-          uniqueFirms.forEach(f => {
-            const key = f.group_name || '__ungrouped__';
-            if (!grouped[key]) { grouped[key] = []; order.push(key); }
-            grouped[key].push(f);
-          });
-          // Sort: named groups first, ungrouped last
-          order.sort((a, b) => {
-            if (a === '__ungrouped__') return 1;
-            if (b === '__ungrouped__') return -1;
-            return a.localeCompare(b);
-          });
-
-          const toggleGroup = (key) => setCollapsedGroups(prev => ({ ...prev, [key]: !prev[key] }));
-
-          return order.map(key => {
-            const isUngrouped = key === '__ungrouped__';
-            const groupFirms = grouped[key];
-            const isCollapsed = collapsedGroups[key];
-            const label = isUngrouped ? 'Ungrouped' : key;
-            const groupImg = !isUngrouped ? getGroupImage(key) : null;
-
-            return (
-              <div key={key} style={{ marginBottom: '1rem' }}>
-                {/* Group Header */}
-                <div
-                  onClick={() => toggleGroup(key)}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '10px',
-                    padding: '0.75rem 1rem', cursor: 'pointer', userSelect: 'none',
-                    background: isUngrouped ? 'var(--bg-secondary)' : 'linear-gradient(135deg, rgba(37,99,235,0.08), rgba(59,130,246,0.08))',
-                    borderRadius: '12px', border: '1px solid var(--border)',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  {isCollapsed ? <ChevronRight size={18} style={{ color: 'var(--text-secondary)' }} /> : <ChevronDown size={18} style={{ color: 'var(--text-secondary)' }} />}
-                  {/* Group Logo or Letter Avatar */}
-                  {groupImg ? (
-                    <img src={`${import.meta.env.VITE_API_URL}${groupImg}`} alt={label} style={{ width: 32, height: 32, borderRadius: 10, objectFit: 'cover', border: '2px solid rgba(37,99,235,0.2)', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', flexShrink: 0 }} />
-                  ) : !isUngrouped ? (
-                    <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg, #2563eb, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: '0.85rem', flexShrink: 0 }}>{label.charAt(0).toUpperCase()}</div>
-                  ) : null}
-                  <span style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-primary)' }}>{label}</span>
-                  <span style={{
-                    background: isUngrouped ? 'rgba(255,255,255,0.08)' : 'linear-gradient(135deg, rgba(37,99,235,0.15), rgba(59,130,246,0.15))',
-                    color: isUngrouped ? 'var(--text-secondary)' : '#2563eb',
-                    padding: '2px 10px', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 800
-                  }}>
-                    {groupFirms.length} firm{groupFirms.length !== 1 ? 's' : ''}
-                  </span>
-                </div>
-
-                {/* Group Items */}
-                {!isCollapsed && (
-                  <table className="admin-table" style={{ marginTop: '0.25rem' }}>
-                    <thead>
-                      <tr><th>Name</th><th>Rating</th><th>Status</th><th>Actions</th></tr>
-                    </thead>
-                    <tbody>
-                      {groupFirms.map(f => (
+          return (
+            <div>
+              <table className="admin-table">
+                <thead>
+                  <tr><th>Name</th><th>Rating</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                  {uniqueFirms.map(f => (
                         <tr key={f.id}>
                         <td style={{ fontWeight: 600, opacity: f.hidden ? 0.45 : 1 }}>
                             {f.name}
@@ -1816,13 +1762,11 @@ const PropFirmsTab = () => {
                             <button className="action-btn danger" onClick={() => deleteFirm(f.id)}>Delete</button>
                           </td>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            );
-          });
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          );
         })()}
         {firms.length === 0 && <p className="empty-state">No prop firms listed yet.</p>}
 
