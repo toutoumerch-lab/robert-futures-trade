@@ -5618,10 +5618,11 @@ select:focus {
   line-height: 1.15;
   color: var(--text-primary);
   margin: 0 0 1.5rem;
-  word-break: break-word;
-  overflow-wrap: break-word;
   white-space: normal;
-  max-width: 100%;
+  word-break: normal;
+  overflow-wrap: break-word;
+  hyphens: none;
+  -webkit-hyphens: none;
 }
 
 .blog-article-meta {
@@ -5659,17 +5660,19 @@ select:focus {
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-  word-wrap: break-word;
+}
+
+.blog-prose * {
+  word-break: normal;
   overflow-wrap: break-word;
-  word-break: break-word;
+  hyphens: none;
+  -webkit-hyphens: none;
+  -ms-hyphens: none;
 }
 
 .blog-prose p {
   margin: 0 0 1.25rem;
   line-height: 1.85;
-  word-break: break-word;
-  overflow-wrap: break-word;
-  max-width: 100%;
 }
 
 .blog-prose br {
@@ -5684,10 +5687,7 @@ select:focus {
   font-weight: 800;
   line-height: 1.2;
   margin: 2rem 0 0.75rem;
-  word-break: break-word;
-  overflow-wrap: break-word;
   white-space: normal;
-  max-width: 100%;
 }
 
 .blog-prose h1 { font-size: 2rem; }
