@@ -1757,7 +1757,7 @@ const PropFirmsTab = () => {
                           <td className="table-actions">
 
                             <button className="action-btn" onClick={() => openEdit(f)}>Edit</button>
-                            <button className="action-btn" style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.12), rgba(59,130,246,0.12))', color: '#2563eb', border: '1px solid rgba(37,99,235,0.2)' }} onClick={() => { setGroupingFirm(f); setGroupModalValue(f.group_name || ''); setGroupModalMode(f.group_name ? 'existing' : 'existing'); }}><Layers size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '3px' }} />Group</button>
+
                             <button className="action-btn" style={{ background: f.hidden ? 'rgba(16,185,129,0.1)' : 'rgba(107,114,128,0.1)', color: f.hidden ? '#10b981' : 'var(--text-secondary)', border: `1px solid ${f.hidden ? 'rgba(16,185,129,0.25)' : 'rgba(107,114,128,0.2)'}` }} onClick={() => toggleHidden(f.id)}>{f.hidden ? 'Show' : 'Hide'}</button>
                             <button className="action-btn danger" onClick={() => deleteFirm(f.id)}>Delete</button>
                           </td>
