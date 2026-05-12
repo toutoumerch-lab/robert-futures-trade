@@ -1,16 +1,20 @@
 const { Resend } = require('resend');
 
-// Resend sends over HTTPS (port 443) — works on DigitalOcean with no firewall changes.
-// Sign up at resend.com, add a verified domain/email, copy the API key to .env as RESEND_API_KEY.
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const FROM_ADDRESS = process.env.RESEND_FROM || process.env.MAIL_FROM || `"Robert Trades" <noreply@roberttrades.com>`;
 
-if (!process.env.RESEND_API_KEY) {
-  console.error('[MAIL] WARNING: RESEND_API_KEY is not set — emails will fail');
-} else {
-  console.log('[MAIL] Resend client ready');
-}
+// Lazy-initialize so a missing key logs a warning instead of crashing the server
+let _resend = null;
+const getResend = () => {
+  if (!process.env.RESEND_API_KEY) {
+    console.error('[MAIL] RESEND_API_KEY is not set in .env — emails will not send');
+    return null;
+  }
+  if (!_resend) {
+    _resend = new Resend(process.env.RESEND_API_KEY);
+    console.log('[MAIL] Resend client ready');
+  }
+  return _resend;
+};
 
 /**
  * Send an email via Resend (HTTPS API, never blocked by DigitalOcean).
@@ -27,7 +31,10 @@ const sendMail = async (to, subject, html, { replyTo } = {}) => {
     };
     if (replyTo) payload.reply_to = replyTo;
 
-    const { data, error } = await resend.emails.send(payload);
+    const client = getResend();
+    if (!client) return { success: false, error: 'RESEND_API_KEY not configured' };
+
+    const { data, error } = await client.emails.send(payload);
 
     if (error) {
       console.error(`[MAIL] Resend error to ${to}:`, error.message || error);
