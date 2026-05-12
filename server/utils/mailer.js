@@ -4,7 +4,7 @@ const { Resend } = require('resend');
 // Sign up at resend.com, add a verified domain/email, copy the API key to .env as RESEND_API_KEY.
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM_ADDRESS = process.env.MAIL_FROM || `"Robert Trades" <noreply@roberttrades.com>`;
+const FROM_ADDRESS = process.env.RESEND_FROM || process.env.MAIL_FROM || `"Robert Trades" <noreply@roberttrades.com>`;
 
 if (!process.env.RESEND_API_KEY) {
   console.error('[MAIL] WARNING: RESEND_API_KEY is not set — emails will fail');
