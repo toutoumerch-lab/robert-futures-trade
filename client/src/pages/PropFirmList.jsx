@@ -556,7 +556,7 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm, onTrackWebsi
 /* â═══════════════════════════════════════════════•
    Grid Card (with compare + fav)
    â═══════════════════════════════════════════════• */
-const FirmGridCard = ({ firm, onClick, isComparing, onToggleCompare, isFav, onToggleFav, compareDisabled, onTrackWebsite }) => (
+const FirmGridCard = ({ firm, onClick, isComparing, onToggleCompare, isFav, onToggleFav, compareDisabled, onTrackWebsite, lowestPrice }) => (
   <div className={`firm-grid-card ${isComparing ? 'comparing' : ''}`} onClick={onClick} style={{
     background: 'var(--bg-secondary)', borderRadius: '24px', padding: '1.75rem',
     border: isComparing ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
@@ -606,18 +606,15 @@ const FirmGridCard = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTo
         <span className="firm-mini-stat-label">Activation</span>
         <span className="firm-mini-stat-value">{firm.activation_fee ? `$${firm.activation_fee}` : 'Free'}</span>
       </div>
-      <div className="firm-mini-stat" style={firm.discount_usd ? { background: 'linear-gradient(135deg, rgba(59,130,246,0.06), rgba(37,99,235,0.06))', border: '1px solid rgba(59,130,246,0.12)' } : {}}>
+      <div className="firm-mini-stat" style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.06), rgba(37,99,235,0.06))', border: '1px solid rgba(59,130,246,0.12)' }}>
         <span className="firm-mini-stat-label">Price</span>
-        {firm.discount_usd ? (
+        {lowestPrice ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <span style={{ fontWeight: 900, fontSize: '1.15rem', color: 'var(--text-primary)', lineHeight: 1 }}>${firm.discount_usd}</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
-              <span style={{ textDecoration: 'line-through', color: 'var(--text-secondary)', fontSize: '0.75rem' }}>${firm.without_discount_usd}</span>
-              {firm.discount_percent && <span style={{ background: 'var(--accent-secondary)', color: '#fff', fontSize: '0.6rem', padding: '1px 5px', borderRadius: '4px', fontWeight: 800 }}>-{firm.discount_percent}%</span>}
-            </div>
+            <span style={{ fontSize: '0.6rem', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>From</span>
+            <span style={{ fontWeight: 900, fontSize: '1.15rem', color: 'var(--text-primary)', lineHeight: 1 }}>${lowestPrice}</span>
           </div>
         ) : (
-          <span className="firm-mini-stat-value">{firm.fifty_k_initial_cost ? `$${firm.fifty_k_initial_cost}` : 'N/A'}</span>
+          <span className="firm-mini-stat-value">N/A</span>
         )}
       </div>
     </div>
@@ -643,7 +640,7 @@ const FirmGridCard = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTo
 /* â═══════════════════════════════════════════════•
    List Row (with compare + fav)
    â═══════════════════════════════════════════════• */
-const FirmListRow = ({ firm, onClick, isComparing, onToggleCompare, isFav, onToggleFav, compareDisabled, onTrackWebsite }) => (
+const FirmListRow = ({ firm, onClick, isComparing, onToggleCompare, isFav, onToggleFav, compareDisabled, onTrackWebsite, lowestPrice }) => (
   <div className={`firm-list-row ${isComparing ? 'comparing' : ''}`} onClick={onClick} style={{
     background: 'var(--bg-secondary)', borderRadius: '16px', padding: '1.25rem 1.5rem',
     border: isComparing ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
@@ -682,14 +679,13 @@ const FirmListRow = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTog
 
     <div style={{ flex: '0 0 110px', textAlign: 'center' }}>
       <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase' }}>Price</div>
-      {firm.discount_usd ? (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-          <span style={{ fontWeight: 900 }}>${firm.discount_usd}</span>
-          <span style={{ textDecoration: 'line-through', color: 'var(--text-secondary)', fontSize: '0.78rem' }}>${firm.without_discount_usd}</span>
-          {firm.discount_percent && <span style={{ background: 'var(--accent-secondary)', color: '#fff', fontSize: '0.6rem', padding: '1px 4px', borderRadius: '3px', fontWeight: 800 }}>-{firm.discount_percent}%</span>}
+      {lowestPrice ? (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1.2 }}>
+          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', fontWeight: 600 }}>From</span>
+          <span style={{ fontWeight: 900, fontSize: '1rem', color: 'var(--text-primary)' }}>${lowestPrice}</span>
         </div>
       ) : (
-        <span style={{ fontWeight: 800 }}>{firm.fifty_k_initial_cost ? `$${firm.fifty_k_initial_cost}` : 'N/A'}</span>
+        <span style={{ fontWeight: 800 }}>N/A</span>
       )}
     </div>
 
@@ -1080,18 +1076,20 @@ const PropFirmList = () => {
                     <button className="btn btn-outline mt-4" onClick={clearFilters}>Clear Filters</button>
                   </div>
                 ) : (() => {
-                  // Deduplicate by firm name — one card per firm (lowest price row as representative)
+                  // Compute lowest price across ALL plans for each firm name
+                  const minPriceByName = new Map();
+                  sorted.forEach(f => {
+                    const p = Number(f.discount_usd || f.fifty_k_initial_cost || 0);
+                    if (p > 0) {
+                      const cur = minPriceByName.get(f.name);
+                      if (cur === undefined || p < cur) minPriceByName.set(f.name, p);
+                    }
+                  });
+
+                  // Deduplicate by firm name — one card per firm (first occurrence keeps sort order)
                   const seenMap = new Map();
                   sorted.forEach(f => {
-                    if (!seenMap.has(f.name)) {
-                      seenMap.set(f.name, f);
-                    } else {
-                      // Keep the row with the lowest effective price
-                      const prev = seenMap.get(f.name);
-                      const prevPrice = Number(prev.price || prev.fifty_k_initial_cost || 9999);
-                      const currPrice = Number(f.price || f.fifty_k_initial_cost || 9999);
-                      if (currPrice < prevPrice) seenMap.set(f.name, f);
-                    }
+                    if (!seenMap.has(f.name)) seenMap.set(f.name, f);
                   });
                   const dedupedSorted = Array.from(seenMap.values());
 
@@ -1105,6 +1103,7 @@ const PropFirmList = () => {
                             isFav={favorites.includes(firm.id)} onToggleFav={toggleFav}
                             compareDisabled={compareIds.length >= 4}
                             onTrackWebsite={(id) => trackClick(id, 'website')}
+                            lowestPrice={minPriceByName.get(firm.name)}
                           />
                         </div>
                       ))}
@@ -1119,6 +1118,7 @@ const PropFirmList = () => {
                             isFav={favorites.includes(firm.id)} onToggleFav={toggleFav}
                             compareDisabled={compareIds.length >= 4}
                             onTrackWebsite={(id) => trackClick(id, 'website')}
+                            lowestPrice={minPriceByName.get(firm.name)}
                           />
                         </div>
                       ))}
