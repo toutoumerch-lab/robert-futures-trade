@@ -5669,18 +5669,37 @@ select:focus {
   min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
+  /* Words wrap only at spaces — never split mid-character */
   word-break: normal;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
+  overflow-wrap: normal;
   hyphens: none;
   -webkit-hyphens: none;
 }
 
-/* Every element Quill can generate — words wrap at spaces, never mid-char */
-.blog-prose * {
+/*
+  Apply to every element Quill can generate.
+  word-break:normal  — wrap only at natural word boundaries (spaces/hyphens)
+  overflow-wrap:normal — never break a word mid-character
+  hyphens:none       — no automatic soft-hyphen insertion
+  white-space:normal — allow normal line wrapping
+*/
+.blog-prose p,
+.blog-prose h1,
+.blog-prose h2,
+.blog-prose h3,
+.blog-prose h4,
+.blog-prose h5,
+.blog-prose h6,
+.blog-prose li,
+.blog-prose blockquote,
+.blog-prose span,
+.blog-prose em,
+.blog-prose strong,
+.blog-prose u,
+.blog-prose s,
+.blog-prose a {
   word-break: normal !important;
-  word-wrap: break-word !important;
-  overflow-wrap: break-word !important;
+  overflow-wrap: normal !important;
   hyphens: none !important;
   -webkit-hyphens: none !important;
   white-space: normal !important;
@@ -5688,17 +5707,26 @@ select:focus {
   box-sizing: border-box !important;
 }
 
-/* Code/pre blocks are the one exception — allow horizontal scroll inside them */
+/* Long URLs inside links can still wrap so they don't overflow */
+.blog-prose a {
+  overflow-wrap: anywhere !important;
+}
+
+/* Code/pre — preserve formatting, scroll horizontally if needed */
 .blog-prose pre,
 .blog-prose code {
   white-space: pre-wrap !important;
   overflow-x: auto !important;
+  word-break: normal !important;
+  overflow-wrap: anywhere !important;
 }
 
-/* Quill alignment & size classes must not override container width */
+/* Quill size/align/indent classes — must not expand beyond container */
 .blog-prose [class*="ql-"] {
   max-width: 100% !important;
   box-sizing: border-box !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
 }
 
 .blog-prose p {
@@ -6144,15 +6172,26 @@ select:focus {
     margin: 0 0 1rem;
   }
 
-  /* Enforce word-wrapping on every Quill element on mobile */
-  .blog-prose * {
+  /* Mobile: words wrap only at spaces, never split mid-character */
+  .blog-prose p,
+  .blog-prose h1, .blog-prose h2, .blog-prose h3,
+  .blog-prose h4, .blog-prose h5, .blog-prose h6,
+  .blog-prose li, .blog-prose blockquote,
+  .blog-prose span, .blog-prose em, .blog-prose strong,
+  .blog-prose u, .blog-prose s {
     word-break: normal !important;
-    word-wrap: break-word !important;
-    overflow-wrap: break-word !important;
+    overflow-wrap: normal !important;
     hyphens: none !important;
     -webkit-hyphens: none !important;
     white-space: normal !important;
     max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* URLs can still wrap to avoid breaking layout */
+  .blog-prose a {
+    overflow-wrap: anywhere !important;
+    word-break: break-all !important;
   }
 
   .blog-prose h1 { font-size: 1.5rem; }
