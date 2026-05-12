@@ -5674,59 +5674,41 @@ select:focus {
 }
 
 /*
-  The golden rule for readable prose:
-  • word-break: normal      → never break at an arbitrary character
-  • overflow-wrap: break-word → emergency break ONLY when a single word is
-                                wider than the entire line (e.g. a bare URL).
-                                For normal English words this NEVER triggers.
+  Universal prose rule — covers every element Quill can generate
+  (span, li, ol, ul, table, td, th, blockquote, etc.)
+  • word-break: normal      → words NEVER break mid-character
+  • overflow-wrap: break-word → last-resort break only for single tokens
+                                longer than the line (bare URLs, hashes)
   • hyphens: none           → no automatic hyphenation
-  • white-space: normal     → text wraps at spaces as expected
+  • white-space: normal     → collapse whitespace; wrap at spaces
 */
-.blog-prose p,
-.blog-prose h1,
-.blog-prose h2,
-.blog-prose h3,
-.blog-prose h4,
-.blog-prose h5,
-.blog-prose h6,
-.blog-prose li,
-.blog-prose blockquote,
-.blog-prose span,
-.blog-prose em,
-.blog-prose i,
-.blog-prose strong,
-.blog-prose b,
-.blog-prose u,
-.blog-prose s,
-.blog-prose div {
+.blog-prose,
+.blog-prose * {
   word-break: normal !important;
   overflow-wrap: break-word !important;
   hyphens: none !important;
   -webkit-hyphens: none !important;
   white-space: normal !important;
-  max-width: 100% !important;
 }
 
-/* Links — wrap at word boundaries; only break mid-word if no space exists */
-.blog-prose a {
-  word-break: normal !important;
-  overflow-wrap: break-word !important;
-  white-space: normal !important;
-}
-
-/* Code/pre — preserve formatting, scroll horizontally if needed */
+/* Code/pre — preserve indentation, allow break-all inside code blocks only */
 .blog-prose pre,
-.blog-prose code {
+.blog-prose code,
+.blog-prose pre *,
+.blog-prose code * {
   white-space: pre-wrap !important;
   overflow-x: auto !important;
   overflow-wrap: anywhere !important;
   word-break: break-all !important;
 }
 
-/* Quill utility classes — constrain width */
+/* Quill utility classes — constrain width, reset word-break */
 .blog-prose [class*="ql-"] {
   max-width: 100% !important;
   box-sizing: border-box !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
 }
 
 .blog-prose p {
@@ -6181,21 +6163,20 @@ select:focus {
     margin: 0 0 1rem;
   }
 
-  /* Mobile prose — same rules as desktop */
-  .blog-prose p,
-  .blog-prose h1, .blog-prose h2, .blog-prose h3,
-  .blog-prose h4, .blog-prose h5, .blog-prose h6,
-  .blog-prose li, .blog-prose blockquote,
-  .blog-prose span, .blog-prose em, .blog-prose i,
-  .blog-prose strong, .blog-prose b,
-  .blog-prose u, .blog-prose s, .blog-prose div,
-  .blog-prose a {
+  /* Mobile prose — universal selector, same as desktop */
+  .blog-prose,
+  .blog-prose * {
     word-break: normal !important;
     overflow-wrap: break-word !important;
     hyphens: none !important;
     -webkit-hyphens: none !important;
     white-space: normal !important;
-    max-width: 100% !important;
+  }
+  .blog-prose pre, .blog-prose code,
+  .blog-prose pre *, .blog-prose code * {
+    white-space: pre-wrap !important;
+    word-break: break-all !important;
+    overflow-wrap: anywhere !important;
   }
 
   .blog-prose h1 { font-size: 1.5rem; }
@@ -7028,6 +7009,16 @@ html { scroll-behavior: smooth; }
   font-size: 1rem;
   line-height: 1.8;
   padding: 20px 24px;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  hyphens: none !important;
+  -webkit-hyphens: none !important;
+}
+.ql-editor *:not(pre):not(code) {
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  hyphens: none !important;
+  -webkit-hyphens: none !important;
 }
 .ql-editor.ql-blank::before {
   color: #4b5563 !important;
