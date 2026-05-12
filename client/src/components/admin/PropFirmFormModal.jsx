@@ -58,7 +58,7 @@ const rowToSize = (row) => {
     _dbId:                    row.id,
     price_no_discount:        String(row.without_discount_usd || ''),
     discount_percent:         String(row.discount_percent || ''),
-    activation_fee:           String(row.activation_fee || ''),
+    activation_fee:           row.activation_fee != null ? String(row.activation_fee) : '',
     reset_fee:                String(row.reset_fee || ''),
     eval_profit_target:       String(row.profit_target || ''),
     eval_dll:                 String(row.dll || ''),

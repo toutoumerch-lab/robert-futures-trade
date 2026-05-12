@@ -605,7 +605,10 @@ const FirmGridCard = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTo
       <div className="firm-mini-stat">
         <span className="firm-mini-stat-label">Activation</span>
         <span className="firm-mini-stat-value">
-          {cheapestPlan ? (cheapestPlan.activation_fee ? `$${cheapestPlan.activation_fee}` : 'Free') : (firm.activation_fee ? `$${firm.activation_fee}` : 'Free')}
+          {(() => {
+            const fee = cheapestPlan != null ? cheapestPlan.activation_fee : firm.activation_fee;
+            return fee != null ? `$${fee}` : '—';
+          })()}
         </span>
       </div>
       <div className="firm-mini-stat" style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.06), rgba(37,99,235,0.06))', border: '1px solid rgba(59,130,246,0.12)' }}>
@@ -688,7 +691,10 @@ const FirmListRow = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTog
     <div style={{ flex: '0 0 90px', textAlign: 'center' }}>
       <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase' }}>Activation</div>
       <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>
-        {cheapestPlan ? (cheapestPlan.activation_fee ? `$${cheapestPlan.activation_fee}` : 'Free') : (firm.activation_fee ? `$${firm.activation_fee}` : 'Free')}
+        {(() => {
+          const fee = cheapestPlan != null ? cheapestPlan.activation_fee : firm.activation_fee;
+          return fee != null ? `$${fee}` : '—';
+        })()}
       </div>
     </div>
 
@@ -823,7 +829,7 @@ const PropFirmList = () => {
       if (minRating > 0 && (!f.rating || Number(f.rating) < minRating)) return false;
       if (maxPrice && getPrice(f) > Number(maxPrice)) return false;
       if (discountOnly && !f.discount_code) return false;
-      if (freeActivation && f.activation_fee && Number(f.activation_fee) > 0) return false;
+      if (freeActivation && f.activation_fee != null && Number(f.activation_fee) > 0) return false;
       if (favoritesOnly && !favorites.includes(f.id)) return false;
       // Advanced filters
       if (hasBuffer && !f.buffer) return false;
