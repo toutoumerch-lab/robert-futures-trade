@@ -5403,7 +5403,7 @@ select:focus {
   line-height: 1.15;
   color: var(--text-primary);
   margin: 0 0 1.25rem;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   word-break: normal;
   white-space: normal;
   hyphens: none;
@@ -5632,7 +5632,7 @@ select:focus {
   margin: 0 0 1.5rem;
   white-space: normal;
   word-break: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   hyphens: none;
   -webkit-hyphens: none;
 }
@@ -5690,7 +5690,7 @@ select:focus {
 .blog-prose strong,
 .blog-prose em {
   word-break: normal !important;
-  overflow-wrap: anywhere !important;
+  overflow-wrap: break-word !important;
   hyphens: none !important;
   -webkit-hyphens: none !important;
   -ms-hyphens: none !important;
@@ -6111,7 +6111,7 @@ select:focus {
     font-size: clamp(1.4rem, 6vw, 2rem);
     letter-spacing: -0.02em;
     margin: 0 0 1rem;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     word-break: normal;
     white-space: normal;
     hyphens: none;
