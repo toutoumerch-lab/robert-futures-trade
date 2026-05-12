@@ -175,7 +175,7 @@ const BlogDetail = () => {
         </div>
       )}
 
-      <div className="container blog-detail-wrap">
+      <div className="blog-detail-wrap">
         {/* ── Back link ────────────────────────────────────────────────── */}
         <Link to="/blog" className="blog-back-link" id="blog-back">
           <ArrowLeft size={16} /> Back to Blog
