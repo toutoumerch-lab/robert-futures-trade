@@ -70,6 +70,10 @@ const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString()
 ───────────────────────────────────────────────────────────────── */
 const register = async (req, res) => {
   const { name, email, password } = req.body;
+  if (!name || !email || !password) {
+    return res.status(400).json({ error: 'Name, email and password are required' });
+  }
+
   try {
     const userExists = await pool.query('SELECT id, is_verified FROM users WHERE email = $1', [email]);
     if (userExists.rows.length > 0 && userExists.rows[0].is_verified) {
@@ -82,9 +86,10 @@ const register = async (req, res) => {
     const verificationCode    = generateOtp();
     const verificationExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 min
 
-    const ip  = getClientIp(req);
-    const geo = await lookupCountry(ip);
+    // Capture IP now (synchronous — no network call)
+    const ip = getClientIp(req);
 
+    let userId;
     if (userExists.rows.length > 0) {
       // Unverified user retrying — update their record
       await pool.query(
@@ -93,34 +98,46 @@ const register = async (req, res) => {
          WHERE email = $5`,
         [name, password_hash, verificationCode, verificationExpires, email]
       );
+      userId = userExists.rows[0].id;
     } else {
-      await pool.query(
+      const ins = await pool.query(
         `INSERT INTO users
-           (name, email, password_hash, role, country, country_code, is_verified, verification_code, verification_code_expires)
-         VALUES ($1, $2, $3, $4, $5, $6, false, $7, $8)`,
-        [name, email, password_hash, 'user',
-         geo?.country ?? null, geo?.country_code ?? null,
-         verificationCode, verificationExpires]
+           (name, email, password_hash, role, is_verified, verification_code, verification_code_expires)
+         VALUES ($1, $2, $3, 'user', false, $4, $5)
+         RETURNING id`,
+        [name, email, password_hash, verificationCode, verificationExpires]
       );
+      userId = ins.rows[0].id;
     }
 
-    // Send email via SMTP (as requested) with a timeout to prevent 504
-    const mailResult = await Promise.race([
-      sendMail(email, 'Your verification code – Robert Trades', otpEmailHtml(name, verificationCode)),
-      new Promise(resolve => setTimeout(() => resolve({ success: false, error: 'Network timeout' }), 8000))
-    ]);
-
-    if (!mailResult.success) {
-      console.log(`\n=== [SMTP MAIL FAILURE] DEV OTP for ${email}: ${verificationCode} (Error: ${mailResult.error}) ===\n`);
-    }
-
+    // ── Respond immediately — user is in DB with OTP ──────────────
     res.status(201).json({
       message: 'Registration successful. Please check your email for your 6-digit verification code.',
       email,
     });
+
+    // ── Fire email async after response (never blocks signup) ─────
+    sendMail(email, 'Your verification code – Robert Trades', otpEmailHtml(name, verificationCode))
+      .then(r => {
+        if (!r.success) {
+          console.error(`[OTP MAIL FAIL] ${email} OTP=${verificationCode} err=${r.error}`);
+        }
+      })
+      .catch(err => console.error('[OTP MAIL ERROR]', err.message));
+
+    // ── Geo lookup async — purely informational, never blocks ─────
+    lookupCountry(ip).then(geo => {
+      if (geo) {
+        pool.query(
+          'UPDATE users SET country = $1, country_code = $2 WHERE id = $3',
+          [geo.country, geo.country_code, userId]
+        ).catch(() => {});
+      }
+    });
+
   } catch (error) {
     console.error('Register error:', error);
-    res.status(500).json({ error: 'Server error' });
+    if (!res.headersSent) res.status(500).json({ error: 'Server error' });
   }
 };
 
@@ -196,17 +213,18 @@ const resendOtp = async (req, res) => {
       [verificationCode, verificationExpires, user.id]
     );
 
-    const mailResult = await sendMail(
+    // Respond immediately — email fires async
+    res.json({ message: 'Verification code resent successfully' });
+
+    sendMail(
       email,
       'Your new verification code – Robert Trades',
       otpEmailHtml(user.name, verificationCode)
-    );
-
-    if (!mailResult.success) {
-      console.log(`\n=== [MAIL FAILURE] DEV RESEND OTP for ${email}: ${verificationCode} ===\n`);
-    }
-
-    res.json({ message: 'Verification code resent successfully' });
+    ).then(r => {
+      if (!r.success) {
+        console.error(`[RESEND OTP MAIL FAIL] ${email} OTP=${verificationCode} err=${r.error}`);
+      }
+    }).catch(err => console.error('[RESEND OTP MAIL ERROR]', err.message));
   } catch (error) {
     console.error('Resend OTP error:', error);
     res.status(500).json({ error: 'Server error' });
@@ -341,7 +359,12 @@ const forgotPassword = async (req, res) => {
     );
 
     const resetUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
-    const mailResult = await sendMail(
+    // Respond immediately — email fires async
+    res.status(200).json({
+      message: 'If that email is registered, we have sent a reset link.',
+    });
+
+    sendMail(
       email,
       'Password Reset Request – Robert Trades',
       `<div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#ffffff;border-radius:12px;border:1px solid #e5e7eb;">
@@ -350,18 +373,11 @@ const forgotPassword = async (req, res) => {
         <a href="${resetUrl}" style="display:inline-block;background:#6366f1;color:#ffffff;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:600;">Reset Password</a>
         <p style="color:#9ca3af;font-size:13px;margin:24px 0 0;">If you did not request this, please ignore this email.</p>
       </div>`
-    );
-
-    if (!mailResult.success) {
-      console.log('--- FALLBACK: PASSWORD RESET ---');
-      console.log('Reset Link:', resetUrl);
-      return res.status(200).json({ message: 'Email failed to send', devResetUrl: resetUrl });
-    }
-
-    return res.status(200).json({
-      message: 'If that email is registered, we have sent a reset link.',
-      devResetUrl: resetUrl,
-    });
+    ).then(r => {
+      if (!r.success) {
+        console.error(`[PASSWORD RESET MAIL FAIL] ${email} link=${resetUrl} err=${r.error}`);
+      }
+    }).catch(err => console.error('[PASSWORD RESET MAIL ERROR]', err.message));
   } catch (error) {
     console.error('Forgot password error:', error);
     res.status(500).json({ error: 'Server error' });
