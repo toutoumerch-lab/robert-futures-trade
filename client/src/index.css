@@ -5584,6 +5584,7 @@ select:focus {
 /* ── Layout wrap ───────────────────────────────────────────── */
 .blog-detail-wrap {
   max-width: 800px;
+  margin: 0 auto;
   padding-top: 2.5rem;
   padding-bottom: 5rem;
   padding-left: 1.5rem;
@@ -5669,8 +5670,8 @@ select:focus {
   box-sizing: border-box;
   padding-right: 0.5rem;
   word-break: normal;
-  word-wrap: normal;
-  overflow-wrap: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
   hyphens: none;
   -webkit-hyphens: none;
 }
@@ -5688,8 +5689,8 @@ select:focus {
 .blog-prose strong,
 .blog-prose em {
   word-break: normal !important;
-  word-wrap: normal !important;
-  overflow-wrap: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
   hyphens: none !important;
   -webkit-hyphens: none !important;
   white-space: normal !important;
