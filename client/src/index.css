@@ -5583,14 +5583,15 @@ select:focus {
 
 /* ── Layout wrap ───────────────────────────────────────────── */
 .blog-detail-wrap {
-  /* Self-contained centering — no dependency on .container */
-  width: min(100% - 3rem, 820px);
+  width: 100%;
+  max-width: 820px;
   margin-left: auto;
   margin-right: auto;
   padding-top: 2.5rem;
   padding-bottom: 5rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
   box-sizing: border-box;
-  overflow: visible;
 }
 
 /* ── Back link ─────────────────────────────────────────────── */
@@ -5668,16 +5669,19 @@ select:focus {
   line-height: 1.85;
   color: var(--text-secondary);
   width: 100%;
-  min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
-  word-break: normal;
-  overflow-wrap: normal;
-  hyphens: none;
-  -webkit-hyphens: none;
 }
 
-/* Normal prose elements — words wrap only at spaces, never split mid-character */
+/*
+  The golden rule for readable prose:
+  • word-break: normal      → never break at an arbitrary character
+  • overflow-wrap: break-word → emergency break ONLY when a single word is
+                                wider than the entire line (e.g. a bare URL).
+                                For normal English words this NEVER triggers.
+  • hyphens: none           → no automatic hyphenation
+  • white-space: normal     → text wraps at spaces as expected
+*/
 .blog-prose p,
 .blog-prose h1,
 .blog-prose h2,
@@ -5696,20 +5700,21 @@ select:focus {
 .blog-prose s,
 .blog-prose div {
   word-break: normal !important;
-  overflow-wrap: normal !important;
-  line-break: auto !important;
+  overflow-wrap: break-word !important;
   hyphens: none !important;
   -webkit-hyphens: none !important;
   white-space: normal !important;
+  max-width: 100% !important;
 }
 
-/* URLs/links — allow wrapping anywhere so long links don't overflow */
+/* Links — wrap at word boundaries; only break mid-word if no space exists */
 .blog-prose a {
-  word-break: break-all !important;
-  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
 }
 
-/* Code/pre — preserve formatting, allow horizontal scroll */
+/* Code/pre — preserve formatting, scroll horizontally if needed */
 .blog-prose pre,
 .blog-prose code {
   white-space: pre-wrap !important;
@@ -5718,7 +5723,7 @@ select:focus {
   word-break: break-all !important;
 }
 
-/* Quill utility classes — constrain width only */
+/* Quill utility classes — constrain width */
 .blog-prose [class*="ql-"] {
   max-width: 100% !important;
   box-sizing: border-box !important;
@@ -6112,14 +6117,15 @@ select:focus {
 
   /* Content wrap — full-width with side padding on mobile */
   .blog-detail-wrap {
-    width: calc(100% - 2.5rem);
+    width: 100%;
     max-width: 100%;
     padding-top: 1.5rem;
     padding-bottom: 4rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
     margin-left: auto;
     margin-right: auto;
     box-sizing: border-box;
-    overflow: visible;
   }
 
   /* Article and prose — fill wrap, never overflow it */
@@ -6175,24 +6181,21 @@ select:focus {
     margin: 0 0 1rem;
   }
 
-  /* Mobile: words wrap only at spaces, never split mid-character */
+  /* Mobile prose — same rules as desktop */
   .blog-prose p,
   .blog-prose h1, .blog-prose h2, .blog-prose h3,
   .blog-prose h4, .blog-prose h5, .blog-prose h6,
   .blog-prose li, .blog-prose blockquote,
   .blog-prose span, .blog-prose em, .blog-prose i,
   .blog-prose strong, .blog-prose b,
-  .blog-prose u, .blog-prose s, .blog-prose div {
+  .blog-prose u, .blog-prose s, .blog-prose div,
+  .blog-prose a {
     word-break: normal !important;
-    overflow-wrap: normal !important;
+    overflow-wrap: break-word !important;
     hyphens: none !important;
     -webkit-hyphens: none !important;
     white-space: normal !important;
-  }
-
-  .blog-prose a {
-    word-break: break-all !important;
-    overflow-wrap: anywhere !important;
+    max-width: 100% !important;
   }
 
   .blog-prose h1 { font-size: 1.5rem; }
