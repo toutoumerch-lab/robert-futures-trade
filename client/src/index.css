@@ -5583,13 +5583,16 @@ select:focus {
 
 /* ── Layout wrap ───────────────────────────────────────────── */
 .blog-detail-wrap {
-  max-width: 800px;
+  width: 100%;
+  max-width: 860px;
   margin: 0 auto;
   padding-top: 2.5rem;
   padding-bottom: 5rem;
   padding-left: 1.5rem;
   padding-right: 1.5rem;
   box-sizing: border-box;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 /* ── Back link ─────────────────────────────────────────────── */
@@ -5620,6 +5623,7 @@ select:focus {
   margin-bottom: 4rem;
   width: 100%;
   max-width: 100%;
+  min-width: 0;
   box-sizing: border-box;
 }
 
@@ -5669,37 +5673,24 @@ select:focus {
   min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
-  /* Words wrap only at spaces — never split mid-character */
+  /*
+    word-break:normal     — never split a word at an arbitrary character
+    overflow-wrap:break-word — only wrap mid-word as a last resort (e.g. a 200-char URL)
+    hyphens:none          — browser must not insert soft hyphens
+  */
   word-break: normal;
-  overflow-wrap: normal;
+  overflow-wrap: break-word;
   hyphens: none;
   -webkit-hyphens: none;
 }
 
 /*
-  Apply to every element Quill can generate.
-  word-break:normal  — wrap only at natural word boundaries (spaces/hyphens)
-  overflow-wrap:normal — never break a word mid-character
-  hyphens:none       — no automatic soft-hyphen insertion
-  white-space:normal — allow normal line wrapping
+  Apply the same rules to every element Quill can generate.
+  Using the wildcard * so no tag is ever missed.
 */
-.blog-prose p,
-.blog-prose h1,
-.blog-prose h2,
-.blog-prose h3,
-.blog-prose h4,
-.blog-prose h5,
-.blog-prose h6,
-.blog-prose li,
-.blog-prose blockquote,
-.blog-prose span,
-.blog-prose em,
-.blog-prose strong,
-.blog-prose u,
-.blog-prose s,
-.blog-prose a {
+.blog-prose * {
   word-break: normal !important;
-  overflow-wrap: normal !important;
+  overflow-wrap: break-word !important;
   hyphens: none !important;
   -webkit-hyphens: none !important;
   white-space: normal !important;
@@ -5707,26 +5698,18 @@ select:focus {
   box-sizing: border-box !important;
 }
 
-/* Long URLs inside links can still wrap so they don't overflow */
-.blog-prose a {
-  overflow-wrap: anywhere !important;
-}
-
-/* Code/pre — preserve formatting, scroll horizontally if needed */
+/* Code/pre — preserve source formatting, allow horizontal scroll inside */
 .blog-prose pre,
 .blog-prose code {
   white-space: pre-wrap !important;
   overflow-x: auto !important;
-  word-break: normal !important;
-  overflow-wrap: anywhere !important;
+  word-break: break-all !important;
 }
 
-/* Quill size/align/indent classes — must not expand beyond container */
+/* Quill size/align/indent utility classes — never expand beyond parent */
 .blog-prose [class*="ql-"] {
   max-width: 100% !important;
   box-sizing: border-box !important;
-  word-break: normal !important;
-  overflow-wrap: normal !important;
 }
 
 .blog-prose p {
@@ -6107,7 +6090,7 @@ select:focus {
     border-radius: 0;
   }
 
-  /* Content wrap — proper padding so text isn't edge-to-edge */
+  /* Content wrap — proper padding, clips overflow at wrap boundary not viewport */
   .blog-detail-wrap {
     width: 100%;
     max-width: 100%;
@@ -6118,14 +6101,17 @@ select:focus {
     margin-left: auto;
     margin-right: auto;
     box-sizing: border-box !important;
+    min-width: 0;
+    overflow-x: hidden;
   }
 
-  /* Article and prose — never clip text */
+  /* Article and prose — fill wrap, never overflow it */
   .blog-article,
   .blog-prose,
   .blog-comments-section {
     width: 100%;
     max-width: 100%;
+    min-width: 0;
     box-sizing: border-box !important;
   }
 
@@ -6172,26 +6158,15 @@ select:focus {
     margin: 0 0 1rem;
   }
 
-  /* Mobile: words wrap only at spaces, never split mid-character */
-  .blog-prose p,
-  .blog-prose h1, .blog-prose h2, .blog-prose h3,
-  .blog-prose h4, .blog-prose h5, .blog-prose h6,
-  .blog-prose li, .blog-prose blockquote,
-  .blog-prose span, .blog-prose em, .blog-prose strong,
-  .blog-prose u, .blog-prose s {
+  /* Mobile: words wrap at spaces only, no mid-word breaks */
+  .blog-prose * {
     word-break: normal !important;
-    overflow-wrap: normal !important;
+    overflow-wrap: break-word !important;
     hyphens: none !important;
     -webkit-hyphens: none !important;
     white-space: normal !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
-  }
-
-  /* URLs can still wrap to avoid breaking layout */
-  .blog-prose a {
-    overflow-wrap: anywhere !important;
-    word-break: break-all !important;
   }
 
   .blog-prose h1 { font-size: 1.5rem; }
