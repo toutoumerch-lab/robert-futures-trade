@@ -202,7 +202,7 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm, onTrackWebsi
 
   // ------------------------------------------------------------ Helper: extract numeric price for a firm ──
   const getEffectivePrice = (f) => {
-    if (f.discount_usd && Number(f.discount_usd) > 0) return Number(f.discount_usd);
+    if (f.without_discount_usd && f.discount_usd) return Number(f.without_discount_usd) - Number(f.discount_usd);
     if (f.fifty_k_initial_cost && Number(f.fifty_k_initial_cost) > 0) return Number(f.fifty_k_initial_cost);
     if (f.activation_fee && Number(f.activation_fee) > 0) return Number(f.activation_fee);
     return Infinity;
@@ -610,19 +610,23 @@ const FirmGridCard = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTo
       </div>
       <div className="firm-mini-stat" style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.06), rgba(37,99,235,0.06))', border: '1px solid rgba(59,130,246,0.12)' }}>
         <span className="firm-mini-stat-label">Price</span>
-        {cheapestPlan ? (
-          cheapestPlan.discount_usd ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <span style={{ fontWeight: 900, fontSize: '1.15rem', color: 'var(--text-primary)', lineHeight: 1 }}>${cheapestPlan.discount_usd}</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
-                <span style={{ textDecoration: 'line-through', color: 'var(--text-secondary)', fontSize: '0.75rem' }}>${cheapestPlan.without_discount_usd}</span>
-                {cheapestPlan.discount_percent && <span style={{ background: 'var(--accent-secondary)', color: '#fff', fontSize: '0.6rem', padding: '1px 5px', borderRadius: '4px', fontWeight: 800 }}>-{cheapestPlan.discount_percent}%</span>}
+        {cheapestPlan ? (() => {
+          const base = Number(cheapestPlan.without_discount_usd);
+          const savings = Number(cheapestPlan.discount_usd);
+          const finalPrice = (base > 0 && savings > 0) ? +(base - savings).toFixed(2) : 0;
+          if (finalPrice > 0) {
+            return (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <span style={{ fontWeight: 900, fontSize: '1.15rem', color: 'var(--text-primary)', lineHeight: 1 }}>${finalPrice}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+                  <span style={{ textDecoration: 'line-through', color: 'var(--text-secondary)', fontSize: '0.75rem' }}>${base}</span>
+                  {cheapestPlan.discount_percent && <span style={{ background: 'var(--accent-secondary)', color: '#fff', fontSize: '0.6rem', padding: '1px 5px', borderRadius: '4px', fontWeight: 800 }}>-{cheapestPlan.discount_percent}%</span>}
+                </div>
               </div>
-            </div>
-          ) : (
-            <span className="firm-mini-stat-value">{cheapestPlan.fifty_k_initial_cost ? `$${cheapestPlan.fifty_k_initial_cost}` : 'N/A'}</span>
-          )
-        ) : (
+            );
+          }
+          return <span className="firm-mini-stat-value">{cheapestPlan.fifty_k_initial_cost ? `$${cheapestPlan.fifty_k_initial_cost}` : 'N/A'}</span>;
+        })() : (
           <span className="firm-mini-stat-value">N/A</span>
         )}
       </div>
@@ -649,7 +653,7 @@ const FirmGridCard = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTo
 /* â═══════════════════════════════════════════════•
    List Row (with compare + fav)
    â═══════════════════════════════════════════════• */
-const FirmListRow = ({ firm, onClick, isComparing, onToggleCompare, isFav, onToggleFav, compareDisabled, onTrackWebsite, lowestPrice }) => (
+const FirmListRow = ({ firm, onClick, isComparing, onToggleCompare, isFav, onToggleFav, compareDisabled, onTrackWebsite, cheapestPlan }) => (
   <div className={`firm-list-row ${isComparing ? 'comparing' : ''}`} onClick={onClick} style={{
     background: 'var(--bg-secondary)', borderRadius: '16px', padding: '1.25rem 1.5rem',
     border: isComparing ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
@@ -683,17 +687,31 @@ const FirmListRow = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTog
 
     <div style={{ flex: '0 0 90px', textAlign: 'center' }}>
       <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase' }}>Activation</div>
-      <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>{firm.activation_fee ? `$${firm.activation_fee}` : 'Free'}</div>
+      <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>
+        {cheapestPlan ? (cheapestPlan.activation_fee ? `$${cheapestPlan.activation_fee}` : 'Free') : (firm.activation_fee ? `$${firm.activation_fee}` : 'Free')}
+      </div>
     </div>
 
     <div style={{ flex: '0 0 110px', textAlign: 'center' }}>
       <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase' }}>Price</div>
-      {lowestPrice ? (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1.2 }}>
-          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', fontWeight: 600 }}>From</span>
-          <span style={{ fontWeight: 900, fontSize: '1rem', color: 'var(--text-primary)' }}>${lowestPrice}</span>
-        </div>
-      ) : (
+      {cheapestPlan ? (() => {
+        const base = Number(cheapestPlan.without_discount_usd);
+        const savings = Number(cheapestPlan.discount_usd);
+        const finalPrice = (base > 0 && savings > 0) ? +(base - savings).toFixed(2) : 0;
+        if (finalPrice > 0) {
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1.2 }}>
+              <span style={{ fontWeight: 900, fontSize: '1rem', color: 'var(--text-primary)' }}>${finalPrice}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                <span style={{ textDecoration: 'line-through', color: 'var(--text-secondary)', fontSize: '0.7rem' }}>${base}</span>
+                {cheapestPlan.discount_percent && <span style={{ background: 'var(--accent-secondary)', color: '#fff', fontSize: '0.58rem', padding: '1px 4px', borderRadius: '3px', fontWeight: 800 }}>-{cheapestPlan.discount_percent}%</span>}
+              </div>
+            </div>
+          );
+        }
+        const base2 = cheapestPlan.fifty_k_initial_cost;
+        return base2 ? <span style={{ fontWeight: 900, fontSize: '1rem' }}>${base2}</span> : <span style={{ fontWeight: 800 }}>N/A</span>;
+      })() : (
         <span style={{ fontWeight: 800 }}>N/A</span>
       )}
     </div>
@@ -783,7 +801,12 @@ const PropFirmList = () => {
       .catch(() => {}); // silent — never block the user
   }, []);
 
-  const getPrice = (f) => Number(f.discount_usd || f.activation_fee || f.fifty_k_initial_cost || 0);
+  const getPrice = (f) => {
+    if (f.without_discount_usd && f.discount_usd) return Number(f.without_discount_usd) - Number(f.discount_usd);
+    if (f.fifty_k_initial_cost) return Number(f.fifty_k_initial_cost);
+    if (f.activation_fee) return Number(f.activation_fee);
+    return 0;
+  };
 
   const filtered = useMemo(() => {
     return firms.filter(f => {
@@ -1085,13 +1108,18 @@ const PropFirmList = () => {
                     <button className="btn btn-outline mt-4" onClick={clearFilters}>Clear Filters</button>
                   </div>
                 ) : (() => {
-                  // Find the cheapest plan object for each firm (by discount_usd ?? fifty_k_initial_cost)
+                  // Find the cheapest plan object for each firm (by final price after discount)
+                  const getPlanPrice = (f) => {
+                    if (f.without_discount_usd && f.discount_usd) return Number(f.without_discount_usd) - Number(f.discount_usd);
+                    if (f.fifty_k_initial_cost) return Number(f.fifty_k_initial_cost);
+                    return 0;
+                  };
                   const cheapestPlanByName = new Map();
                   sorted.forEach(f => {
-                    const p = Number(f.discount_usd || f.fifty_k_initial_cost || 0);
+                    const p = getPlanPrice(f);
                     if (p > 0) {
                       const cur = cheapestPlanByName.get(f.name);
-                      const curP = cur ? Number(cur.discount_usd || cur.fifty_k_initial_cost || 0) : Infinity;
+                      const curP = cur ? getPlanPrice(cur) : Infinity;
                       if (p < curP) cheapestPlanByName.set(f.name, f);
                     }
                   });
