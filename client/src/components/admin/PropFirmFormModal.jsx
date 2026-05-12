@@ -201,7 +201,6 @@ const SizeFields = ({ size, onUpdate, onCopyAll, showEval }) => {
       <div>
         <SectionLabel>Funded</SectionLabel>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.65rem' }}>
-          <Inp label="Days to Payout" value={size.funded_days_to_payout} onChange={e => u({ funded_days_to_payout: e.target.value })} onCopyAll={() => cp('funded_days_to_payout')} />
           <Inp label="Min trading days for payout" value={size.funded_min_days} onChange={e => u({ funded_min_days: e.target.value })} onCopyAll={() => cp('funded_min_days')} />
           <Inp label="Winning day (min profit)" value={size.funded_winning_day} onChange={e => u({ funded_winning_day: e.target.value })} prefix="$" onCopyAll={() => cp('funded_winning_day')} />
           <Inp label="Max Withdrawl" value={size.funded_max_withdrawal} onChange={e => u({ funded_max_withdrawal: e.target.value })} prefix="$" onCopyAll={() => cp('funded_max_withdrawal')} />
