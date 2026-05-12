@@ -150,10 +150,11 @@ const SectionLabel = ({ children }) => (
 );
 
 // ─── Size Fields (rendered inside the tab panel) ─────────────────────────────
-const SizeFields = ({ size, onUpdate, onCopyAll, showEval }) => {
+const SizeFields = ({ size, onUpdate, onCopyAll, showEval, planVariant }) => {
   const { savings, afterDiscount } = calcPricing(size);
   const u = (patch) => onUpdate(patch);
   const cp = (field) => onCopyAll(field, size[field]);
+  const noActivation = planVariant === 'without_activation';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -172,7 +173,24 @@ const SizeFields = ({ size, onUpdate, onCopyAll, showEval }) => {
             </div>
           </div>
           <Inp label="Price after discount" value={afterDiscount > 0 ? afterDiscount.toFixed(2) : ''} readOnly prefix="$" placeholder="—" />
-          <Inp label="Activation fee" value={size.activation_fee} onChange={e => u({ activation_fee: e.target.value })} prefix="$" onCopyAll={() => cp('activation_fee')} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minHeight: '18px' }}>
+              <span style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Activation fee</span>
+              {noActivation && (
+                <span style={{ fontSize: '0.6rem', fontWeight: 800, background: 'rgba(16,185,129,0.15)', color: '#10b981', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '4px', padding: '1px 6px', letterSpacing: '0.04em' }}>LOCKED · $0</span>
+              )}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-secondary)', border: `1px solid ${noActivation ? 'rgba(16,185,129,0.3)' : 'var(--border-color)'}`, borderRadius: '8px', overflow: 'hidden', opacity: noActivation ? 0.7 : 1 }}>
+              <span style={{ padding: '0 8px', color: 'var(--text-secondary)', fontSize: '0.82rem', borderRight: `1px solid ${noActivation ? 'rgba(16,185,129,0.3)' : 'var(--border-color)'}`, flexShrink: 0, alignSelf: 'stretch', display: 'flex', alignItems: 'center' }}>$</span>
+              <input
+                type="text"
+                value={noActivation ? '0' : size.activation_fee}
+                onChange={noActivation ? undefined : e => u({ activation_fee: e.target.value })}
+                readOnly={noActivation}
+                style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', padding: '7px 9px', fontSize: '0.85rem', color: noActivation ? '#10b981' : 'var(--text-primary)', cursor: noActivation ? 'not-allowed' : 'text', minWidth: 0, fontWeight: noActivation ? 700 : 400 }}
+              />
+            </div>
+          </div>
           <Inp label="Reset fee" value={size.reset_fee} onChange={e => u({ reset_fee: e.target.value })} prefix="$" onCopyAll={() => cp('reset_fee')} />
         </div>
       </div>
@@ -259,7 +277,15 @@ const PlanCard = ({ plan, onUpdate, onRemove, onCopy }) => {
         <input className="input" value={plan.name} onChange={e => onUpdate({ name: e.target.value })}
           placeholder="Plan name..." style={{ width: '150px', fontWeight: 700, fontSize: '0.88rem', padding: '5px 9px' }} />
 
-        <select value={plan.variant} onChange={e => onUpdate({ variant: e.target.value })}
+        <select value={plan.variant} onChange={e => {
+            const newVariant = e.target.value;
+            const patch = { variant: newVariant };
+            if (newVariant === 'without_activation') {
+              // Lock all sizes to $0 activation fee
+              patch.sizes = plan.sizes.map(s => ({ ...s, activation_fee: '0' }));
+            }
+            onUpdate(patch);
+          }}
           style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '5px 8px', fontSize: '0.8rem', color: 'var(--text-primary)', outline: 'none' }}>
           <option value="no_variant">— No variant</option>
           <option value="with_activation">With Activation Fee</option>
@@ -362,6 +388,7 @@ const PlanCard = ({ plan, onUpdate, onRemove, onCopy }) => {
             onUpdate={patch => updateSize(safeTab, patch)}
             onCopyAll={(field, value) => copyAll(safeTab, field, value)}
             showEval={showEval}
+            planVariant={plan.variant}
           />
         </div>
       )}
@@ -489,6 +516,7 @@ const PropFirmFormModal = ({ onClose, onSaved, availableGroups = [], editing = n
       // Build FormData for one plan + one size
       const buildFd = (plan, size) => {
         const { savings, afterDiscount } = calcPricing(size);
+        const effectiveActivationFee = plan.variant === 'without_activation' ? '0' : size.activation_fee;
         const fd = new FormData();
         fd.append('name',                 firmName.trim());
         fd.append('rating',               trustpilot);
@@ -514,9 +542,9 @@ const PropFirmFormModal = ({ onClose, onSaved, availableGroups = [], editing = n
         fd.append('discount_percent',     size.discount_percent);
         fd.append('discount_usd',         savings);
         fd.append('price',                afterDiscount > 0 ? afterDiscount : size.price_no_discount);
-        fd.append('activation_fee',       size.activation_fee);
+        fd.append('activation_fee',       effectiveActivationFee);
         fd.append('reset_fee',            size.reset_fee);
-        fd.append('fifty_k_all_in',       afterDiscount > 0 ? +(afterDiscount + (parseFloat(size.activation_fee) || 0)).toFixed(2) : '');
+        fd.append('fifty_k_all_in',       afterDiscount > 0 ? +(afterDiscount + (parseFloat(effectiveActivationFee) || 0)).toFixed(2) : '');
         fd.append('fifty_k_initial_cost', afterDiscount > 0 ? afterDiscount : size.price_no_discount);
         // Trading rules
         fd.append('profit_target',        size.eval_profit_target);
