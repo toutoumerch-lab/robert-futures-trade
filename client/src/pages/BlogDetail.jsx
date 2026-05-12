@@ -14,6 +14,87 @@ const REACTIONS = [
   { type: 'insight', icon: Lightbulb,   label: 'Insightful', emoji: '💡' },
 ];
 
+/* ─────────────────────────────────────────────────────────────────
+   Quill HTML cleaner — fixes mid-word line breaks caused by Quill
+   fragmenting words across adjacent inline elements after formatting
+   operations (e.g. <span>wer</span><span>e</span> → "were").
+
+   Strategy:
+   1. Merge adjacent inline siblings that share the same tag + style + class
+   2. Unwrap empty inline elements (no children, no text)
+   3. Unwrap <span> elements that carry no style or class at all
+   Runs client-side via DOMParser before dangerouslySetInnerHTML.
+───────────────────────────────────────────────────────────────── */
+const INLINE_TAGS = new Set(['SPAN', 'STRONG', 'EM', 'B', 'I', 'U', 'S']);
+
+function _mergeNode(node) {
+  let child = node.firstChild;
+  while (child) {
+    const next = child.nextSibling;
+
+    if (child.nodeType !== 1 /* ELEMENT_NODE */) {
+      child = next;
+      continue;
+    }
+
+    // Recurse into children first
+    _mergeNode(child);
+
+    const tag = child.tagName;
+
+    // Remove empty inline elements
+    if (INLINE_TAGS.has(tag) && child.childNodes.length === 0) {
+      node.removeChild(child);
+      child = next;
+      continue;
+    }
+
+    // Unwrap <span> with no style and no class (purely structural noise)
+    if (
+      tag === 'SPAN' &&
+      !child.getAttribute('style') &&
+      !child.getAttribute('class')
+    ) {
+      const frag = document.createDocumentFragment();
+      while (child.firstChild) frag.appendChild(child.firstChild);
+      node.replaceChild(frag, child);
+      // Don't advance — newly inserted nodes need merging
+      child = next;
+      continue;
+    }
+
+    // Merge consecutive siblings with identical tag + style + class
+    if (INLINE_TAGS.has(tag)) {
+      let peek = child.nextSibling;
+      while (
+        peek &&
+        peek.nodeType === 1 &&
+        peek.tagName === tag &&
+        (peek.getAttribute('style') || '') === (child.getAttribute('style') || '') &&
+        (peek.getAttribute('class') || '') === (child.getAttribute('class') || '')
+      ) {
+        const afterPeek = peek.nextSibling;
+        while (peek.firstChild) child.appendChild(peek.firstChild);
+        node.removeChild(peek);
+        peek = afterPeek;
+      }
+    }
+
+    child = next;
+  }
+}
+
+const cleanQuillHtml = (html) => {
+  if (!html) return '';
+  try {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    _mergeNode(doc.body);
+    return doc.body.innerHTML;
+  } catch {
+    return html;
+  }
+};
+
 const BlogDetail = () => {
   const { id }       = useParams();
   const { user }     = useAuth();
@@ -218,7 +299,7 @@ const BlogDetail = () => {
           {/* Prose content */}
           <div 
             className="blog-prose"
-            dangerouslySetInnerHTML={{ __html: post.content || '' }}
+            dangerouslySetInnerHTML={{ __html: cleanQuillHtml(post.content) }}
           />
 
           {/* ── Reactions bar ─────────────────────────────────────────── */}
