@@ -5727,10 +5727,10 @@ select:focus {
   line-height: 1.85;
 }
 
+/* Let <br> behave natively — display:block on <br> causes layout anomalies */
 .blog-prose br {
-  display: block;
-  content: '';
-  margin-top: 0.6rem;
+  display: inline;
+  line-height: inherit;
 }
 
 .blog-prose h1, .blog-prose h2, .blog-prose h3,

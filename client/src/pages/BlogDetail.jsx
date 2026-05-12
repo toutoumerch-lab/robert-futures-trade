@@ -15,69 +15,85 @@ const REACTIONS = [
 ];
 
 /* ─────────────────────────────────────────────────────────────────
-   Quill HTML cleaner — fixes mid-word line breaks caused by Quill
-   fragmenting words across adjacent inline elements after formatting
-   operations (e.g. <span>wer</span><span>e</span> → "were").
+   Quill HTML cleaner — eliminates mid-word line breaks.
 
-   Strategy:
-   1. Merge adjacent inline siblings that share the same tag + style + class
-   2. Unwrap empty inline elements (no children, no text)
-   3. Unwrap <span> elements that carry no style or class at all
-   Runs client-side via DOMParser before dangerouslySetInnerHTML.
+   Root causes addressed:
+   A) Adjacent same-tag inline elements:  <em>wer</em><em>e</em>
+   B) Whitespace-only text nodes between elements: <em>wer</em>\n<em>e</em>
+      (the \n collapses to a space under white-space:normal → false word break)
+   C) Transient Quill classes (ql-cursor, ql-ui) preventing merge
+   D) Bare <span> with no style/class — structural noise, unwrap
+   E) Empty inline elements — dead nodes, remove
+
+   All merging skips whitespace-only text nodes between siblings so
+   <em>wer</em>   <em>e</em> merges to <em>were</em>.
 ───────────────────────────────────────────────────────────────── */
 const INLINE_TAGS = new Set(['SPAN', 'STRONG', 'EM', 'B', 'I', 'U', 'S']);
+// Quill-internal transient classes — ignore when comparing for merge eligibility
+const QUILL_TRANSIENT = /\b(ql-cursor|ql-ui)\b/g;
 
-function _mergeNode(node) {
+const _normClass = (cls) =>
+  (cls || '').replace(QUILL_TRANSIENT, '').replace(/\s+/g, ' ').trim();
+
+// Returns true if this is a whitespace-only text node
+const _isBlank = (n) => n.nodeType === 3 && /^\s*$/.test(n.nodeValue);
+
+function _clean(node) {
   let child = node.firstChild;
   while (child) {
     const next = child.nextSibling;
 
-    if (child.nodeType !== 1 /* ELEMENT_NODE */) {
-      child = next;
-      continue;
-    }
+    if (child.nodeType !== 1) { child = next; continue; }
 
-    // Recurse into children first
-    _mergeNode(child);
+    _clean(child); // depth-first
 
     const tag = child.tagName;
 
-    // Remove empty inline elements
-    if (INLINE_TAGS.has(tag) && child.childNodes.length === 0) {
+    // (E) Remove empty inline elements
+    if (INLINE_TAGS.has(tag) && !child.hasChildNodes()) {
       node.removeChild(child);
       child = next;
       continue;
     }
 
-    // Unwrap <span> with no style and no class (purely structural noise)
-    if (
-      tag === 'SPAN' &&
-      !child.getAttribute('style') &&
-      !child.getAttribute('class')
-    ) {
+    // (D) Unwrap <span> with no meaningful style or class
+    if (tag === 'SPAN' && !child.getAttribute('style') && !_normClass(child.getAttribute('class'))) {
       const frag = document.createDocumentFragment();
       while (child.firstChild) frag.appendChild(child.firstChild);
       node.replaceChild(frag, child);
-      // Don't advance — newly inserted nodes need merging
       child = next;
       continue;
     }
 
-    // Merge consecutive siblings with identical tag + style + class
-    if (INLINE_TAGS.has(tag)) {
-      let peek = child.nextSibling;
-      while (
-        peek &&
-        peek.nodeType === 1 &&
-        peek.tagName === tag &&
-        (peek.getAttribute('style') || '') === (child.getAttribute('style') || '') &&
-        (peek.getAttribute('class') || '') === (child.getAttribute('class') || '')
-      ) {
-        const afterPeek = peek.nextSibling;
-        while (peek.firstChild) child.appendChild(peek.firstChild);
-        node.removeChild(peek);
-        peek = afterPeek;
+    if (!INLINE_TAGS.has(tag)) { child = next; continue; }
+
+    // (A+B+C) Merge adjacent same-tag inline elements, skipping blank text nodes
+    const styleA = (child.getAttribute('style') || '').trim();
+    const classA = _normClass(child.getAttribute('class'));
+
+    let peek = child.nextSibling;
+    while (peek && _isBlank(peek)) peek = peek.nextSibling; // skip blank text nodes
+
+    while (
+      peek && peek.nodeType === 1 &&
+      peek.tagName === tag &&
+      (peek.getAttribute('style') || '').trim() === styleA &&
+      _normClass(peek.getAttribute('class')) === classA
+    ) {
+      // Remove any blank text nodes sitting between child and peek
+      let between = child.nextSibling;
+      while (between && between !== peek) {
+        const tmp = between.nextSibling;
+        if (_isBlank(between)) node.removeChild(between);
+        between = tmp;
       }
+      // Absorb peek's children into child
+      const afterPeek = peek.nextSibling;
+      while (peek.firstChild) child.appendChild(peek.firstChild);
+      node.removeChild(peek);
+      // Advance peek past blanks to try another merge
+      peek = afterPeek;
+      while (peek && _isBlank(peek)) peek = peek.nextSibling;
     }
 
     child = next;
@@ -88,7 +104,11 @@ const cleanQuillHtml = (html) => {
   if (!html) return '';
   try {
     const doc = new DOMParser().parseFromString(html, 'text/html');
-    _mergeNode(doc.body);
+    // Log raw HTML once so devtools can confirm what Quill actually saved
+    if (import.meta.env.DEV) {
+      console.log('[BlogDetail] raw content (first 800 chars):\n', html.slice(0, 800));
+    }
+    _clean(doc.body);
     return doc.body.innerHTML;
   } catch {
     return html;
