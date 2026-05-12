@@ -34,9 +34,20 @@ export const AuthProvider = ({ children }) => {
     return res.data.user;
   };
 
-  // Returns { email } only — user is not logged in until OTP is verified
-  const register = async (name, email, password) => {
-    const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register`, { name, email, password });
+  // Returns { email, phone } — user is not logged in until both OTPs are verified
+  const register = async (name, email, password, phone) => {
+    const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register`, { name, email, password, phone });
+    return res.data;
+  };
+
+  const sendPhoneOtp = async (phone) => {
+    const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/send-phone-otp`, { phone });
+    return res.data;
+  };
+
+  // Verifies SMS OTP → marks phone_verified → sends email OTP → returns { email }
+  const verifyPhoneOtp = async (phone, code) => {
+    const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/verify-phone-otp`, { phone, code });
     return res.data;
   };
 
@@ -64,7 +75,7 @@ export const AuthProvider = ({ children }) => {
   const updateUser = (data) => setUser(prev => ({ ...prev, ...data }));
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, verifyOtp, resendOtp, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, verifyOtp, resendOtp, sendPhoneOtp, verifyPhoneOtp, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -2,7 +2,8 @@ const bcrypt = require('bcrypt');
 const jwt    = require('jsonwebtoken');
 const https  = require('https');
 const crypto = require('crypto');
-const { sendMail } = require('../utils/mailer');
+const { sendMail }                      = require('../utils/mailer');
+const { sendPhoneOtp, verifyPhoneOtp }  = require('../utils/twilio');
 const { pool } = require('../config/db');
 
 /* ─────────────────────────────────────────────────────────────────
@@ -69,12 +70,28 @@ const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString()
    POST /api/auth/register
 ───────────────────────────────────────────────────────────────── */
 const register = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, phone } = req.body;
   if (!name || !email || !password) {
     return res.status(400).json({ error: 'Name, email and password are required' });
   }
+  if (!phone) {
+    return res.status(400).json({ error: 'Phone number is required' });
+  }
+  // Validate E.164 format
+  if (!/^\+[1-9]\d{6,14}$/.test(phone)) {
+    return res.status(400).json({ error: 'Invalid phone format. Use E.164 (e.g. +12125551234)' });
+  }
 
   try {
+    // Prevent duplicate verified phone numbers
+    const phoneCheck = await pool.query(
+      'SELECT id FROM users WHERE phone = $1 AND phone_verified = true',
+      [phone]
+    );
+    if (phoneCheck.rows.length > 0) {
+      return res.status(400).json({ error: 'This phone number is already registered' });
+    }
+
     const userExists = await pool.query('SELECT id, is_verified FROM users WHERE email = $1', [email]);
     if (userExists.rows.length > 0 && userExists.rows[0].is_verified) {
       return res.status(400).json({ error: 'User already exists' });
@@ -82,9 +99,6 @@ const register = async (req, res) => {
 
     const salt          = await bcrypt.genSalt(10);
     const password_hash = await bcrypt.hash(password, salt);
-
-    const verificationCode    = generateOtp();
-    const verificationExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 min
 
     // Capture IP now (synchronous — no network call)
     const ip = getClientIp(req);
@@ -94,38 +108,35 @@ const register = async (req, res) => {
       // Unverified user retrying — update their record
       await pool.query(
         `UPDATE users
-         SET name = $1, password_hash = $2, verification_code = $3, verification_code_expires = $4
-         WHERE email = $5`,
-        [name, password_hash, verificationCode, verificationExpires, email]
+         SET name = $1, password_hash = $2, phone = $3, phone_verified = false
+         WHERE email = $4`,
+        [name, password_hash, phone, email]
       );
       userId = userExists.rows[0].id;
     } else {
       const ins = await pool.query(
         `INSERT INTO users
-           (name, email, password_hash, role, is_verified, verification_code, verification_code_expires)
-         VALUES ($1, $2, $3, 'user', false, $4, $5)
+           (name, email, password_hash, role, is_verified, phone, phone_verified)
+         VALUES ($1, $2, $3, 'user', false, $4, false)
          RETURNING id`,
-        [name, email, password_hash, verificationCode, verificationExpires]
+        [name, email, password_hash, phone]
       );
       userId = ins.rows[0].id;
     }
 
-    // ── Respond immediately — user is in DB with OTP ──────────────
+    // ── Send Twilio SMS OTP — respond immediately ─────────────────
     res.status(201).json({
-      message: 'Registration successful. Please check your email for your 6-digit verification code.',
+      message: 'Please verify your phone number.',
       email,
+      phone,
     });
 
-    // ── Fire email async after response (never blocks signup) ─────
-    sendMail(email, 'Your verification code – Robert Trades', otpEmailHtml(name, verificationCode))
-      .then(r => {
-        if (!r.success) {
-          console.error(`[OTP MAIL FAIL] ${email} OTP=${verificationCode} err=${r.error}`);
-        }
-      })
-      .catch(err => console.error('[OTP MAIL ERROR]', err.message));
+    // ── Fire SMS OTP async (never blocks response) ────────────────
+    sendPhoneOtp(phone).then(r => {
+      if (!r.success) console.error(`[PHONE OTP FAIL] ${phone} err=${r.error}`);
+    });
 
-    // ── Geo lookup async — purely informational, never blocks ─────
+    // ── Geo lookup async — purely informational ───────────────────
     lookupCountry(ip).then(geo => {
       if (geo) {
         pool.query(
@@ -138,6 +149,81 @@ const register = async (req, res) => {
   } catch (error) {
     console.error('Register error:', error);
     if (!res.headersSent) res.status(500).json({ error: 'Server error' });
+  }
+};
+
+/* ─────────────────────────────────────────────────────────────────
+   POST /api/auth/send-phone-otp   (resend)
+───────────────────────────────────────────────────────────────── */
+const sendPhoneOtpHandler = async (req, res) => {
+  const { phone } = req.body;
+  if (!phone) return res.status(400).json({ error: 'Phone number required' });
+  if (!/^\+[1-9]\d{6,14}$/.test(phone)) {
+    return res.status(400).json({ error: 'Invalid phone format. Use E.164 (e.g. +12125551234)' });
+  }
+  try {
+    const result = await sendPhoneOtp(phone);
+    if (!result.success) return res.status(500).json({ error: 'Failed to send SMS. Please try again.' });
+    res.json({ message: 'SMS sent', phone });
+  } catch (err) {
+    console.error('[sendPhoneOtpHandler]', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+/* ─────────────────────────────────────────────────────────────────
+   POST /api/auth/verify-phone-otp
+   Verifies Twilio OTP, marks phone_verified, then sends email OTP
+───────────────────────────────────────────────────────────────── */
+const verifyPhoneOtpHandler = async (req, res) => {
+  const { phone, code } = req.body;
+  if (!phone || !code) return res.status(400).json({ error: 'Phone and code are required' });
+
+  try {
+    const result = await verifyPhoneOtp(phone, code);
+
+    if (!result.success) {
+      return res.status(500).json({ error: 'Verification service error. Please try again.' });
+    }
+    if (!result.valid) {
+      return res.status(400).json({ error: 'Invalid or expired code. Please try again.' });
+    }
+
+    // Mark phone as verified
+    const updated = await pool.query(
+      `UPDATE users SET phone_verified = true
+       WHERE phone = $1 AND phone_verified = false
+       RETURNING id, name, email`,
+      [phone]
+    );
+
+    if (updated.rows.length === 0) {
+      return res.status(400).json({ error: 'User not found for this phone number' });
+    }
+
+    const user = updated.rows[0];
+
+    // Generate email OTP and send it
+    const verificationCode    = generateOtp();
+    const verificationExpires = new Date(Date.now() + 10 * 60 * 1000);
+
+    await pool.query(
+      `UPDATE users SET verification_code = $1, verification_code_expires = $2 WHERE id = $3`,
+      [verificationCode, verificationExpires, user.id]
+    );
+
+    res.json({ message: 'Phone verified. Check your email for a verification code.', email: user.email });
+
+    // Send email OTP async
+    sendMail(user.email, 'Your verification code – Robert Trades', otpEmailHtml(user.name, verificationCode))
+      .then(r => {
+        if (!r.success) console.error(`[EMAIL OTP FAIL] ${user.email} OTP=${verificationCode} err=${r.error}`);
+      })
+      .catch(err => console.error('[EMAIL OTP ERROR]', err.message));
+
+  } catch (err) {
+    console.error('[verifyPhoneOtpHandler]', err);
+    res.status(500).json({ error: 'Server error' });
   }
 };
 
@@ -436,6 +522,7 @@ const verifyEmail = async (req, res) => {
 module.exports = {
   register, login, me,
   verifyOtp, resendOtp,
+  sendPhoneOtpHandler, verifyPhoneOtpHandler,
   backfillCountries, setUserCountry,
   forgotPassword, resetPassword, verifyEmail,
 };

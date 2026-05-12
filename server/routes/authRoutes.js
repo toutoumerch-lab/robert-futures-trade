@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   register, login, me,
   verifyOtp, resendOtp,
+  sendPhoneOtpHandler, verifyPhoneOtpHandler,
   backfillCountries, setUserCountry,
   forgotPassword, resetPassword, verifyEmail,
 } = require('../controllers/authController');
@@ -14,6 +15,9 @@ router.get('/me',               authenticateToken, me);
 
 router.post('/verify-otp',      verifyOtp);
 router.post('/resend-otp',      resendOtp);
+
+router.post('/send-phone-otp',   sendPhoneOtpHandler);
+router.post('/verify-phone-otp', verifyPhoneOtpHandler);
 
 router.post('/forgot-password',        forgotPassword);
 router.post('/reset-password/:token',  resetPassword);
