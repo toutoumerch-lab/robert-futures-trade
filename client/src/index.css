@@ -5673,40 +5673,54 @@ select:focus {
   min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
-  /*
-    word-break:normal     — never split a word at an arbitrary character
-    overflow-wrap:break-word — only wrap mid-word as a last resort (e.g. a 200-char URL)
-    hyphens:none          — browser must not insert soft hyphens
-  */
   word-break: normal;
-  overflow-wrap: break-word;
+  overflow-wrap: normal;
   hyphens: none;
   -webkit-hyphens: none;
 }
 
-/*
-  Apply the same rules to every element Quill can generate.
-  Using the wildcard * so no tag is ever missed.
-*/
-.blog-prose * {
+/* Normal prose elements — words wrap only at spaces, never split mid-character */
+.blog-prose p,
+.blog-prose h1,
+.blog-prose h2,
+.blog-prose h3,
+.blog-prose h4,
+.blog-prose h5,
+.blog-prose h6,
+.blog-prose li,
+.blog-prose blockquote,
+.blog-prose span,
+.blog-prose em,
+.blog-prose i,
+.blog-prose strong,
+.blog-prose b,
+.blog-prose u,
+.blog-prose s,
+.blog-prose div {
   word-break: normal !important;
-  overflow-wrap: break-word !important;
+  overflow-wrap: normal !important;
+  line-break: auto !important;
   hyphens: none !important;
   -webkit-hyphens: none !important;
   white-space: normal !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
 }
 
-/* Code/pre — preserve source formatting, allow horizontal scroll inside */
+/* URLs/links — allow wrapping anywhere so long links don't overflow */
+.blog-prose a {
+  word-break: break-all !important;
+  overflow-wrap: anywhere !important;
+}
+
+/* Code/pre — preserve formatting, allow horizontal scroll */
 .blog-prose pre,
 .blog-prose code {
   white-space: pre-wrap !important;
   overflow-x: auto !important;
+  overflow-wrap: anywhere !important;
   word-break: break-all !important;
 }
 
-/* Quill size/align/indent utility classes — never expand beyond parent */
+/* Quill utility classes — constrain width only */
 .blog-prose [class*="ql-"] {
   max-width: 100% !important;
   box-sizing: border-box !important;
@@ -6158,15 +6172,24 @@ select:focus {
     margin: 0 0 1rem;
   }
 
-  /* Mobile: words wrap at spaces only, no mid-word breaks */
-  .blog-prose * {
+  /* Mobile: words wrap only at spaces, never split mid-character */
+  .blog-prose p,
+  .blog-prose h1, .blog-prose h2, .blog-prose h3,
+  .blog-prose h4, .blog-prose h5, .blog-prose h6,
+  .blog-prose li, .blog-prose blockquote,
+  .blog-prose span, .blog-prose em, .blog-prose i,
+  .blog-prose strong, .blog-prose b,
+  .blog-prose u, .blog-prose s, .blog-prose div {
     word-break: normal !important;
-    overflow-wrap: break-word !important;
+    overflow-wrap: normal !important;
     hyphens: none !important;
     -webkit-hyphens: none !important;
     white-space: normal !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
+  }
+
+  .blog-prose a {
+    word-break: break-all !important;
+    overflow-wrap: anywhere !important;
   }
 
   .blog-prose h1 { font-size: 1.5rem; }
