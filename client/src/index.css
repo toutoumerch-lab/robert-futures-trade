@@ -5675,18 +5675,8 @@ select:focus {
   -webkit-hyphens: none;
 }
 
-.blog-prose p,
-.blog-prose h1,
-.blog-prose h2,
-.blog-prose h3,
-.blog-prose h4,
-.blog-prose h5,
-.blog-prose h6,
-.blog-prose li,
-.blog-prose span,
-.blog-prose blockquote,
-.blog-prose strong,
-.blog-prose em {
+/* Every element Quill can generate — words wrap at spaces, never mid-char */
+.blog-prose * {
   word-break: normal !important;
   word-wrap: break-word !important;
   overflow-wrap: break-word !important;
@@ -6136,6 +6126,17 @@ select:focus {
 
   .blog-prose p {
     margin: 0 0 1rem;
+  }
+
+  /* Enforce word-wrapping on every Quill element on mobile */
+  .blog-prose * {
+    word-break: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    hyphens: none !important;
+    -webkit-hyphens: none !important;
+    white-space: normal !important;
+    max-width: 100% !important;
   }
 
   .blog-prose h1 { font-size: 1.5rem; }
