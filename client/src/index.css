@@ -5666,6 +5666,7 @@ select:focus {
   line-height: 1.85;
   color: var(--text-secondary);
   width: 100%;
+  min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
   word-break: normal;
@@ -5683,6 +5684,21 @@ select:focus {
   hyphens: none !important;
   -webkit-hyphens: none !important;
   white-space: normal !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Code/pre blocks are the one exception — allow horizontal scroll inside them */
+.blog-prose pre,
+.blog-prose code {
+  white-space: pre-wrap !important;
+  overflow-x: auto !important;
+}
+
+/* Quill alignment & size classes must not override container width */
+.blog-prose [class*="ql-"] {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .blog-prose p {
