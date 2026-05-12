@@ -42,7 +42,7 @@ const pageShow  = { opacity: 1, y: 0,  scale: 1,     transition: { duration: 0.5
 const pageExit  = { opacity: 0, y: -14, scale: 0.99,  transition: { duration: 0.24, ease: [0.7, 0, 1, 1] } };
 
 const PageWrapper = ({ children }) => (
-  <motion.div initial={pageEnter} animate={pageShow} exit={pageExit}>
+  <motion.div initial={pageEnter} animate={pageShow} exit={pageExit} style={{ minWidth: 0, width: '100%' }}>
     {children}
   </motion.div>
 );

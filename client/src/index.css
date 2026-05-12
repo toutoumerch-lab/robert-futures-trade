@@ -301,6 +301,8 @@ button {
 
 .main-content {
   flex: 1;
+  min-width: 0;
+  width: 100%;
 }
 
 /* Navbar */
@@ -5585,6 +5587,7 @@ select:focus {
 .blog-detail-wrap {
   width: 100%;
   max-width: 820px;
+  min-width: 0;
   margin-left: auto;
   margin-right: auto;
   padding-top: 2.5rem;
@@ -5592,6 +5595,8 @@ select:focus {
   padding-left: 1.5rem;
   padding-right: 1.5rem;
   box-sizing: border-box;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 /* ── Back link ─────────────────────────────────────────────── */
@@ -5676,19 +5681,26 @@ select:focus {
 /*
   Universal prose rule — covers every element Quill can generate
   (span, li, ol, ul, table, td, th, blockquote, etc.)
-  • word-break: normal      → words NEVER break mid-character
-  • overflow-wrap: break-word → last-resort break only for single tokens
-                                longer than the line (bare URLs, hashes)
-  • hyphens: none           → no automatic hyphenation
-  • white-space: normal     → collapse whitespace; wrap at spaces
+  • word-break: normal   → words NEVER break mid-character, EVER
+  • overflow-wrap: normal → only break at explicit break opportunities (spaces/hyphens)
+                            NOT mid-word (avoids "ha ve", "t/raps" splits)
+  • hyphens: none        → no automatic hyphenation
+  • white-space: normal  → collapse whitespace; wrap at spaces
+  NOTE: URLs/links use break-word in .blog-prose a rule below
 */
 .blog-prose,
 .blog-prose * {
   word-break: normal !important;
-  overflow-wrap: break-word !important;
+  overflow-wrap: normal !important;
   hyphens: none !important;
   -webkit-hyphens: none !important;
   white-space: normal !important;
+}
+
+/* Allow long URLs in links to wrap rather than overflow */
+.blog-prose a {
+  overflow-wrap: break-word !important;
+  word-break: break-all !important;
 }
 
 /* Code/pre — preserve indentation, allow break-all inside code blocks only */
@@ -5707,7 +5719,7 @@ select:focus {
   max-width: 100% !important;
   box-sizing: border-box !important;
   word-break: normal !important;
-  overflow-wrap: break-word !important;
+  overflow-wrap: normal !important;
   white-space: normal !important;
 }
 
@@ -6101,6 +6113,7 @@ select:focus {
   .blog-detail-wrap {
     width: 100%;
     max-width: 100%;
+    min-width: 0;
     padding-top: 1.5rem;
     padding-bottom: 4rem;
     padding-left: 1.25rem;
@@ -6108,6 +6121,8 @@ select:focus {
     margin-left: auto;
     margin-right: auto;
     box-sizing: border-box;
+    overflow-wrap: normal;
+    word-break: normal;
   }
 
   /* Article and prose — fill wrap, never overflow it */
@@ -6167,10 +6182,15 @@ select:focus {
   .blog-prose,
   .blog-prose * {
     word-break: normal !important;
-    overflow-wrap: break-word !important;
+    overflow-wrap: normal !important;
     hyphens: none !important;
     -webkit-hyphens: none !important;
     white-space: normal !important;
+  }
+  /* Allow long URLs in links to wrap */
+  .blog-prose a {
+    overflow-wrap: break-word !important;
+    word-break: break-all !important;
   }
   .blog-prose pre, .blog-prose code,
   .blog-prose pre *, .blog-prose code * {
