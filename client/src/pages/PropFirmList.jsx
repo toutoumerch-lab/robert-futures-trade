@@ -556,7 +556,7 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm, onTrackWebsi
 /* â═══════════════════════════════════════════════•
    Grid Card (with compare + fav)
    â═══════════════════════════════════════════════• */
-const FirmGridCard = ({ firm, onClick, isComparing, onToggleCompare, isFav, onToggleFav, compareDisabled, onTrackWebsite, cheapestPlan }) => (
+const FirmGridCard = ({ firm, onClick, isComparing, onToggleCompare, isFav, onToggleFav, compareDisabled, onTrackWebsite, cheapestPlan, lowestActivationFee }) => (
   <div className={`firm-grid-card ${isComparing ? 'comparing' : ''}`} onClick={onClick} style={{
     background: 'var(--bg-secondary)', borderRadius: '24px', padding: '1.75rem',
     border: isComparing ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
@@ -605,10 +605,7 @@ const FirmGridCard = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTo
       <div className="firm-mini-stat">
         <span className="firm-mini-stat-label">Activation</span>
         <span className="firm-mini-stat-value">
-          {(() => {
-            const fee = cheapestPlan != null ? cheapestPlan.activation_fee : firm.activation_fee;
-            return fee != null ? `$${fee}` : '—';
-          })()}
+          {lowestActivationFee != null ? `$${lowestActivationFee}` : '—'}
         </span>
       </div>
       <div className="firm-mini-stat" style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.06), rgba(37,99,235,0.06))', border: '1px solid rgba(59,130,246,0.12)' }}>
@@ -656,7 +653,7 @@ const FirmGridCard = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTo
 /* â═══════════════════════════════════════════════•
    List Row (with compare + fav)
    â═══════════════════════════════════════════════• */
-const FirmListRow = ({ firm, onClick, isComparing, onToggleCompare, isFav, onToggleFav, compareDisabled, onTrackWebsite, cheapestPlan }) => (
+const FirmListRow = ({ firm, onClick, isComparing, onToggleCompare, isFav, onToggleFav, compareDisabled, onTrackWebsite, cheapestPlan, lowestActivationFee }) => (
   <div className={`firm-list-row ${isComparing ? 'comparing' : ''}`} onClick={onClick} style={{
     background: 'var(--bg-secondary)', borderRadius: '16px', padding: '1.25rem 1.5rem',
     border: isComparing ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
@@ -691,10 +688,7 @@ const FirmListRow = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTog
     <div style={{ flex: '0 0 90px', textAlign: 'center' }}>
       <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase' }}>Activation</div>
       <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>
-        {(() => {
-          const fee = cheapestPlan != null ? cheapestPlan.activation_fee : firm.activation_fee;
-          return fee != null ? `$${fee}` : '—';
-        })()}
+        {lowestActivationFee != null ? `$${lowestActivationFee}` : '—'}
       </div>
     </div>
 
@@ -1130,6 +1124,17 @@ const PropFirmList = () => {
                     }
                   });
 
+                  // Find the lowest activation fee across ALL plans for each firm
+                  const lowestActivationFeeByName = new Map();
+                  sorted.forEach(f => {
+                    const fee = f.activation_fee;
+                    if (fee !== null && fee !== undefined && !isNaN(Number(fee))) {
+                      const feeNum = Number(fee);
+                      const cur = lowestActivationFeeByName.get(f.name);
+                      if (cur === undefined || feeNum < cur) lowestActivationFeeByName.set(f.name, feeNum);
+                    }
+                  });
+
                   // Deduplicate by firm name — one card per firm (first occurrence keeps sort order)
                   const seenMap = new Map();
                   sorted.forEach(f => {
@@ -1148,6 +1153,7 @@ const PropFirmList = () => {
                             compareDisabled={compareIds.length >= 4}
                             onTrackWebsite={(id) => trackClick(id, 'website')}
                             cheapestPlan={cheapestPlanByName.get(firm.name)}
+                            lowestActivationFee={lowestActivationFeeByName.get(firm.name)}
                           />
                         </div>
                       ))}
@@ -1163,6 +1169,7 @@ const PropFirmList = () => {
                             compareDisabled={compareIds.length >= 4}
                             onTrackWebsite={(id) => trackClick(id, 'website')}
                             cheapestPlan={cheapestPlanByName.get(firm.name)}
+                            lowestActivationFee={lowestActivationFeeByName.get(firm.name)}
                           />
                         </div>
                       ))}
