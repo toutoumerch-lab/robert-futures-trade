@@ -5681,26 +5681,25 @@ select:focus {
 /*
   Universal prose rule — covers every element Quill can generate
   (span, li, ol, ul, table, td, th, blockquote, etc.)
-  • word-break: normal   → words NEVER break mid-character, EVER
-  • overflow-wrap: normal → only break at explicit break opportunities (spaces/hyphens)
-                            NOT mid-word (avoids "ha ve", "t/raps" splits)
-  • hyphens: none        → no automatic hyphenation
-  • white-space: normal  → collapse whitespace; wrap at spaces
-  NOTE: URLs/links use break-word in .blog-prose a rule below
+  • word-break: normal      → words NEVER break mid-character
+  • overflow-wrap: break-word → last-resort wrap for tokens longer than the line
+                                (long URLs, hashes) — normal words are unaffected
+  • hyphens: none           → no automatic hyphenation
+  • white-space: normal     → collapse whitespace; wrap at spaces
 */
 .blog-prose,
 .blog-prose * {
   word-break: normal !important;
-  overflow-wrap: normal !important;
+  overflow-wrap: break-word !important;
   hyphens: none !important;
   -webkit-hyphens: none !important;
   white-space: normal !important;
 }
 
-/* Allow long URLs in links to wrap rather than overflow */
+/* Links: allow long URLs to wrap gracefully without splitting normal words */
 .blog-prose a {
   overflow-wrap: break-word !important;
-  word-break: break-all !important;
+  word-break: break-word !important;
 }
 
 /* Code/pre — preserve indentation, allow break-all inside code blocks only */
@@ -5719,7 +5718,7 @@ select:focus {
   max-width: 100% !important;
   box-sizing: border-box !important;
   word-break: normal !important;
-  overflow-wrap: normal !important;
+  overflow-wrap: break-word !important;
   white-space: normal !important;
 }
 
@@ -6182,15 +6181,15 @@ select:focus {
   .blog-prose,
   .blog-prose * {
     word-break: normal !important;
-    overflow-wrap: normal !important;
+    overflow-wrap: break-word !important;
     hyphens: none !important;
     -webkit-hyphens: none !important;
     white-space: normal !important;
   }
-  /* Allow long URLs in links to wrap */
+  /* Links: allow long URLs to wrap gracefully */
   .blog-prose a {
     overflow-wrap: break-word !important;
-    word-break: break-all !important;
+    word-break: break-word !important;
   }
   .blog-prose pre, .blog-prose code,
   .blog-prose pre *, .blog-prose code * {
