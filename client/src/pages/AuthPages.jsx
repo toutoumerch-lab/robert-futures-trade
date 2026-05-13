@@ -112,7 +112,7 @@ export const Register = () => {
   const [email, setEmail]         = useState('');
   const [password, setPassword]   = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [countryCode, setCountryCode]   = useState('+1');
+  const [countryCode, setCountryCode]   = useState('+216');
   const [phoneNumber, setPhoneNumber]   = useState('');
 
   // Step 2 — phone OTP

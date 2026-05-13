@@ -43,5 +43,9 @@ app.get('/api/health', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log('[ENV] TWILIO_ACCOUNT_SID:       ', !!process.env.TWILIO_ACCOUNT_SID);
+  console.log('[ENV] TWILIO_AUTH_TOKEN:         ', !!process.env.TWILIO_AUTH_TOKEN);
+  console.log('[ENV] TWILIO_VERIFY_SERVICE_SID: ', !!process.env.TWILIO_VERIFY_SERVICE_SID);
+  console.log('[ENV] RESEND_API_KEY:            ', !!process.env.RESEND_API_KEY);
 });
 
