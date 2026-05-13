@@ -10,6 +10,12 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
 const API = `${import.meta.env.VITE_API_URL}`;
+const imgUrl = (url) => {
+  if (!url) return null;
+  if (url.startsWith('http')) return url;
+  const normalized = url.startsWith('/uploads/') ? `/api${url}` : url;
+  return `${API}${normalized}`;
+};
 
 /* ── tiny helpers ─────────────────────────────────────────────── */
 const pct = (enr) => {
@@ -574,7 +580,7 @@ export default function Settings() {
                         >
                           <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
                             {firm.logo_url ? (
-                              <img src={`${API}${firm.logo_url}`} alt={firm.name} style={{ width:'44px', height:'44px', borderRadius:'10px', objectFit:'contain', background:'rgba(255,255,255,0.05)', padding:'4px' }} />
+                              <img src={imgUrl(firm.logo_url)} alt={firm.name} style={{ width:'44px', height:'44px', borderRadius:'10px', objectFit:'contain', background:'rgba(255,255,255,0.05)', padding:'4px' }} />
                             ) : (
                               <div style={{ width:'44px', height:'44px', borderRadius:'10px', background:'rgba(37,99,235,0.12)', display:'flex', alignItems:'center', justifyContent:'center' }}>
                                 <Building2 size={20} style={{ color:'#3b82f6' }} />

@@ -6,6 +6,12 @@ import axios from 'axios';
 import { LayoutGrid, List, Search, SlidersHorizontal, X, Star, ExternalLink, Copy, Check, Filter, Heart, GitCompareArrows, Zap, TrendingUp, ChevronDown, ChevronRight, Shield, DollarSign, Activity, Clock, Bot, Newspaper, Globe, BarChart3, Trophy, Gem, Tag, Ticket, Target, TrendingDown, Calendar, User, ClipboardList, Wrench, Lock, Banknote, Building2, FileText, Pencil, Landmark, ChevronUp, Settings, Timer } from 'lucide-react';
 
 const API = `${import.meta.env.VITE_API_URL}`;
+const imgUrl = (url) => {
+  if (!url) return null;
+  if (url.startsWith('http')) return url;
+  const normalized = url.startsWith('/uploads/') ? `/api${url}` : url;
+  return `${API}${normalized}`;
+};
 
 /* â═══════════════════════════════════════════════•
    Reusable Components
@@ -158,7 +164,7 @@ const SmartSearch = ({ firms, searchQuery, setSearchQuery, onSelectFirm }) => {
               onMouseDown={(e) => { e.preventDefault(); setSearchQuery(firm.name); setFocused(false); onSelectFirm?.(firm); }}
             >
               {firm.logo_url && (
-                <img src={`${API}${firm.logo_url}`} alt="" style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'contain', background: '#fff', padding: 2, flexShrink: 0 }} />
+                <img src={imgUrl(firm.logo_url)} alt="" style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'contain', background: '#fff', padding: 2, flexShrink: 0 }} />
               )}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--text-primary)' }}>
@@ -374,7 +380,7 @@ const CompareModal = ({ firms: initialFirms, onClose, onRemoveFirm, onTrackWebsi
                       {f.logo_url && (
                         <div className="cmp-logo-ring" style={{ background: gradients[idx % gradients.length] }}>
                           <div className="cmp-logo-inner">
-                            <img src={`${API}${f.logo_url}`} alt="" />
+                            <img src={imgUrl(f.logo_url)} alt="" />
                           </div>
                         </div>
                       )}
@@ -586,7 +592,7 @@ const FirmGridCard = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTo
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', paddingRight: '70px' }}>
       {firm.logo_url && (
         <div style={{ width: '48px', height: '48px', borderRadius: '12px', overflow: 'hidden', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-          <img src={`${API}${firm.logo_url}`} alt={firm.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px' }} />
+          <img src={imgUrl(firm.logo_url)} alt={firm.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px' }} />
         </div>
       )}
       <div>
@@ -673,7 +679,7 @@ const FirmListRow = ({ firm, onClick, isComparing, onToggleCompare, isFav, onTog
 
     {firm.logo_url && (
       <div style={{ width: '44px', height: '44px', borderRadius: '10px', overflow: 'hidden', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-        <img src={`${API}${firm.logo_url}`} alt={firm.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px' }} />
+        <img src={imgUrl(firm.logo_url)} alt={firm.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px' }} />
       </div>
     )}
 
@@ -1189,7 +1195,7 @@ const PropFirmList = () => {
                   <span style={{ fontWeight: 700 }}>{compareIds.length} firms selected</span>
                   <div className="pf-compare-avatars">
                     {compareFirms.map(f => (
-                      f.logo_url && <img key={f.id} src={`${API}${f.logo_url}`} alt="" style={{ width: 28, height: 28, borderRadius: 8, objectFit: 'contain', background: '#fff', padding: 2, border: '2px solid var(--accent-primary)' }} />
+                      f.logo_url && <img key={f.id} src={imgUrl(f.logo_url)} alt="" style={{ width: 28, height: 28, borderRadius: 8, objectFit: 'contain', background: '#fff', padding: 2, border: '2px solid var(--accent-primary)' }} />
                     ))}
                   </div>
                 </div>

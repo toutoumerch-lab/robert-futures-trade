@@ -129,7 +129,7 @@ const createPropFirm = async (req, res) => {
   console.log('[CREATE PROP FIRM] Has file:', !!req.file);
 
   const body = req.body;
-  const logo_url = req.file ? `/uploads/prop-firms/${req.file.filename}` : null;
+  const logo_url = req.file ? `/api/uploads/prop-firms/${req.file.filename}` : null;
   const parsedPlatforms = parseArray(body.platforms);
 
   const client = await pool.connect();
@@ -285,7 +285,7 @@ const updatePropFirm = async (req, res) => {
   console.log('[UPDATE PROP FIRM] id:', id, 'body keys:', Object.keys(req.body));
 
   const body = req.body;
-  const logo_url = req.file ? `/uploads/prop-firms/${req.file.filename}` : text(body.logo_url);
+  const logo_url = req.file ? `/api/uploads/prop-firms/${req.file.filename}` : text(body.logo_url);
   const parsedPlatforms = parseArray(body.platforms);
 
   const client = await pool.connect();
@@ -456,7 +456,7 @@ const patchGroupName = async (req, res) => {
 // ── POST /api/prop-firms/groups/:name/image — upload group logo ───────────────
 const upsertGroupImage = async (req, res) => {
   const { name } = req.params;
-  const image_url = req.file ? `/uploads/group-logos/${req.file.filename}` : null;
+  const image_url = req.file ? `/api/uploads/group-logos/${req.file.filename}` : null;
   if (!image_url) return res.status(400).json({ error: 'No image provided' });
   try {
     await pool.query(

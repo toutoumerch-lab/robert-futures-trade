@@ -4,6 +4,12 @@ import axios from 'axios';
 import { X, Plus, Trash2, Copy, ChevronDown, ChevronRight } from 'lucide-react';
 
 const API = import.meta.env.VITE_API_URL;
+const imgUrl = (url) => {
+  if (!url) return null;
+  if (url.startsWith('http')) return url;
+  const normalized = url.startsWith('/uploads/') ? `/api${url}` : url;
+  return `${API}${normalized}`;
+};
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const PLATFORMS = [
@@ -705,7 +711,7 @@ const PropFirmFormModal = ({ onClose, onSaved, availableGroups = [], editing = n
                 {(logo || logoUrl) ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <div style={{ width: '80px', height: '80px', background: '#fff', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
-                      <img src={logo ? URL.createObjectURL(logo) : `${API}${logoUrl}`} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} alt="Logo preview" />
+                      <img src={logo ? URL.createObjectURL(logo) : imgUrl(logoUrl)} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} alt="Logo preview" />
                     </div>
                     <div style={{ textAlign: 'left' }}>
                       <p style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 2px' }}>

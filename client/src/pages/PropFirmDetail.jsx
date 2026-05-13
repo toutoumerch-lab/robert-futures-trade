@@ -9,6 +9,12 @@ import {
 import SEO from '../components/common/SEO';
 
 const API = import.meta.env.VITE_API_URL;
+const imgUrl = (url) => {
+  if (!url) return null;
+  if (url.startsWith('http')) return url;
+  const normalized = url.startsWith('/uploads/') ? `/api${url}` : url;
+  return `${API}${normalized}`;
+};
 
 /* ── Helpers ─────────────────────────────────────────────────────────────── */
 const parseNotes = (raw) => {
@@ -494,7 +500,7 @@ export default function PropFirmDetail() {
                 background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 flexShrink: 0, boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
               }}>
-                <img src={`${API}${firm.logo_url}`} alt={firm.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 10 }} />
+                <img src={imgUrl(firm.logo_url)} alt={firm.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 10 }} />
               </div>
             ) : (
               <div style={{
