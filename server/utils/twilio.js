@@ -28,15 +28,16 @@ const getSid = () => {
 const sendPhoneOtp = async (phone) => {
   const client = getClient();
   const sid    = getSid();
+  console.log(`[Twilio] sendPhoneOtp → phone="${phone}" sid="${sid}"`);
   if (!client || !sid) return { success: false, error: 'Twilio not configured' };
   try {
     const result = await client.verify.v2
       .services(sid)
       .verifications.create({ to: phone, channel: 'sms' });
-    console.log(`[Twilio] SMS OTP sent to ${phone} — status: ${result.status}`);
+    console.log(`[Twilio] SMS OTP sent to ${phone} — status: ${result.status}, sid: ${result.sid}`);
     return { success: true, status: result.status };
   } catch (err) {
-    console.error(`[Twilio] sendPhoneOtp error for ${phone}:`, err.message);
+    console.error(`[Twilio] sendPhoneOtp FAILED for ${phone}:`, err.status, err.code, err.message);
     return { success: false, error: err.message };
   }
 };

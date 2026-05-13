@@ -124,16 +124,22 @@ const register = async (req, res) => {
       userId = ins.rows[0].id;
     }
 
-    // ── Send Twilio SMS OTP — respond immediately ─────────────────
+    // ── Send Twilio SMS OTP — wait for result before responding ──
+    console.log(`[REGISTER] Sending SMS OTP to ${phone}`);
+    const smsResult = await sendPhoneOtp(phone);
+    console.log(`[REGISTER] SMS result for ${phone}:`, JSON.stringify(smsResult));
+
+    if (!smsResult.success) {
+      console.error(`[REGISTER] SMS OTP failed for ${phone}: ${smsResult.error}`);
+      return res.status(500).json({
+        error: `Failed to send SMS to ${phone}. ${smsResult.error || 'Please check your phone number and try again.'}`,
+      });
+    }
+
     res.status(201).json({
       message: 'Please verify your phone number.',
       email,
       phone,
-    });
-
-    // ── Fire SMS OTP async (never blocks response) ────────────────
-    sendPhoneOtp(phone).then(r => {
-      if (!r.success) console.error(`[PHONE OTP FAIL] ${phone} err=${r.error}`);
     });
 
     // ── Geo lookup async — purely informational ───────────────────
