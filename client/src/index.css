@@ -5595,8 +5595,7 @@ select:focus {
   padding-left: 1.5rem;
   padding-right: 1.5rem;
   box-sizing: border-box;
-  overflow-wrap: normal;
-  word-break: normal;
+  overflow-x: hidden;
 }
 
 /* ── Back link ─────────────────────────────────────────────── */
@@ -6175,8 +6174,7 @@ select:focus {
     margin-left: auto;
     margin-right: auto;
     box-sizing: border-box;
-    overflow-wrap: normal;
-    word-break: normal;
+    overflow-x: hidden;
   }
 
   /* Article and prose — fill wrap, never overflow it */

@@ -35,6 +35,10 @@ const REACTIONS = [
    C) Transient Quill classes (ql-cursor, ql-ui) preventing merge
    D) Bare <span> with no style/class — structural noise, unwrap
    E) Empty inline elements — dead nodes, remove
+   F) <br> tags between word-character content — copy-paste artifacts that
+      split words across lines (e.g. "orde<br>rs" → "orders").
+      Preserved: <br> that is the sole child (empty paragraph), or inside
+      pre/code blocks (intentional whitespace-sensitive content).
 
    All merging skips whitespace-only text nodes between siblings so
    <em>wer</em>   <em>e</em> merges to <em>were</em>.
@@ -49,6 +53,34 @@ const _normClass = (cls) =>
 // Returns true if this is a whitespace-only text node
 const _isBlank = (n) => n.nodeType === 3 && /^\s*$/.test(n.nodeValue);
 
+// Get the last non-whitespace character from a node (text or element)
+const _lastChar = (n) => {
+  if (!n) return '';
+  const t = n.nodeType === 3 ? n.textContent : (n.textContent || '');
+  const trimmed = t.replace(/\s+$/, '');
+  return trimmed ? trimmed[trimmed.length - 1] : '';
+};
+
+// Get the first non-whitespace character from a node (text or element)
+const _firstChar = (n) => {
+  if (!n) return '';
+  const t = n.nodeType === 3 ? n.textContent : (n.textContent || '');
+  const trimmed = t.replace(/^\s+/, '');
+  return trimmed ? trimmed[0] : '';
+};
+
+const _wordChar = /\w/;
+
+// Returns true if the node is a descendant of PRE or CODE (whitespace-sensitive)
+const _inCode = (n) => {
+  let p = n.parentElement;
+  while (p) {
+    if (p.tagName === 'PRE' || p.tagName === 'CODE') return true;
+    p = p.parentElement;
+  }
+  return false;
+};
+
 function _clean(node) {
   let child = node.firstChild;
   while (child) {
@@ -59,6 +91,25 @@ function _clean(node) {
     _clean(child); // depth-first
 
     const tag = child.tagName;
+
+    // (F) Remove <br> tags that split words — copy-paste artifacts.
+    //     Strategy: remove if both adjacent siblings end/start with a word
+    //     character AND we're not inside a pre/code block.
+    //     Lone <br> (sole child of p) is intentional — preserve it.
+    if (tag === 'BR') {
+      if (!_inCode(child) && node.childNodes.length > 1) {
+        const prev = child.previousSibling;
+        const nxt  = child.nextSibling;
+        // Only remove when text runs directly into <br> with no space on either side
+        if (_wordChar.test(_lastChar(prev)) && _wordChar.test(_firstChar(nxt))) {
+          node.removeChild(child);
+          child = next;
+          continue;
+        }
+      }
+      child = next;
+      continue;
+    }
 
     // (E) Remove empty inline elements
     if (INLINE_TAGS.has(tag) && !child.hasChildNodes()) {
