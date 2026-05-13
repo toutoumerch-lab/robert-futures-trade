@@ -53,22 +53,6 @@ const _normClass = (cls) =>
 // Returns true if this is a whitespace-only text node
 const _isBlank = (n) => n.nodeType === 3 && /^\s*$/.test(n.nodeValue);
 
-// Get the last non-whitespace character from a node (text or element)
-const _lastChar = (n) => {
-  if (!n) return '';
-  const t = n.nodeType === 3 ? n.textContent : (n.textContent || '');
-  const trimmed = t.replace(/\s+$/, '');
-  return trimmed ? trimmed[trimmed.length - 1] : '';
-};
-
-// Get the first non-whitespace character from a node (text or element)
-const _firstChar = (n) => {
-  if (!n) return '';
-  const t = n.nodeType === 3 ? n.textContent : (n.textContent || '');
-  const trimmed = t.replace(/^\s+/, '');
-  return trimmed ? trimmed[0] : '';
-};
-
 const _wordChar = /\w/;
 
 // Returns true if the node is a descendant of PRE or CODE (whitespace-sensitive)
@@ -79,6 +63,39 @@ const _inCode = (n) => {
     p = p.parentElement;
   }
   return false;
+};
+
+// Get the raw last character of a node's text (including whitespace)
+const _rawLastChar = (n) => {
+  if (!n) return '';
+  const t = n.nodeType === 3 ? n.textContent : (n.nodeType === 1 ? n.textContent : '');
+  return t.length ? t[t.length - 1] : '';
+};
+
+// Get the raw first character of a node's text (including whitespace)
+const _rawFirstChar = (n) => {
+  if (!n) return '';
+  const t = n.nodeType === 3 ? n.textContent : (n.nodeType === 1 ? n.textContent : '');
+  return t.length ? t[0] : '';
+};
+
+// Walk up the inline-element chain to find the nearest prev/next sibling outside
+// the current inline ancestor (stops at block elements).
+const _prevAnchorSibling = (node) => {
+  let anc = node;
+  while (anc && INLINE_TAGS.has(anc.tagName)) {
+    if (anc.previousSibling) return anc.previousSibling;
+    anc = anc.parentElement;
+  }
+  return null;
+};
+const _nextAnchorSibling = (node) => {
+  let anc = node;
+  while (anc && INLINE_TAGS.has(anc.tagName)) {
+    if (anc.nextSibling) return anc.nextSibling;
+    anc = anc.parentElement;
+  }
+  return null;
 };
 
 function _clean(node) {
@@ -93,15 +110,34 @@ function _clean(node) {
     const tag = child.tagName;
 
     // (F) Remove <br> tags that split words — copy-paste artifacts.
-    //     Strategy: remove if both adjacent siblings end/start with a word
-    //     character AND we're not inside a pre/code block.
-    //     Lone <br> (sole child of p) is intentional — preserve it.
+    //
+    //     Handles ALL cases:
+    //       1. Direct text siblings: "orde"<br>"rs"
+    //       2. <br> at end of inline: <em>"H"<br></em>"owever"
+    //       3. <br> at start of inline: "H"<em><br>"owever"</em>
+    //       4. Deeply nested: <strong><em>"H"<br></em></strong>"owever"
+    //
+    //     Rule: remove <br> when the raw character immediately before it AND
+    //     the raw character immediately after it are BOTH word characters with
+    //     NO whitespace on either side. This reliably targets mid-word breaks
+    //     without affecting intentional Shift+Enter line breaks (which have
+    //     complete words/sentences on both sides with natural spacing).
+    //
+    //     Preserved: sole <br> child of a block (empty paragraph), <br> inside
+    //     pre/code blocks.
     if (tag === 'BR') {
       if (!_inCode(child) && node.childNodes.length > 1) {
-        const prev = child.previousSibling;
-        const nxt  = child.nextSibling;
-        // Only remove when text runs directly into <br> with no space on either side
-        if (_wordChar.test(_lastChar(prev)) && _wordChar.test(_firstChar(nxt))) {
+        // Find prev/next content, looking outside inline element boundaries if needed
+        const prevSib = child.previousSibling ?? _prevAnchorSibling(node);
+        const nxtSib  = child.nextSibling  ?? _nextAnchorSibling(node);
+
+        const pLast  = _rawLastChar(prevSib);
+        const nFirst = _rawFirstChar(nxtSib);
+
+        // Remove only when both adjacent chars are word characters with no whitespace
+        if (pLast && nFirst &&
+            !/\s/.test(pLast)  && _wordChar.test(pLast) &&
+            !/\s/.test(nFirst) && _wordChar.test(nFirst)) {
           node.removeChild(child);
           child = next;
           continue;
