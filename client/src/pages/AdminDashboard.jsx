@@ -255,17 +255,24 @@ const PostsTab = ({ adminUser }) => {
   const applyLink = useCallback(() => {
     const quill = quillRef.current?.getEditor();
     const range = linkSelRef.current;
-    if (!quill || !range) { setShowLink(false); return; }
+    if (!quill) { setShowLink(false); return; }
     let url = linkValue.trim();
     if (url && !/^https?:\/\//i.test(url)) url = `https://${url}`;
-    if (url) {
-      quill.formatText(range.index, range.length, 'link', url);
-    } else {
-      quill.formatText(range.index, range.length, 'link', false);
+    // Restore selection (lost when user clicked into link input field)
+    if (range && range.length > 0) {
+      quill.setSelection(range.index, range.length);
+      quill.format('link', url || false);
+    } else if (range) {
+      // No text selected — insert the URL as link text at cursor
+      quill.setSelection(range.index, 0);
+      if (url) {
+        quill.insertText(range.index, url, 'link', url);
+        quill.setSelection(range.index + url.length, 0);
+      }
     }
     setShowLink(false);
     setLinkValue('');
-    quill.focus();
+    setTimeout(() => quill.focus(), 0);
   }, [linkValue]);
 
   const removeLink = useCallback(() => {
