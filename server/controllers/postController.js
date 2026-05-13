@@ -264,9 +264,16 @@ const toggleReaction = async (req, res) => {
   }
 };
 
+// ─── Admin: POST /api/posts/upload-inline-image ────────────────────────────
+const uploadInlineImage = (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No image file provided' });
+  res.json({ url: `/uploads/blog/${req.file.filename}` });
+};
+
 module.exports = {
   getPosts, getPost,
   createPost, updatePost, togglePublish, deletePost,
   addComment, deleteComment,
   toggleReaction,
+  uploadInlineImage,
 };

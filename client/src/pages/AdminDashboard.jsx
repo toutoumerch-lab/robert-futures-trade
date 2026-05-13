@@ -14,21 +14,19 @@ Font.whitelist = [
 ];
 Quill.register(Font, true);
 
-const QUILL_MODULES = {
-  toolbar: [
-    [{ header: [1, 2, 3, 4, 5, 6, false] }],
-    [{ font: Font.whitelist }],
-    [{ size: ['small', false, 'large', 'huge'] }],
-    ['bold', 'italic', 'underline', 'strike'],
-    [{ color: ['', '#000000', '#ffffff', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ff0066', '#444444', '#666666', '#888888', '#aaaaaa', '#cccccc', '#eeeeee'] }, { background: ['', '#000000', '#ffffff', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ff0066', '#444444', '#666666', '#888888', '#aaaaaa', '#cccccc', '#eeeeee'] }],
-    [{ list: 'ordered' }, { list: 'bullet' }],
-    [{ indent: '-1' }, { indent: '+1' }],
-    [{ align: [] }],
-    ['blockquote', 'code-block'],
-    ['link', 'image'],
-    ['clean'],
-  ],
-};
+const TOOLBAR_CONFIG = [
+  [{ header: [1, 2, 3, 4, 5, 6, false] }],
+  [{ font: Font.whitelist }],
+  [{ size: ['small', false, 'large', 'huge'] }],
+  ['bold', 'italic', 'underline', 'strike'],
+  [{ color: ['', '#000000', '#ffffff', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ff0066', '#444444', '#666666', '#888888', '#aaaaaa', '#cccccc', '#eeeeee'] }, { background: ['', '#000000', '#ffffff', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ff0066', '#444444', '#666666', '#888888', '#aaaaaa', '#cccccc', '#eeeeee'] }],
+  [{ list: 'ordered' }, { list: 'bullet' }],
+  [{ indent: '-1' }, { indent: '+1' }],
+  [{ align: [] }],
+  ['blockquote', 'code-block'],
+  ['link', 'image'],
+  ['clean'],
+];
 import * as XLSX from 'xlsx';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -198,6 +196,48 @@ const PostsTab = ({ adminUser }) => {
   const [commentsModal, setCommModal] = useState(null);
   const [comments, setComments]       = useState([]);
   const [comLoading, setComLoad]      = useState(false);
+  const [saving, setSaving]           = useState(false);
+
+  const quillRef = useRef(null);
+
+  // Upload image to server and insert URL — prevents base64 bloat in content
+  const imageHandler = useCallback(() => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+    input.onchange = async () => {
+      const file = input.files[0];
+      if (!file) return;
+      const fd = new FormData();
+      fd.append('image', file);
+      const token = localStorage.getItem('token');
+      try {
+        const res = await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/posts/upload-inline-image`,
+          fd,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        const url = `${import.meta.env.VITE_API_URL}${res.data.url}`;
+        const quill = quillRef.current?.getEditor();
+        if (quill) {
+          const range = quill.getSelection(true);
+          quill.insertEmbed(range ? range.index : 0, 'image', url);
+          quill.setSelection((range ? range.index : 0) + 1);
+        }
+      } catch (err) {
+        console.error('[Quill] inline image upload failed:', err);
+        alert('Image upload failed. Please try again.');
+      }
+    };
+  }, []);
+
+  const quillModules = useMemo(() => ({
+    toolbar: {
+      container: TOOLBAR_CONFIG,
+      handlers: { image: imageHandler },
+    },
+  }), [imageHandler]);
 
   // ── Category state ──
   const [categories, setCategories]         = useState([]);
@@ -327,6 +367,8 @@ const PostsTab = ({ adminUser }) => {
   const handleSave = async (e) => {
     e.preventDefault();
     if (!form.title.trim()) { alert('Title is required'); return; }
+    if (saving) return;
+    setSaving(true);
     const token = localStorage.getItem('token');
     const fd = new FormData();
     fd.append('title',        form.title);
@@ -356,6 +398,8 @@ const PostsTab = ({ adminUser }) => {
                 || err.message
                 || 'Error saving post';
       alert(`Save failed: ${msg}`);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -479,11 +523,12 @@ const PostsTab = ({ adminUser }) => {
                     <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1.5px solid var(--border)', background: '#fff' }}>
                       <ReactQuill
                         key={editing ? `edit-${editing.id}` : 'new-post'}
+                        ref={quillRef}
                         theme="snow"
                         value={form.content}
                         onChange={val => setForm(f => ({ ...f, content: val }))}
                         placeholder="Write your full article here…"
-                        modules={QUILL_MODULES}
+                        modules={quillModules}
                         style={{ minHeight: '320px' }}
                       />
                     </div>
@@ -558,9 +603,9 @@ const PostsTab = ({ adminUser }) => {
                 </div>
               )}
               <div className="modal-footer" style={{ marginTop: '2rem' }}>
-                <Button type="button" variant="outline" onClick={() => setShowModal(false)}>Cancel</Button>
-                <Button type="submit" style={{ background: 'linear-gradient(135deg, var(--accent-secondary), var(--accent-primary))', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}>
-                  {editing ? 'Save Changes' : (form.is_published ? 'Publish Post' : 'Save as Draft')}
+                <Button type="button" variant="outline" onClick={() => setShowModal(false)} disabled={saving}>Cancel</Button>
+                <Button type="submit" disabled={saving} style={{ background: 'linear-gradient(135deg, var(--accent-secondary), var(--accent-primary))', boxShadow: '0 4px 12px rgba(37,99,235,0.3)', opacity: saving ? 0.7 : 1 }}>
+                  {saving ? 'Saving…' : editing ? 'Save Changes' : (form.is_published ? 'Publish Post' : 'Save as Draft')}
                 </Button>
               </div>
             </form>

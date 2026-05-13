@@ -8,6 +8,7 @@ const {
   createPost, updatePost, togglePublish, deletePost,
   addComment, deleteComment,
   toggleReaction,
+  uploadInlineImage,
 } = require('../controllers/postController');
 
 // Public (uses optionalAuth so admins can see drafts via token)
@@ -15,6 +16,7 @@ router.get('/',    optionalAuth, getPosts);
 router.get('/:id', optionalAuth, getPost);
 
 // Admin — manage posts
+router.post('/upload-inline-image', authenticateToken, isAdmin, uploadBlog.single('image'), handleUploadError, uploadInlineImage);
 router.post('/',   authenticateToken, isAdmin, uploadBlog.single('image'), handleUploadError, createPost);
 router.put('/:id', authenticateToken, isAdmin, uploadBlog.single('image'), handleUploadError, updatePost);
 router.patch('/:id/publish',      authenticateToken, isAdmin, togglePublish);
