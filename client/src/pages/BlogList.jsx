@@ -13,6 +13,17 @@ import {
 
 const POSTS_PER_PAGE = 6;
 
+// Normalize image URLs to work in both dev (VITE_API_URL=http://localhost:5001)
+// and production (VITE_API_URL is empty → relative /api/uploads/ proxied by nginx).
+// Also rewrites legacy /uploads/ paths to /api/uploads/.
+const _API = import.meta.env.VITE_API_URL || '';
+const imgUrl = (url) => {
+  if (!url) return null;
+  if (url.startsWith('http')) return url;
+  const p = url.startsWith('/uploads/') ? `/api${url}` : url;
+  return `${_API}${p}`;
+};
+
 /* ─── Animation variants ──────────────────────────────────── */
 const easing = [0.16, 1, 0.3, 1];
 const fadeUp  = {
@@ -170,7 +181,7 @@ const SmartSearch = ({ posts, onSearch, searchQuery }) => {
                 <div className="blg-drop-header">{suggestions.length} result{suggestions.length !== 1 ? 's' : ''} for<span className="blg-drop-query"> "{input}"</span></div>
                 {suggestions.map((post, i) => (
                   <Link key={post.id} to={`/blog/${post.id}`} className={`blg-drop-item${cursor === i ? ' is-active' : ''}`} role="option" aria-selected={cursor === i} onClick={() => setOpen(false)} onMouseEnter={() => setCursor(i)}>
-                    <div className="blg-drop-thumb">{post.image_url ? <img src={post.image_url.startsWith('http') ? post.image_url : `${import.meta.env.VITE_API_URL}${post.image_url}`} alt="" /> : <BookOpen size={14} />}</div>
+                    <div className="blg-drop-thumb">{post.image_url ? <img src={imgUrl(post.image_url)} alt="" /> : <BookOpen size={14} />}</div>
                     <div className="blg-drop-text">
                       <span className="blg-drop-title"><Highlight text={post.title} query={input} /></span>
                       <div className="blg-drop-meta">
@@ -214,7 +225,7 @@ const ListCard = ({ post, isFeatured = false }) => (
     <Link to={`/blog/${post.id}`} className="blg-card-link">
       <div className="blg-card-thumb">
         {post.image_url
-          ? <img src={post.image_url.startsWith('http') ? post.image_url : `${import.meta.env.VITE_API_URL}${post.image_url}`} alt={post.title} loading="lazy" className="blg-card-thumb-img" />
+          ? <img src={imgUrl(post.image_url)} alt={post.title} loading="lazy" className="blg-card-thumb-img" />
           : <div className="blg-card-thumb-empty"><BookOpen size={24} /></div>
         }
         {isFeatured && <span className="blg-featured-label">Featured</span>}
@@ -249,7 +260,7 @@ const GridCard = ({ post, isFeatured = false }) => (
     <Link to={`/blog/${post.id}`} className="blg-card-link" style={{ flexDirection: 'column' }}>
       <div className="blg-card-thumb" style={{ width: '100%', height: '200px', minWidth: 'unset' }}>
         {post.image_url
-          ? <img src={post.image_url.startsWith('http') ? post.image_url : `${import.meta.env.VITE_API_URL}${post.image_url}`} alt={post.title} loading="lazy" className="blg-card-thumb-img" />
+          ? <img src={imgUrl(post.image_url)} alt={post.title} loading="lazy" className="blg-card-thumb-img" />
           : <div className="blg-card-thumb-empty"><BookOpen size={28} /></div>
         }
         {isFeatured && <span className="blg-featured-label">Featured</span>}
