@@ -198,6 +198,9 @@ const PostsTab = ({ adminUser }) => {
   const [comLoading, setComLoad]      = useState(false);
   const [saving, setSaving]           = useState(false);
   const [imgBroken, setImgBroken]     = useState(false);
+  const [showLinkInput, setShowLink]  = useState(false);
+  const [linkValue, setLinkValue]     = useState('');
+  const linkSelRef                    = useRef(null);
 
   const quillRef = useRef(null);
 
@@ -233,12 +236,52 @@ const PostsTab = ({ adminUser }) => {
     };
   }, []);
 
+  // Custom link handler — replaces window.prompt() which browsers block inside modals
+  const linkHandler = useCallback(() => {
+    const quill = quillRef.current?.getEditor();
+    if (!quill) return;
+    const range = quill.getSelection(true);
+    linkSelRef.current = range;
+    // Pre-fill with existing link URL if cursor is on one
+    let existing = '';
+    if (range) {
+      const formats = quill.getFormat(range.index, range.length);
+      existing = formats.link || '';
+    }
+    setLinkValue(existing);
+    setShowLink(true);
+  }, []);
+
+  const applyLink = useCallback(() => {
+    const quill = quillRef.current?.getEditor();
+    const range = linkSelRef.current;
+    if (!quill || !range) { setShowLink(false); return; }
+    let url = linkValue.trim();
+    if (url && !/^https?:\/\//i.test(url)) url = `https://${url}`;
+    if (url) {
+      quill.formatText(range.index, range.length, 'link', url);
+    } else {
+      quill.formatText(range.index, range.length, 'link', false);
+    }
+    setShowLink(false);
+    setLinkValue('');
+    quill.focus();
+  }, [linkValue]);
+
+  const removeLink = useCallback(() => {
+    const quill = quillRef.current?.getEditor();
+    const range = linkSelRef.current;
+    if (quill && range) quill.formatText(range.index, range.length, 'link', false);
+    setShowLink(false);
+    setLinkValue('');
+  }, []);
+
   const quillModules = useMemo(() => ({
     toolbar: {
       container: TOOLBAR_CONFIG,
-      handlers: { image: imageHandler },
+      handlers: { image: imageHandler, link: linkHandler },
     },
-  }), [imageHandler]);
+  }), [imageHandler, linkHandler]);
 
   // ── Category state ──
   const [categories, setCategories]         = useState([]);
@@ -336,6 +379,8 @@ const PostsTab = ({ adminUser }) => {
     setForm({ title: '', content: '', excerpt: '', category: 'General', read_time: '', is_published: false, image: null, remove_image: false });
     setPreview(null);
     setImgBroken(false);
+    setShowLink(false);
+    setLinkValue('');
     setActiveTab('content');
     setShowModal(true);
   };
@@ -536,7 +581,7 @@ const PostsTab = ({ adminUser }) => {
                   </div>
                   <div className="form-group">
                     <label className="form-label">Post Content</label>
-                    <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1.5px solid var(--border)', background: '#fff' }}>
+                    <div style={{ borderRadius: '12px', border: '1.5px solid var(--border)', background: '#fff', overflow: 'hidden' }}>
                       <ReactQuill
                         key={editing ? `edit-${editing.id}` : 'new-post'}
                         ref={quillRef}
@@ -547,6 +592,44 @@ const PostsTab = ({ adminUser }) => {
                         modules={quillModules}
                         style={{ minHeight: '320px' }}
                       />
+                      {/* ── Inline link input bar ── */}
+                      {showLinkInput && (
+                        <div style={{
+                          display: 'flex', alignItems: 'center', gap: '8px',
+                          padding: '10px 12px', background: 'var(--bg-primary)',
+                          borderTop: '1px solid var(--border)',
+                        }}>
+                          <Link2 size={14} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
+                          <input
+                            autoFocus
+                            type="url"
+                            placeholder="https://example.com"
+                            value={linkValue}
+                            onChange={e => setLinkValue(e.target.value)}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter') { e.preventDefault(); applyLink(); }
+                              if (e.key === 'Escape') { setShowLink(false); setLinkValue(''); }
+                            }}
+                            style={{
+                              flex: 1, background: 'var(--bg-secondary)',
+                              border: '1px solid var(--border)', borderRadius: '8px',
+                              padding: '6px 10px', color: 'var(--text-primary)',
+                              fontSize: '0.875rem', outline: 'none',
+                            }}
+                          />
+                          <button type="button" onClick={applyLink} style={{ padding: '6px 14px', background: 'var(--accent-primary)', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem', flexShrink: 0 }}>
+                            Apply
+                          </button>
+                          {linkValue && (
+                            <button type="button" onClick={removeLink} style={{ padding: '6px 10px', background: 'rgba(239,68,68,0.08)', color: '#ef4444', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem', flexShrink: 0 }}>
+                              Remove
+                            </button>
+                          )}
+                          <button type="button" onClick={() => { setShowLink(false); setLinkValue(''); }} style={{ padding: '4px', background: 'none', color: 'var(--text-secondary)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                            <X size={14} />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
