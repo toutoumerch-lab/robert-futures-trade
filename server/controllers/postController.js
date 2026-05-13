@@ -135,11 +135,15 @@ const updatePost = async (req, res) => {
   const finalReadTime = read_time?.trim() || calcReadTime(content);
 
   try {
-    // Keep old image if no new file uploaded
     let image_url = null;
     if (req.file) {
+      // New file uploaded — use it
       image_url = `/uploads/blog/${req.file.filename}`;
+    } else if (req.body.remove_image === 'true') {
+      // Admin explicitly removed the cover image — set to null
+      image_url = null;
     } else {
+      // No change — keep existing image
       const existing = await pool.query('SELECT image_url FROM posts WHERE id = $1', [id]);
       image_url = existing.rows[0]?.image_url || null;
     }

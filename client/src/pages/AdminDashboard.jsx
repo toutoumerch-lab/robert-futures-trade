@@ -253,7 +253,7 @@ const PostsTab = ({ adminUser }) => {
   const [form, setForm] = useState({
     title: '', content: '', excerpt: '',
     category: 'General', read_time: '',
-    is_published: false, image: null,
+    is_published: false, image: null, remove_image: false,
   });
 
   const fetchPosts = useCallback(() => {
@@ -333,7 +333,7 @@ const PostsTab = ({ adminUser }) => {
 
   const openCreate = () => {
     setEditing(null);
-    setForm({ title: '', content: '', excerpt: '', category: 'General', read_time: '', is_published: false, image: null });
+    setForm({ title: '', content: '', excerpt: '', category: 'General', read_time: '', is_published: false, image: null, remove_image: false });
     setPreview(null);
     setImgBroken(false);
     setActiveTab('content');
@@ -352,7 +352,7 @@ const PostsTab = ({ adminUser }) => {
       title: p.title || '', content,
       excerpt: p.excerpt || '', category: p.category || 'General',
       read_time: p.read_time || '', is_published: p.is_published || false,
-      image: null,
+      image: null, remove_image: false,
     });
     setPreview(p.image_url ? `${import.meta.env.VITE_API_URL}${p.image_url}` : null);
     setImgBroken(false);
@@ -363,7 +363,16 @@ const PostsTab = ({ adminUser }) => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    setForm(f => ({ ...f, image: file }));
+    const ALLOWED = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
+    if (!ALLOWED.includes(file.type)) {
+      alert('Unsupported file type. Please upload JPG, PNG, WebP, GIF, or SVG.');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File too large. Maximum size is 10 MB.');
+      return;
+    }
+    setForm(f => ({ ...f, image: file, remove_image: false }));
     setPreview(URL.createObjectURL(file));
     setImgBroken(false);
   };
@@ -382,6 +391,7 @@ const PostsTab = ({ adminUser }) => {
     fd.append('read_time',    form.read_time);
     fd.append('is_published', form.is_published);
     if (form.image) fd.append('image', form.image);
+    if (form.remove_image) fd.append('remove_image', 'true');
     try {
       const config = {
         headers: {
@@ -568,7 +578,7 @@ const PostsTab = ({ adminUser }) => {
                       {/* Remove button */}
                       <button
                         type="button"
-                        onClick={() => { setPreview(null); setImgBroken(false); setForm(f => ({ ...f, image: null })); }}
+                        onClick={() => { setPreview(null); setImgBroken(false); setForm(f => ({ ...f, image: null, remove_image: true })); }}
                         style={{
                           position: 'absolute', top: '10px', right: '10px',
                           background: 'rgba(239,68,68,0.85)', border: 'none',
