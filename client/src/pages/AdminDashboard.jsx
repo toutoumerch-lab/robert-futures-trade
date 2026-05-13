@@ -197,6 +197,7 @@ const PostsTab = ({ adminUser }) => {
   const [comments, setComments]       = useState([]);
   const [comLoading, setComLoad]      = useState(false);
   const [saving, setSaving]           = useState(false);
+  const [imgBroken, setImgBroken]     = useState(false);
 
   const quillRef = useRef(null);
 
@@ -334,6 +335,7 @@ const PostsTab = ({ adminUser }) => {
     setEditing(null);
     setForm({ title: '', content: '', excerpt: '', category: 'General', read_time: '', is_published: false, image: null });
     setPreview(null);
+    setImgBroken(false);
     setActiveTab('content');
     setShowModal(true);
   };
@@ -353,6 +355,7 @@ const PostsTab = ({ adminUser }) => {
       image: null,
     });
     setPreview(p.image_url ? `${import.meta.env.VITE_API_URL}${p.image_url}` : null);
+    setImgBroken(false);
     setActiveTab('content');
     setShowModal(true);
   };
@@ -362,6 +365,7 @@ const PostsTab = ({ adminUser }) => {
     if (!file) return;
     setForm(f => ({ ...f, image: file }));
     setPreview(URL.createObjectURL(file));
+    setImgBroken(false);
   };
 
   const handleSave = async (e) => {
@@ -537,17 +541,88 @@ const PostsTab = ({ adminUser }) => {
               )}
               {activeTab === 'media' && (
                 <div style={{ animation: 'fadeIn 0.25s ease' }}>
-                  <div style={{ border: '2px dashed var(--border)', borderRadius: '20px', padding: '2.5rem', textAlign: 'center', background: 'var(--bg-secondary)' }}>
-                    <Upload size={40} style={{ color: 'var(--accent-primary)', marginBottom: '1rem' }} />
-                    <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--text-primary)', fontWeight: 800 }}>Cover Image</h4>
-                    <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>JPG, PNG, WebP, GIF or SVG — max 10 MB</p>
-                    {imagePreview && (
-                      <div style={{ marginBottom: '1.5rem' }}>
-                        <img src={imagePreview} alt="preview" style={{ width: '100%', maxWidth: '420px', aspectRatio: '16/9', objectFit: 'cover', borderRadius: '16px', border: '2px solid var(--accent-primary)', boxShadow: '0 10px 30px rgba(37,99,235,0.2)' }} />
+                  {/* ── Preview area ── */}
+                  {imagePreview && !imgBroken ? (
+                    <div style={{ position: 'relative', marginBottom: '1.25rem' }}>
+                      <img
+                        src={imagePreview}
+                        alt="Cover preview"
+                        onError={() => setImgBroken(true)}
+                        style={{
+                          width: '100%', aspectRatio: '16/9', objectFit: 'cover',
+                          borderRadius: '16px', border: '2px solid var(--accent-primary)',
+                          boxShadow: '0 10px 30px rgba(37,99,235,0.2)', display: 'block',
+                        }}
+                      />
+                      {/* File info badge */}
+                      {form.image && (
+                        <div style={{
+                          position: 'absolute', bottom: '12px', left: '12px',
+                          background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)',
+                          borderRadius: '8px', padding: '4px 10px',
+                          fontSize: '0.75rem', color: '#fff', fontWeight: 600,
+                        }}>
+                          {form.image.name} · {(form.image.size / 1024 / 1024).toFixed(2)} MB
+                        </div>
+                      )}
+                      {/* Remove button */}
+                      <button
+                        type="button"
+                        onClick={() => { setPreview(null); setImgBroken(false); setForm(f => ({ ...f, image: null })); }}
+                        style={{
+                          position: 'absolute', top: '10px', right: '10px',
+                          background: 'rgba(239,68,68,0.85)', border: 'none',
+                          borderRadius: '8px', color: '#fff', padding: '5px 10px',
+                          cursor: 'pointer', fontSize: '0.78rem', fontWeight: 700,
+                          display: 'flex', alignItems: 'center', gap: '4px',
+                        }}
+                      >
+                        <X size={12} /> Remove
+                      </button>
+                    </div>
+                  ) : (
+                    /* ── Drop zone (no image or broken image) ── */
+                    <label style={{
+                      display: 'block', border: '2px dashed var(--border)',
+                      borderRadius: '20px', padding: '3rem 2rem', textAlign: 'center',
+                      background: 'var(--bg-secondary)', cursor: 'pointer',
+                      transition: 'border-color 0.2s',
+                      marginBottom: '1.25rem',
+                    }}>
+                      <Upload size={40} style={{ color: 'var(--accent-primary)', marginBottom: '0.75rem' }} />
+                      <div style={{ fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
+                        Click to upload cover image
                       </div>
-                    )}
-                    <input type="file" accept="image/*" onChange={handleImageChange} style={{ width: '100%', maxWidth: '360px', padding: '0.75rem', background: 'var(--bg-primary)', borderRadius: '12px', color: 'var(--text-primary)', border: '1px solid var(--border)' }} />
-                  </div>
+                      <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                        JPG, PNG, WebP, GIF or SVG — max 10 MB
+                      </div>
+                      {imgBroken && (
+                        <div style={{ marginTop: '0.75rem', fontSize: '0.8rem', color: '#ef4444' }}>
+                          Previous image could not be loaded — upload a new one
+                        </div>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        style={{ display: 'none' }}
+                      />
+                    </label>
+                  )}
+
+                  {/* ── Change image button (when preview is showing) ── */}
+                  {imagePreview && !imgBroken && (
+                    <label style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      gap: '8px', padding: '0.65rem 1.5rem',
+                      border: '1px solid var(--border)', borderRadius: '10px',
+                      cursor: 'pointer', color: 'var(--text-secondary)',
+                      fontSize: '0.875rem', fontWeight: 600, width: 'fit-content', margin: '0 auto',
+                    }}>
+                      <Upload size={15} /> Change image
+                      <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
+                    </label>
+                  )}
                 </div>
               )}
               {activeTab === 'settings' && (
