@@ -34,8 +34,12 @@ app.use('/webhook',             require('./routes/tawkRoutes'));
 app.use('/api/contact',         require('./routes/contactRoutes'));
 
 // Serve static files
+// /api/uploads/ — proxied by nginx (works in production without extra nginx config)
+// /uploads/     — kept for backward compatibility with old DB URLs
 const path = require('path');
-app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+const uploadsDir = path.join(__dirname, 'public/uploads');
+app.use('/api/uploads', express.static(uploadsDir));
+app.use('/uploads',     express.static(uploadsDir));
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });

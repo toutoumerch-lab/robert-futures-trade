@@ -354,7 +354,9 @@ const PostsTab = ({ adminUser }) => {
       read_time: p.read_time || '', is_published: p.is_published || false,
       image: null, remove_image: false,
     });
-    setPreview(p.image_url ? `${import.meta.env.VITE_API_URL}${p.image_url}` : null);
+    const _api = import.meta.env.VITE_API_URL || '';
+    const _normalize = (u) => u && (u.startsWith('http') ? u : `${_api}${u.startsWith('/uploads/') ? `/api${u}` : u}`);
+    setPreview(p.image_url ? _normalize(p.image_url) : null);
     setImgBroken(false);
     setActiveTab('content');
     setShowModal(true);
@@ -470,7 +472,7 @@ const PostsTab = ({ adminUser }) => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
           {posts.map(p => (
             <div key={p.id} style={{ background: 'var(--bg-secondary)', borderRadius: '20px', overflow: 'hidden', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', transition: 'all 0.3s ease', boxShadow: '0 8px 24px -8px rgba(0,0,0,0.15)' }}>
-              <div style={{ height: '160px', background: p.image_url ? `url(${import.meta.env.VITE_API_URL}${p.image_url}) center/cover` : 'linear-gradient(135deg, var(--bg-tertiary), rgba(37,99,235,0.08))', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ height: '160px', background: p.image_url ? `url(${(import.meta.env.VITE_API_URL || '') + (p.image_url.startsWith('/uploads/') ? `/api${p.image_url}` : p.image_url)}) center/cover` : 'linear-gradient(135deg, var(--bg-tertiary), rgba(37,99,235,0.08))', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {!p.image_url && <FileText size={36} style={{ color: 'var(--accent-primary)', opacity: 0.4 }} />}
                 <div style={{ position: 'absolute', top: '12px', left: '12px', display: 'flex', gap: '8px' }}>
                   <span style={{ fontSize: '0.72rem', fontWeight: 800, padding: '4px 10px', borderRadius: '99px', background: p.is_published ? 'rgba(16,185,129,0.9)' : 'rgba(0,0,0,0.6)', color: '#fff', backdropFilter: 'blur(4px)' }}>

@@ -8,6 +8,17 @@ import {
   Clock, Calendar, Trash2, BookOpen, Send, User
 } from 'lucide-react';
 
+// Normalize image URLs to work in both dev and production.
+// Production: VITE_API_URL is empty → relative URLs (/api/uploads/...) work via nginx proxy.
+// Old posts stored /uploads/... → rewrite to /api/uploads/... so nginx can serve them.
+const API = import.meta.env.VITE_API_URL || '';
+const imgUrl = (url) => {
+  if (!url) return null;
+  if (url.startsWith('http')) return url;
+  const normalized = url.startsWith('/uploads/') ? `/api${url}` : url;
+  return `${API}${normalized}`;
+};
+
 const REACTIONS = [
   { type: 'like',    icon: ThumbsUp,    label: 'Like',       emoji: '👍' },
   { type: 'fire',    icon: Flame,       label: 'Useful',     emoji: '🔥' },
@@ -258,7 +269,7 @@ const BlogDetail = () => {
           datePublished: post.created_at,
           author: { '@type': 'Organization', name: 'Robert Trades' },
           description: post.content ? post.content.slice(0, 155) : '',
-          image: post.image_url ? `https://roberttrades.com${post.image_url}` : undefined,
+          image: imgUrl(post.image_url) || undefined,
         }}
       />
       {/* ── Reading progress bar ─────────────────────────────────────────── */}
@@ -268,7 +279,7 @@ const BlogDetail = () => {
       {post.image_url && (
         <div className="blog-detail-cover">
           <img
-            src={post.image_url.startsWith('http') ? post.image_url : `${import.meta.env.VITE_API_URL}${post.image_url}`}
+            src={imgUrl(post.image_url)}
             alt={post.title}
             className="blog-detail-cover-img"
           />

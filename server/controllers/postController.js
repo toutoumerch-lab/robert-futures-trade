@@ -107,7 +107,7 @@ const getPost = async (req, res) => {
 // ─── Admin: POST /api/posts ──────────────────────────────────────────────────
 const createPost = async (req, res) => {
   const { title, content, category, is_published, read_time, excerpt } = req.body;
-  const image_url  = req.file ? `/uploads/blog/${req.file.filename}` : null;
+  const image_url  = req.file ? `/api/uploads/blog/${req.file.filename}` : null;
   const finalExcerpt   = excerpt?.trim() || buildExcerpt(content);
   const finalReadTime  = read_time?.trim() || calcReadTime(content);
   const published      = is_published === 'true' || is_published === true;
@@ -138,7 +138,7 @@ const updatePost = async (req, res) => {
     let image_url = null;
     if (req.file) {
       // New file uploaded — use it
-      image_url = `/uploads/blog/${req.file.filename}`;
+      image_url = `/api/uploads/blog/${req.file.filename}`;
     } else if (req.body.remove_image === 'true') {
       // Admin explicitly removed the cover image — set to null
       image_url = null;
@@ -271,7 +271,7 @@ const toggleReaction = async (req, res) => {
 // ─── Admin: POST /api/posts/upload-inline-image ────────────────────────────
 const uploadInlineImage = (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No image file provided' });
-  res.json({ url: `/uploads/blog/${req.file.filename}` });
+  res.json({ url: `/api/uploads/blog/${req.file.filename}` });
 };
 
 module.exports = {
